@@ -2,7 +2,7 @@ export class OperationalError extends Error {
 
   public statusCode: number;
   public errorCode: string;
-  private nameToErrorCode;
+  public privateMessage: any;
 
   public constructor(message: string = 'An operational error occurred') {
     super(message); // 'Error' breaks prototype chain here

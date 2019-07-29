@@ -14,4 +14,9 @@ async function getDeployments() {
     return deployments;
 }
 exports.getDeployments = getDeployments;
+async function getDeployment(deploymentId) {
+    const deployment = await event.publishExpectingResponse('deployment.get.request', deploymentId);
+    return deployment;
+}
+exports.getDeployment = getDeployment;
 //# sourceMappingURL=deployment.controller.js.map

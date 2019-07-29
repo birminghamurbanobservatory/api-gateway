@@ -18,10 +18,14 @@ const express_1 = __importDefault(require("express"));
 const root_1 = require("./root");
 const log_errors_1 = require("./log-errors");
 const handle_errors_1 = require("./handle-errors");
+const correlator_id_middleware_1 = require("./middleware/correlator-id-middleware");
+const deployment_router_1 = require("../components/deployment/deployment.router");
 exports.app = express_1.default();
 //-------------------------------------------------
 // Middleware
 //-------------------------------------------------
+// Add the correlationId middleware
+exports.app.use(correlator_id_middleware_1.correlationIdMiddleware);
 // Allow for POST requests
 exports.app.use(bodyParser.json()); // for parsing application/json
 exports.app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -43,6 +47,7 @@ exports.app.use('/', (err, req, res, next) => {
 // Routes
 //-------------------------------------------------
 exports.app.use(root_1.RootRouter);
+exports.app.use(deployment_router_1.DeploymentRouter);
 // Error handling must go last
 exports.app.use(log_errors_1.logRouteErrors);
 exports.app.use(handle_errors_1.handleRouteErrors);

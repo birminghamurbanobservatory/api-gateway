@@ -10,7 +10,10 @@ import * as joi from '@hapi/joi';
 const schema = joi.object({
   EVENTS_URL: joi.string()
     .uri()
-    .required()  
+    .required(),
+  EVENTS_LOG_LEVEL: joi.string()
+    .valid(['error', 'warn', 'info', 'debug'])
+    .default('info')
 }).unknown() // allows for extra fields (i.e that we don't check for) in the object being checked.
   .required();
 
@@ -32,5 +35,6 @@ if (err) {
 //-------------------------------------------------
 // Pull out the properties we need to create this particular config object. 
 export const events = {
-  url: envVars.EVENTS_URL
+  url: envVars.EVENTS_URL,
+  logLevel: envVars.EVENTS_LOG_LEVEL
 };

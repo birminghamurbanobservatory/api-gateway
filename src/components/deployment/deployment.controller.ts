@@ -7,3 +7,8 @@ export async function getDeployments(): Promise<any> {
   return deployments;
 
 }
+
+export async function getDeployment(deploymentId): Promise<any> {
+  const deployment = await event.publishExpectingResponse('deployment.get.request', {id: deploymentId});
+  return deployment;
+}
