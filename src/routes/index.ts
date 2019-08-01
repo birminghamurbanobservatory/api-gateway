@@ -13,6 +13,7 @@ import {InvalidBody} from '../errors/InvalidBody';
 import * as logger from 'node-logger';
 import {config} from '../config';
 import morgan = require('morgan');
+import {lookForUserCredentials} from './middleware/authenticator';
 
 
 export const app = express();
@@ -59,8 +60,9 @@ app.use('/', (err, req, res, next) => {
 //-------------------------------------------------
 // Routes
 //-------------------------------------------------
+app.use(lookForUserCredentials);
 app.use(RootRouter);
 app.use(DeploymentRouter);
 // Error handling must go last
 app.use(logRouteErrors);
-app.use(handleRouteErrors)
+app.use(handleRouteErrors);
