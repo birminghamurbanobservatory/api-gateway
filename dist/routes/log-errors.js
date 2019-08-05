@@ -9,11 +9,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const logger = __importStar(require("node-logger"));
 const errors_1 = require("../errors");
+const event_stream_1 = require("event-stream");
 function logRouteErrors(err, req, res, next) {
     //------------------------
     // Operational errors
     //------------------------
-    if (err instanceof errors_1.OperationalError) {
+    if (err instanceof errors_1.OperationalError || err instanceof event_stream_1.EventStreamOperationalError) {
         if (err instanceof errors_1.DatabaseError) {
             // More serious
             logger.error(err);

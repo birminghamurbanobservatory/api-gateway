@@ -11,13 +11,19 @@ export async function getDeployments(): Promise<any> {
 }
 
 export async function getDeployment(deploymentId: string): Promise<any> {
-  const deployment = await event.publishExpectingResponse('deployment.get.request', {id: deploymentId});
+  const deployment = await event.publishExpectingResponse('deployment.get.request', {
+    where: {
+      id: deploymentId
+    }
+  });
   return deployment;
 }
 
 
 export async function createDeployment(deployment): Promise<any> {
-  const createdDeployment = await event.publishExpectingResponse('deployment.create.request',  deployment);
+  const createdDeployment = await event.publishExpectingResponse('deployment.create.request',  {
+    new: deployment
+  });
   return createdDeployment;
 }
 
@@ -27,10 +33,12 @@ export async function checkRightsToDeployment(deploymentId: string, userId?: str
   let right;
 
   const message: any = {
-    deployment: deploymentId
+    where: {
+      deployment: deploymentId
+    }
   };
   if (check.nonEmptyString(userId)) {
-    message.userId = userId;
+    message.where.user = userId;
   }
 
   try {

@@ -15,10 +15,11 @@ const logger = __importStar(require("node-logger"));
 const appName = require('../package.json').name; // Annoyingly if i use import here, the built app doesn't update.
 const routes_1 = require("./routes");
 const initialise_events_1 = require("./events/initialise-events");
+const correlator_1 = require("./utils/correlator");
 //-------------------------------------------------
 // Logging
 //-------------------------------------------------
-logger.configure(config_1.config.logger);
+logger.configure(Object.assign({}, config_1.config.logger, { getCorrelationId: correlator_1.getCorrelationId }));
 logger.warn(`${appName} restarted`);
 //-------------------------------------------------
 // Event stream
