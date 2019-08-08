@@ -2,13 +2,14 @@ import * as event from 'event-stream';
 import * as check from 'check-types';
 import {Forbidden} from '../../errors/Forbidden';
 
-// TODO: might end up adding an options argument in here, e.g. to include the userId, or to filter by public deployments only
-export async function getDeployments(): Promise<any> {
-  
-  const deployments = await event.publishExpectingResponse('deployments.get.request');
+
+export async function getDeployments(where?: {user?: string; public?: string}, options?: {includeAllPublic?: string}): Promise<any> {
+
+  const deployments = await event.publishExpectingResponse('deployments.get.request', {where, options});
   return deployments;
 
 }
+
 
 export async function getDeployment(deploymentId: string): Promise<any> {
   const deployment = await event.publishExpectingResponse('deployment.get.request', {
@@ -20,9 +21,12 @@ export async function getDeployment(deploymentId: string): Promise<any> {
 }
 
 
-export async function createDeployment(deployment): Promise<any> {
+export async function createDeployment(deployment, userId: string): Promise<any> {
   const createdDeployment = await event.publishExpectingResponse('deployment.create.request',  {
-    new: deployment
+    new: deployment,
+    where: {
+      user: userId
+    }
   });
   return createdDeployment;
 }

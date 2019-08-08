@@ -57,12 +57,16 @@ app.use('/', (err, req, res, next) => {
 });
 
 
+// Pull out an authentication credentials
+app.use(lookForUserCredentials);
+
 //-------------------------------------------------
 // Routes
 //-------------------------------------------------
-app.use(lookForUserCredentials);
 app.use(RootRouter);
 app.use(DeploymentRouter);
+
+
 // Error handling must go last
 app.use(logRouteErrors);
 app.use(handleRouteErrors);
