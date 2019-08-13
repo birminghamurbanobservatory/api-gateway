@@ -2,12 +2,15 @@
 // Dependencies
 //-------------------------------------------------
 import express from 'express';
-import {getDeployments, getDeployment, createDeployment, checkRightsToDeployment} from './deployment.controller';
+import {getDeployments, getDeployment, createDeployment, checkRightsToDeployment, deleteDeployment} from './deployment.controller';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {Unauthorized} from '../../errors/Unauthorized';
 import * as check from 'check-types';
+import {doesUserHavePermission} from '../../utils/permissions';
+import {Forbidden} from '../../errors/Forbidden';
+import {InsufficientDeploymentRights} from '../../errors/InsufficientDeploymentRights';
 
 const router = express.Router();
 
@@ -59,7 +62,7 @@ router.use('/deployments/:deploymentId', asyncWrapper(async (req, res, next): Pr
     right = await checkRightsToDeployment(deploymentId);
   }
 
-  req.right = right;
+  req.deploymentRightLevel = right.level;
 
   next();
 
@@ -83,11 +86,40 @@ router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<
 router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
   if (!req.user.id) {
-    throw new Unauthorized('Sensor can not be created because your request has not provided any user credentials');
+    throw new Unauthorized('Deployment can not be created because your request has not provided any user credentials');
+  }
+
+  // Does this user have permission to do this
+  const permission = 'create:deployment';
+  const hasPermission = await doesUserHavePermission(req.user.id, permission);
+  if (!hasPermission) {
+    throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
   }
 
   const createdDeployment = await createDeployment(req.body, req.user.id);
   return res.status(201).json(createdDeployment);
+
+}));
+
+
+//-------------------------------------------------
+// Update Deployment
+//-------------------------------------------------
+// TODO: Only allow them to update certain things.
+
+
+//-------------------------------------------------
+// Delete Deployment
+//-------------------------------------------------
+router.delete('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<any> => {
+
+  if (req.deploymentRightLevel !== 'admin') {
+    throw new InsufficientDeploymentRights(`To delete a deployment you must have 'admin' level rights to it.`);
+  }
+
+  const deploymentId = req.params.deploymentId;
+  await deleteDeployment(deploymentId);
+  return res.status(204).send();
 
 }));
 

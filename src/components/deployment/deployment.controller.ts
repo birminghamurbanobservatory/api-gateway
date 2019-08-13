@@ -59,3 +59,13 @@ export async function checkRightsToDeployment(deploymentId: string, userId?: str
   return right;
 
 }
+
+
+export async function deleteDeployment(deploymentId: string): Promise<void> {
+  await event.publishExpectingResponse('deployment.delete.request', {
+    where: {
+      id: deploymentId
+    }
+  });
+  return;
+}
