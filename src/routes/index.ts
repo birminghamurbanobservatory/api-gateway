@@ -2,7 +2,7 @@
 // Dependencies
 //-------------------------------------------------
 import * as bodyParser from 'body-parser';
-import * as methodOverride from 'method-override';
+import methodOverride from 'method-override';
 import express from 'express';
 import {RootRouter} from './root';
 import {logRouteErrors} from './log-errors';
@@ -11,9 +11,12 @@ import {correlationIdMiddleware} from './middleware/correlator-id-middleware';
 import {DeploymentRouter} from '../components/deployment/deployment.router';
 import {InvalidBody} from '../errors/InvalidBody';
 import * as logger from 'node-logger';
-import {config} from '../config';
 import morgan = require('morgan');
 import {lookForUserCredentials} from './middleware/authenticator';
+import {SensorRouter} from '../components/sensor/sensor.router';
+import {ObservablePropertyRouter} from '../components/observable-property/observable-property.router';
+import {UnitRouter} from '../components/unit/unit.router';
+import {ValueTypeRouter} from '../components/value-types/value-types.router';
 
 
 export const app = express();
@@ -28,17 +31,17 @@ app.use(correlationIdMiddleware);
 // Allow for POST requests
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
-// TODO: Do I need method override?
+app.use(methodOverride());
 
 
 // Logs this as soon as the request comes in
 app.use(morgan(`:method :url`, {
-  stream: {write: (text) => logger.debug(text.trim())},
+  stream: {write: (text): any => logger.debug(text.trim())},
   immediate: true,
 }));
 // Logs this as the response goes out
 app.use(morgan(`:method :status :url (:res[content-length] bytes) :response-time ms`, {
-  stream: {write: (text) => logger.debug(text.trim())},
+  stream: {write: (text): any => logger.debug(text.trim())},
   immediate: false,
 }));
 
@@ -46,7 +49,7 @@ app.use(morgan(`:method :status :url (:res[content-length] bytes) :response-time
 // Catch malformed body
 // By default the bodyParser middleware returns its own error when the request body has invalid syntax, e.g the json message didn't close an open quotation mark. bodyParser gives these errors an instance of SyntaxError, with a status of 400, and a body property, giving us a way of catching just these types of error. Works on verbs other than just POST.
 // For some reason if I try to move this code into a route it no longer works.
-app.use('/', (err, req, res, next) => {
+app.use('/', (err, req, res, next): any => {
   // @ts-ignore: In this instance SyntaxError does have a status property
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     // TODO: use a custom error here, e.g. InvalidBody.
@@ -65,8 +68,21 @@ app.use(lookForUserCredentials);
 //-------------------------------------------------
 app.use(RootRouter);
 app.use(DeploymentRouter);
-
+app.use(SensorRouter);
+app.use(ObservablePropertyRouter);
+app.use(UnitRouter);
+app.use(ValueTypeRouter);
 
 // Error handling must go last
 app.use(logRouteErrors);
 app.use(handleRouteErrors);
+
+// Handle routes that don't exist (this must go at the end)
+app.use((req, res): any => {
+  return res.status(404).json({
+    statusCode: 404,
+    status: 'Not Found',
+    errorCode: 'EndpointNotFound',
+    message: 'This API endpoint has not been defined.'
+  });
+});

@@ -4,7 +4,6 @@
 import express from 'express';
 import {getDeployments, getDeployment, createDeployment, checkRightsToDeployment} from './deployment.controller';
 import {asyncWrapper} from '../../utils/async-wrapper';
-import {join} from 'path';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {Unauthorized} from '../../errors/Unauthorized';
@@ -45,7 +44,7 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
 
 //-------------------------------------------------
-// Specific Deployment Request
+// Specific Deployment Requests
 //-------------------------------------------------
 // Whenever a request comes in for a specific deployment we need to check that the user has rights to this deployment first.
 // N.B. a trade off is made: we accept that making an extra event-stream request here will add to the total response time, however the the benefit is it saves us having to add the userId to any later event stream request which in turn would add extra logic to handlers of these events.
@@ -84,11 +83,11 @@ router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<
 router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
   if (!req.user.id) {
-    throw new Unauthorized('Deployment can not be created because the request does not provide a user id');
+    throw new Unauthorized('Sensor can not be created because your request has not provided any user credentials');
   }
 
   const createdDeployment = await createDeployment(req.body, req.user.id);
-  return res.json(createdDeployment);
+  return res.status(201).json(createdDeployment);
 
 }));
 

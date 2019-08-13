@@ -8,7 +8,7 @@ import {EventStreamOperationalError} from 'event-stream';
 const env = config.common.env;
 
                                              //  v-- need to keep this 'next'
-export function handleRouteErrors(err, req, res, next) {
+export function handleRouteErrors(err, req, res, next): void {
 
   const inDevMode = env === 'development';
 
