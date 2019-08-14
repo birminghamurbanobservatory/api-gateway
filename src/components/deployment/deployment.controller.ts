@@ -61,6 +61,17 @@ export async function checkRightsToDeployment(deploymentId: string, userId?: str
 }
 
 
+export async function updateDeployment(deploymentId: string, updates: any): Promise<void> {
+  const updatedDeployment = await event.publishExpectingResponse('deployment.update.request', {
+    where: {
+      id: deploymentId
+    },
+    updates
+  });
+  return updatedDeployment;
+}
+
+
 export async function deleteDeployment(deploymentId: string): Promise<void> {
   await event.publishExpectingResponse('deployment.delete.request', {
     where: {

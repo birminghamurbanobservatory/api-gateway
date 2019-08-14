@@ -2,7 +2,7 @@
 // Dependencies
 //-------------------------------------------------
 import express from 'express';
-import {getDeployments, getDeployment, createDeployment, checkRightsToDeployment, deleteDeployment} from './deployment.controller';
+import {getDeployments, getDeployment, createDeployment, checkRightsToDeployment, deleteDeployment, updateDeployment} from './deployment.controller';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
@@ -11,6 +11,9 @@ import * as check from 'check-types';
 import {doesUserHavePermission} from '../../utils/permissions';
 import {Forbidden} from '../../errors/Forbidden';
 import {InsufficientDeploymentRights} from '../../errors/InsufficientDeploymentRights';
+import {InvalidDeployment} from './errors/InvalidDeployment';
+import {InvalidDeploymentUpdates} from './errors/InvalidDeploymentUpdates';
+import * as logger from 'node-logger';
 
 const router = express.Router();
 
@@ -56,13 +59,15 @@ router.use('/deployments/:deploymentId', asyncWrapper(async (req, res, next): Pr
   const deploymentId = req.params.deploymentId;
 
   let right;
-  if (req.user && req.userId) {
+  if (req.user && req.user.id) {
     right = await checkRightsToDeployment(deploymentId, req.user.id);
   } else {
     right = await checkRightsToDeployment(deploymentId);
   }
 
   req.deploymentRightLevel = right.level;
+
+  logger.debug(`User '${req.user.id}' has '${req.deploymentRightLevel}' rights to deployment '${deploymentId}'`);
 
   next();
 
@@ -83,6 +88,16 @@ router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<
 // Create Deployment
 //-------------------------------------------------
 // TODO: Add middleware here that checks that the request has sufficient authentication crediential to identify this user as having rights to create a new deployment. Crucially I only want specific Urban Observatory team members being able to create a new deployment.
+const createDeploymentsBodySchema = joi.object({
+  id: joi.string()
+    .required(),
+  name: joi.string()
+    .required(),
+  description: joi.string(),
+  public: joi.boolean()
+})
+.required();
+
 router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
   if (!req.user.id) {
@@ -96,7 +111,10 @@ router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
     throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
   }
 
-  const createdDeployment = await createDeployment(req.body, req.user.id);
+  const {error: queryErr, value: body} = joi.validate(req.body, createDeploymentsBodySchema);
+  if (queryErr) throw new InvalidDeployment(queryErr.message);
+
+  const createdDeployment = await createDeployment(body, req.user.id);
   return res.status(201).json(createdDeployment);
 
 }));
@@ -105,7 +123,29 @@ router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 // Update Deployment
 //-------------------------------------------------
-// TODO: Only allow them to update certain things.
+const updateDeploymentsBodySchema = joi.object({
+  id: joi.string(), // there's actually no real harm in letting them change the id as long as we warn them that urls will change as a result
+  name: joi.string(),
+  description: joi.string(),
+  public: joi.boolean()
+})
+.min(1)
+.required();
+
+router.patch('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<any> => {
+
+  if (req.deploymentRightLevel !== 'admin') {
+    throw new InsufficientDeploymentRights(`To update a deployment you must have 'admin' level rights to it.`);
+  }
+
+  const {error: queryErr, value: body} = joi.validate(req.body, updateDeploymentsBodySchema);
+  if (queryErr) throw new InvalidDeploymentUpdates(queryErr.message);
+
+  const deploymentId = req.params.deploymentId;
+  const updatedDeployment = await updateDeployment(deploymentId, body);
+  return res.json(updatedDeployment);
+
+}));
 
 
 //-------------------------------------------------
