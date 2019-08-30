@@ -17,6 +17,7 @@ import {SensorRouter} from '../components/sensor/sensor.router';
 import {ObservablePropertyRouter} from '../components/observable-property/observable-property.router';
 import {UnitRouter} from '../components/unit/unit.router';
 import {ValueTypeRouter} from '../components/value-types/value-types.router';
+import {PlatformRouter} from '../components/platform/platform.router';
 
 
 export const app = express();
@@ -68,6 +69,7 @@ app.use(lookForUserCredentials);
 //-------------------------------------------------
 app.use(RootRouter);
 app.use(DeploymentRouter);
+app.use(PlatformRouter);
 app.use(SensorRouter);
 app.use(ObservablePropertyRouter);
 app.use(UnitRouter);

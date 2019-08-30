@@ -89,8 +89,7 @@ router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<
 //-------------------------------------------------
 // TODO: Add middleware here that checks that the request has sufficient authentication crediential to identify this user as having rights to create a new deployment. Crucially I only want specific Urban Observatory team members being able to create a new deployment.
 const createDeploymentsBodySchema = joi.object({
-  id: joi.string()
-    .required(),
+  id: joi.string(),
   name: joi.string()
     .required(),
   description: joi.string(),

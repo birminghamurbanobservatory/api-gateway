@@ -49,8 +49,7 @@ export async function checkRightsToDeployment(deploymentId: string, userId?: str
     right = await event.publishExpectingResponse('right.get.request', message);
   } catch (err) {
     if (err.name === 'RightNotFound') {
-      // TODO: could have an even more specific custom error here?
-      throw new Forbidden(`You do not have rights to the ${deploymentId} deployment`);
+      throw new Forbidden(err.message);
     } else {
       throw err;
     }
