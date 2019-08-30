@@ -18,6 +18,7 @@ import {ObservablePropertyRouter} from '../components/observable-property/observ
 import {UnitRouter} from '../components/unit/unit.router';
 import {ValueTypeRouter} from '../components/value-types/value-types.router';
 import {PlatformRouter} from '../components/platform/platform.router';
+import {FeatureOfInterestRouter} from '../components/feature-of-interest/feature-of-interest.router';
 
 
 export const app = express();
@@ -74,6 +75,7 @@ app.use(SensorRouter);
 app.use(ObservablePropertyRouter);
 app.use(UnitRouter);
 app.use(ValueTypeRouter);
+app.use(FeatureOfInterestRouter);
 
 // Error handling must go last
 app.use(logRouteErrors);

@@ -19,3 +19,11 @@ export async function getSensor(sensorId): Promise<any> {
   }); 
   return sensor;
 }
+
+
+export async function getSensors(where): Promise<any> {
+  const sensors = await event.publishExpectingResponse('sensors.get.request', {
+    where
+  }); 
+  return sensors;
+}
