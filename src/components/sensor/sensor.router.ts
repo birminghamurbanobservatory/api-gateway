@@ -12,6 +12,8 @@ import {doesUserHavePermission} from '../../utils/permissions';
 import {InvalidSensor} from './errors/InvalidSensor';
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
+import {cloneDeep} from 'lodash';
+import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 
 const router = express.Router();
 
@@ -86,21 +88,18 @@ router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => 
 // Get Sensors
 //-------------------------------------------------
 const getSensorsQuerySchema = joi.object({
-  inDeployment: joi.alternatives().try(
-    joi.boolean().valid(false),
-    joi.string()
-  ),
-  isHostedBy: joi.alternatives().try(
-    joi.boolean().valid(false),
-    joi.string()
-  ),
-  permanentHost: joi.alternatives().try(
-    joi.boolean().valid(false),
-    joi.string()
-  ),
+  inDeployment: joi.string(),
+  inDeployment__isDefined: joi.boolean(),
+  isHostedBy: joi.string(),
+  isHostedBy__isDefined: joi.boolean(),
+  permanentHost: joi.string(),
+  permanentHost__isDefined: joi.boolean(),
   hasFeatureOfInterest: joi.string(),
   observedProperty: joi.string(),
 })
+.without('inDeployment__isDefined', ['inDeployment'])
+.without('isHostedBy__isDefined', ['isHostedBy'])
+.without('permanentHost__isDefined', ['permanentHost'])
 .required();
 
 router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
@@ -121,7 +120,9 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidQueryString(queryErr.message);  
   logger.debug('Validated query parameters', query);
 
-  const sensors = await getSensors(query);
+  const where = convertQueryToWhere(query);
+
+  const sensors = await getSensors(where);
   return res.json(sensors);
 
 }));

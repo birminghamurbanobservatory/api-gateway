@@ -23,6 +23,7 @@
     "dotenv": "^8.0.0",
     "event-stream": "github:birminghamurbanobservatory/event-stream#semver:^1.0.0",
     "express": "^4.17.1",
+    "lodash": "^4.17.15",
     "method-override": "^3.0.0",
     "morgan": "^1.9.1",
     "node-logger": "github:birminghamurbanobservatory/node-logger#semver:^1.0.0",
