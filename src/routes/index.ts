@@ -62,7 +62,7 @@ app.use('/', (err, req, res, next): any => {
 });
 
 
-// Pull out an authentication credentials
+// Pull out any authentication credentials
 app.use(lookForUserCredentials);
 
 //-------------------------------------------------

@@ -1,12 +1,32 @@
 import * as event from 'event-stream';
 import * as check from 'check-types';
 import {Forbidden} from '../../errors/Forbidden';
+import * as _ from 'lodash';
 
 
-export async function getDeployments(where?: {user?: string; public?: string}, options?: {includeAllPublic?: string}): Promise<any> {
+export async function getDeployments(where: {user?: string; public?: string}, options?: {includeAllPublic?: string}): Promise<any> {
 
-  const deployments = await event.publishExpectingResponse('deployments.get.request', {where, options});
-  return deployments;
+  let usersDeployments = [];
+  let allPublicDeployments = [];
+
+  if (where.user) {
+    usersDeployments = await event.publishExpectingResponse('deployments.get.request', {
+      where
+    });
+  }
+
+  if ((options && options.includeAllPublic) || !where.user) {
+    allPublicDeployments = await event.publishExpectingResponse('deployments.get.request', {
+      where: {
+        public: true
+      }
+    });
+  }
+
+  const deployments = _.concat(usersDeployments, allPublicDeployments);
+  const uniqueDeployments = _.uniqBy(deployments, 'id');
+
+  return uniqueDeployments;
 
 }
 
@@ -23,10 +43,7 @@ export async function getDeployment(deploymentId: string): Promise<any> {
 
 export async function createDeployment(deployment, userId: string): Promise<any> {
   const createdDeployment = await event.publishExpectingResponse('deployment.create.request',  {
-    new: deployment,
-    where: {
-      user: userId
-    }
+    new: deployment
   });
   return createdDeployment;
 }
