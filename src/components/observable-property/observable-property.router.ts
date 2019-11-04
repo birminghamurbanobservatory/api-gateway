@@ -43,7 +43,7 @@ router.post('/observable-properties', asyncWrapper(async (req, res): Promise<any
   }
  
   // Let's catch an invalid observable property early, i.e. before calling the event stream.
-  const {error: bodyErr, value: body} = joi.validate(req.body, createObservablePropertyBodySchema);
+  const {error: bodyErr, value: body} = createObservablePropertyBodySchema.validate(req.body);
   if (bodyErr) throw new InvalidObservableProperty(bodyErr.message);    
 
   const createdDeployment = await createObservableProperty(body);

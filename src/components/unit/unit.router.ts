@@ -40,7 +40,7 @@ router.post('/units', asyncWrapper(async (req, res): Promise<any> => {
   }
 
   // Let's catch an invalid unit early, i.e. before calling the event stream.
-  const {error: bodyErr, value: body} = joi.validate(req.body, createUnitBodySchema);
+  const {error: bodyErr, value: body} = createUnitBodySchema.validate(req.body);
   if (bodyErr) throw new InvalidUnit(bodyErr.message);  
 
   const createdUnit = await createUnit(body);

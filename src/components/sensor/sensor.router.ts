@@ -52,7 +52,7 @@ router.post('/sensors', asyncWrapper(async (req, res): Promise<any> => {
   }
 
   // Let's catch an invalid sensor early, i.e. before calling the event stream.
-  const {error: bodyErr, value: body} = joi.validate(req.body, createSensorBodySchema);
+  const {error: bodyErr, value: body} = createSensorBodySchema.validate(req.body);
   if (bodyErr) throw new InvalidSensor(bodyErr.message);  
 
   const createdSensor = await createSensor(body);
@@ -116,7 +116,7 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
   }
 
   logger.debug('Raw query parameters', req.query);
-  const {error: queryErr, value: query} = joi.validate(req.query, getSensorsQuerySchema);
+  const {error: queryErr, value: query} = getSensorsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);  
   logger.debug('Validated query parameters', query);
 

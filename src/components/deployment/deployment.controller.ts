@@ -2,6 +2,7 @@ import * as event from 'event-stream';
 import * as check from 'check-types';
 import {Forbidden} from '../../errors/Forbidden';
 import * as _ from 'lodash';
+import orderObjectKeys from '../../utils/order-object-keys';
 
 
 export async function getDeployments(where: {user?: string; public?: string}, options?: {includeAllPublic?: string}): Promise<any> {
@@ -95,4 +96,14 @@ export async function deleteDeployment(deploymentId: string): Promise<void> {
     }
   });
   return;
+}
+
+
+
+export function formatDeploymentForClient(deployment: object): object {
+  const deploymentForClient = _.cloneDeep(deployment);
+  delete deploymentForClient.users;
+  delete deploymentForClient.createdBy;
+  const orderedDeployment = orderObjectKeys(deploymentForClient, ['id', 'name', 'description', 'public']);
+  return orderedDeployment;
 }

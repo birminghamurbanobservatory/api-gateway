@@ -2,7 +2,7 @@
 // Dependencies
 //-------------------------------------------------
 import express from 'express';
-import {getDeployments, getDeployment, createDeployment, checkRightsToDeployment, deleteDeployment, updateDeployment} from './deployment.controller';
+import {getDeployments, getDeployment, createDeployment, deleteDeployment, updateDeployment, formatDeploymentForClient} from './deployment.controller';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
@@ -21,7 +21,7 @@ export {router as DeploymentRouter};
 
 
 //-------------------------------------------------
-// Get all
+// Get multiple deployments
 //-------------------------------------------------
 const getDeploymentsQuerySchema = joi.object({
   public: joi.boolean(), // lets the user filter their own deployments, returning either public OR private.
@@ -30,7 +30,7 @@ const getDeploymentsQuerySchema = joi.object({
 
 router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
-  const {error: queryErr, value: query} = joi.validate(req.query, getDeploymentsQuerySchema);
+  const {error: queryErr, value: query} = getDeploymentsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
 
   if (check.not.assigned(query.includeAllPublic)) {
@@ -44,30 +44,45 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
   if (query.public) where.public = true;
 
   const deployments = await getDeployments(where, {includeAllPublic: query.includeAllPublic});
-  return res.json(deployments);
+  const deploymentsForClient = deployments.map(formatDeploymentForClient);
+  return res.json(deploymentsForClient);
 
 }));
 
 
 //-------------------------------------------------
-// Specific Deployment Requests
+// All Specific Deployment Requests
 //-------------------------------------------------
 // Whenever a request comes in for a specific deployment we need to check that the user has rights to this deployment first.
 // N.B. a trade off is made: we accept that making an extra event-stream request here will add to the total response time, however the the benefit is it saves us having to add the userId to any later event stream request which in turn would add extra logic to handlers of these events.
 router.use('/deployments/:deploymentId', asyncWrapper(async (req, res, next): Promise<any> => {
 
+  // Get the deployment
   const deploymentId = req.params.deploymentId;
+  const deployment = await getDeployment(deploymentId);
+  // Add it to the req object so we can use it in later routes.
+  req.deployment = deployment;
 
-  let right;
-  if (req.user && req.user.id) {
-    right = await checkRightsToDeployment(deploymentId, req.user.id);
-  } else {
-    right = await checkRightsToDeployment(deploymentId);
+  let userHasSpecificRights;
+  const deploymentIsPublic = deployment.public;
+
+  if (req.user.id) {
+    const matchingUser = req.deployment.users.find((user): any => user.id === req.user.id);
+    if (matchingUser) {
+      userHasSpecificRights = true;
+      req.user.deploymentLevel = matchingUser.level;
+    } 
   }
 
-  req.deploymentRightLevel = right.level;
+  if (!userHasSpecificRights) {
+    if (deploymentIsPublic) {
+      req.user.deploymentLevel = 'basic';
+    } else {
+      throw new Forbidden('You are not a user of this private deployment');
+    }
+  }
 
-  logger.debug(`User '${req.user.id}' has '${req.deploymentRightLevel}' rights to deployment '${deploymentId}'`);
+  logger.debug(`User ${req.user.id ? `'${req.user.id}'` : '(unauthenticated)'} has '${req.user.deploymentLevel}' rights to deployment '${deploymentId}'`);
 
   next();
 
@@ -75,12 +90,12 @@ router.use('/deployments/:deploymentId', asyncWrapper(async (req, res, next): Pr
 
 
 //-------------------------------------------------
-// Get single
+// Get deployment
 //-------------------------------------------------
 router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<any> => {
-  const deploymentId = req.params.deploymentId;
-  const deployments = await getDeployment(deploymentId);
-  return res.json(deployments);
+  // We already have the deployment. We just need to remove any parts that we don't want the user seeing
+  const deploymentforClient = formatDeploymentForClient(req.deployment);
+  return res.json(deploymentforClient);
 }));
 
 
@@ -109,13 +124,14 @@ router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
     throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
   }
 
-  const {error: queryErr, value: body} = joi.validate(req.body, createDeploymentsBodySchema);
+  const {error: queryErr, value: body} = createDeploymentsBodySchema.validate(req.body);
   if (queryErr) throw new InvalidDeployment(queryErr.message);
 
   body.createdBy = req.user.id;
 
   const createdDeployment = await createDeployment(body, req.user.id);
-  return res.status(201).json(createdDeployment);
+  const deploymentforClient = formatDeploymentForClient(createdDeployment);
+  return res.status(201).json(deploymentforClient);
 
 }));
 
@@ -124,7 +140,6 @@ router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 // Update Deployment
 //-------------------------------------------------
 const updateDeploymentsBodySchema = joi.object({
-  id: joi.string(), // there's actually no real harm in letting them change the id as long as we warn them that urls will change as a result
   name: joi.string(),
   description: joi.string(),
   public: joi.boolean()
@@ -134,11 +149,11 @@ const updateDeploymentsBodySchema = joi.object({
 
 router.patch('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<any> => {
 
-  if (req.deploymentRightLevel !== 'admin') {
+  if (req.user.deploymentLevel !== 'admin') {
     throw new InsufficientDeploymentRights(`To update a deployment you must have 'admin' level rights to it.`);
   }
 
-  const {error: queryErr, value: body} = joi.validate(req.body, updateDeploymentsBodySchema);
+  const {error: queryErr, value: body} = updateDeploymentsBodySchema.validate(req.body);
   if (queryErr) throw new InvalidDeploymentUpdates(queryErr.message);
 
   const deploymentId = req.params.deploymentId;
@@ -148,12 +163,13 @@ router.patch('/deployments/:deploymentId', asyncWrapper(async (req, res): Promis
 }));
 
 
+
 //-------------------------------------------------
 // Delete Deployment
 //-------------------------------------------------
 router.delete('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<any> => {
 
-  if (req.deploymentRightLevel !== 'admin') {
+  if (req.user.deploymentLevel !== 'admin') {
     throw new InsufficientDeploymentRights(`To delete a deployment you must have 'admin' level rights to it.`);
   }
 

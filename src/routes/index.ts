@@ -18,6 +18,7 @@ import {ObservablePropertyRouter} from '../components/observable-property/observ
 import {UnitRouter} from '../components/unit/unit.router';
 import {ValueTypeRouter} from '../components/value-types/value-types.router';
 import {PlatformRouter} from '../components/platform/platform.router';
+import {UserRouter} from '../components/users/users.router';
 import {FeatureOfInterestRouter} from '../components/feature-of-interest/feature-of-interest.router';
 
 
@@ -70,6 +71,7 @@ app.use(lookForUserCredentials);
 //-------------------------------------------------
 app.use(RootRouter);
 app.use(DeploymentRouter);
+app.use(UserRouter);
 app.use(PlatformRouter);
 app.use(SensorRouter);
 app.use(ObservablePropertyRouter);

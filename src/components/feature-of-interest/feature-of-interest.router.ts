@@ -40,7 +40,7 @@ router.post('/features-of-interest', asyncWrapper(async (req, res): Promise<any>
   }
  
   // Let's catch an invalid feature of interest early, i.e. before calling the event stream.
-  const {error: bodyErr, value: body} = joi.validate(req.body, createFeatureOfInterestBodySchema);
+  const {error: bodyErr, value: body} = createFeatureOfInterestBodySchema.validate(req.body);
   if (bodyErr) throw new InvalidFeatureOfInterest(bodyErr.message);    
 
   const createdDeployment = await createFeatureOfInterest(body);

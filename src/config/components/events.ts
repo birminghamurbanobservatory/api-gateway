@@ -22,8 +22,8 @@ const schema = joi.object({
 // Validate
 //-------------------------------------------------
 // i.e. check that process.env contains all the environmental variables we expect/need.
-// It's important to use the 'value' that joi.validate spits out from now on, as joi has the power to do type conversion and add defaults, etc, and thus it may be different from the original process.env. 
-const {error: err, value: envVars} = joi.validate(process.env, schema);
+// It's important to use the 'value' that validate spits out from now on, as joi has the power to do type conversion and add defaults, etc, and thus it may be different from the original process.env. 
+const {error: err, value: envVars} = schema.validate(process.env);
 
 if (err) {
   throw new Error(`An error occured whilst validating process.env: ${err.message}`);
