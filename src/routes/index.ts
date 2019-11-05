@@ -20,6 +20,7 @@ import {ValueTypeRouter} from '../components/value-types/value-types.router';
 import {PlatformRouter} from '../components/platform/platform.router';
 import {UserRouter} from '../components/users/users.router';
 import {FeatureOfInterestRouter} from '../components/feature-of-interest/feature-of-interest.router';
+import {PermanentHostRouter} from '../components/permanent-host/permanent-host.router';
 
 
 export const app = express();
@@ -78,6 +79,7 @@ app.use(ObservablePropertyRouter);
 app.use(UnitRouter);
 app.use(ValueTypeRouter);
 app.use(FeatureOfInterestRouter);
+app.use(PermanentHostRouter);
 
 // Error handling must go last
 app.use(logRouteErrors);

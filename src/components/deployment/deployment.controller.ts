@@ -101,9 +101,9 @@ export async function deleteDeployment(deploymentId: string): Promise<void> {
 
 
 export function formatDeploymentForClient(deployment: object): object {
-  const deploymentForClient = _.cloneDeep(deployment);
-  delete deploymentForClient.users;
-  delete deploymentForClient.createdBy;
-  const orderedDeployment = orderObjectKeys(deploymentForClient, ['id', 'name', 'description', 'public']);
-  return orderedDeployment;
+  const forClient = _.cloneDeep(deployment);
+  delete forClient.users;
+  delete forClient.createdBy;
+  const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'public']);
+  return ordered;
 }

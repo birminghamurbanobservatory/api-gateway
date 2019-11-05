@@ -32,10 +32,10 @@ export async function getPlatforms(where: {inDeployment?: string}): Promise<any>
 
 
 
-export function formatPlatformForClient(deployment: object): object {
-  const deploymentForClient = cloneDeep(deployment);
-  delete deploymentForClient.users;
-  delete deploymentForClient.createdBy;
-  const orderedDeployment = orderObjectKeys(deploymentForClient, ['id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'location']);
-  return orderedDeployment;
+export function formatPlatformForClient(platform: object): object {
+  const forClient = cloneDeep(platform);
+  delete forClient.users;
+  delete forClient.createdBy;
+  const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'location']);
+  return ordered;
 }
