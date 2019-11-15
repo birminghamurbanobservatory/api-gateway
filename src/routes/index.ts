@@ -14,12 +14,8 @@ import * as logger from 'node-logger';
 import morgan = require('morgan');
 import {lookForUserCredentials} from './middleware/authenticator';
 import {SensorRouter} from '../components/sensor/sensor.router';
-import {ObservablePropertyRouter} from '../components/observable-property/observable-property.router';
-import {UnitRouter} from '../components/unit/unit.router';
-import {ValueTypeRouter} from '../components/value-types/value-types.router';
 import {PlatformRouter} from '../components/platform/platform.router';
 import {UserRouter} from '../components/users/users.router';
-import {FeatureOfInterestRouter} from '../components/feature-of-interest/feature-of-interest.router';
 import {PermanentHostRouter} from '../components/permanent-host/permanent-host.router';
 
 
@@ -75,10 +71,6 @@ app.use(DeploymentRouter);
 app.use(UserRouter);
 app.use(PlatformRouter);
 app.use(SensorRouter);
-app.use(ObservablePropertyRouter);
-app.use(UnitRouter);
-app.use(ValueTypeRouter);
-app.use(FeatureOfInterestRouter);
 app.use(PermanentHostRouter);
 
 // Error handling must go last

@@ -42,21 +42,27 @@ export async function getDeployment(deploymentId: string): Promise<any> {
 }
 
 
-export async function createDeployment(deployment, userId: string): Promise<any> {
+export async function createDeployment(deployment, userId?: string): Promise<any> {
+   
+  if (userId) {
+    deployment.createdBy = userId;
+  }
+
   const createdDeployment = await event.publishExpectingResponse('deployment.create.request',  {
     new: deployment
   });
+
   return createdDeployment;
 }
 
 
-export async function checkRightsToDeployment(deploymentId: string, userId?: string): Promise<any> {
+export async function getRightsToDeployment(deploymentId: string, userId?: string): Promise<any> {
 
   let right;
 
   const message: any = {
     where: {
-      deployment: deploymentId
+      deploymentId
     }
   };
   if (check.nonEmptyString(userId)) {
@@ -64,7 +70,7 @@ export async function checkRightsToDeployment(deploymentId: string, userId?: str
   }
 
   try {
-    right = await event.publishExpectingResponse('right.get.request', message);
+    right = await event.publishExpectingResponse('deployment-user.get.request', message);
   } catch (err) {
     if (err.name === 'RightNotFound') {
       throw new Forbidden(err.message);
@@ -74,6 +80,23 @@ export async function checkRightsToDeployment(deploymentId: string, userId?: str
   }
 
   return right;
+
+}
+
+// N.B. in reality this will probably be done through invites instead.
+export async function addRightsToDeployment(deploymentId: string, userId: string): Promise<void> {
+
+  await event.publishExpectingResponse('deployment-user.create.request', {
+    deploymentId,
+    userId
+  });
+
+}
+
+
+export async function deleteRightsToDeployment(deploymentId: string, userId: string): Promise<void> {
+
+  await event.publishExpectingResponse('deployment-user.delete.request');
 
 }
 

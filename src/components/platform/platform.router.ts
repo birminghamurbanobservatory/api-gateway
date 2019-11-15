@@ -32,6 +32,10 @@ const createPlatformBodySchema = joi.object({
 
 router.post('/deployments/:deploymentId/platforms', asyncWrapper(async (req, res): Promise<any> => {
 
+  // TODO: I can see two options for how to register a platform that's being created from a permanent host to a deployment.
+  // 1. We use this endpoint, and if the body contains {registrationKey: 'awuegfnwie'} then we generate the platform from our permanentHost.
+  // 2. We create a new endpoint, e.g. /deployments/register to which a body of {registrationKey: 'awuegfnwie'} can be posted. The benefit of this approach is that if we start allowing individual sensors to be added via a registration key (i.e. not just sensors bound to permanent hosts) then we can use this same endpoint for both sensors and permanenent host.
+
   const deploymentId = req.params.deploymentId;
 
   const sufficientRightLevels = ['admin'];

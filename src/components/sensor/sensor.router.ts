@@ -127,3 +127,18 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
 
 }));
 
+
+//-------------------------------------------------
+// Update sensor
+//-------------------------------------------------
+// i.e. PATCH /sensors/:sensorId (for superusers only)
+
+
+//-------------------------------------------------
+// Update sensor (deployment user)
+//-------------------------------------------------
+// Your bog standard deployment users won't be able to update much of a sensors details (even if they are an admin of the deployment). For example its name and description have come from whichever superuser created the sensor in the first place and thus a deployment user can't edit them. However this is a good endpoint from which to allow users to edit some of the context properties of a sensor. E.g. its current observed property and feature of interest. E.g.
+// PATCH /deployments/:deploymentId/sensors/:sensorID with body {observedProperty: 'temperature'};
+// Behind the scenes this won't update defaults object in the sensor document, but instead will create a new live context document for this sensor.
+
+
