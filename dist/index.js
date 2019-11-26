@@ -41,6 +41,6 @@ logger.warn(`${appName} restarted`);
 //-------------------------------------------------
 const port = 80;
 routes_1.app.listen(port, () => {
-    logger.info(`Server is running on port ${80}`);
+    logger.info(`Server is running on port ${port}`);
 });
 //# sourceMappingURL=index.js.map
