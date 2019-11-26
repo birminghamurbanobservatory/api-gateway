@@ -158,7 +158,8 @@ router.patch('/deployments/:deploymentId', asyncWrapper(async (req, res): Promis
 
   const deploymentId = req.params.deploymentId;
   const updatedDeployment = await updateDeployment(deploymentId, body);
-  return res.json(updatedDeployment);
+  const deploymentforClient = formatDeploymentForClient(updatedDeployment);
+  return res.json(deploymentforClient);
 
 }));
 

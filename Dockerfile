@@ -13,7 +13,7 @@ RUN npm install
 # Bundle app source code inside the docker image
 COPY . .
 
-# Expose the port the app runs on. 
+# Expose the port the app runs on.
 EXPOSE 80
 
 # Define the command to run
