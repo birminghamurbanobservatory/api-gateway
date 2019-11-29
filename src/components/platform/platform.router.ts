@@ -8,6 +8,7 @@ import {createPlatform, getPlatforms, getPlatform, formatPlatformForClient} from
 import {validateGeometry} from '../../utils/geojson-validator';
 import * as check from 'check-types';
 import {PlatformNotFound} from './errors/PlatformNotFound';
+import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
 
 
 const router = express.Router();
@@ -30,7 +31,7 @@ const createPlatformBodySchema = joi.object({
 })
 .required();
 
-router.post('/deployments/:deploymentId/platforms', asyncWrapper(async (req, res): Promise<any> => {
+router.post('/deployments/:deploymentId/platforms', deploymentLevelCheck(['admin']), asyncWrapper(async (req, res): Promise<any> => {
 
   // TODO: I can see two options for how to register a platform that's being created from a permanent host to a deployment.
   // 1. We use this endpoint, and if the body contains {registrationKey: 'awuegfnwie'} then we generate the platform from our permanentHost.

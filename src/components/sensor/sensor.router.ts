@@ -4,16 +4,12 @@
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
-import * as check from 'check-types';
-import {Unauthorized} from '../../errors/Unauthorized';
-import {createSensor, getSensor, getSensors} from './sensor.controller';
-import {Forbidden} from '../../errors/Forbidden';
-import {doesUserHavePermission} from '../../utils/permissions';
+import {createSensor, getSensor, getSensors, formatSensorForClient} from './sensor.controller';
 import {InvalidSensor} from './errors/InvalidSensor';
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
-import {cloneDeep} from 'lodash';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
+import {permissionsCheck} from '../../routes/middleware/permissions';
 
 const router = express.Router();
 
@@ -24,39 +20,34 @@ export {router as SensorRouter};
 // Create Sensor
 //-------------------------------------------------
 // TODO: Add middleware here that checks that the request has sufficient authentication crediential to identify this user as having rights to create a new sensor. Crucially I only want specific Urban Observatory team members being able to create a new sensor.
+const defaultObjectSchema = joi.object({
+  value: joi.string(),
+  ifs: joi.array() // TODO: add more details here.
+});
+
 const createSensorBodySchema = joi.object({
   id: joi.string()
     .required(),
+  name: joi.string(),
   description: joi.string(),
-  hasFeatureOfInterest: joi.string()
-  .required(),
-  observedProperty: joi.string()
-    .required(),
   inDeployment: joi.string(),
-  isHostedBy: joi.string(),
-  registrationKey: joi.string()
+  permanentHost: joi.string(),
+  defaults: joi.object({
+    hasFeatureOfInterest: defaultObjectSchema,
+    observedProperty: defaultObjectSchema
+  }),
 })
 .required();
 
-router.post('/sensors', asyncWrapper(async (req, res): Promise<any> => {
-
-  if (!req.user.id) {
-    throw new Unauthorized('Sensor can not be created because your request has not provided any user credentials');
-  }
-
-  // Does this user have permission to do this
-  const permission = 'create:sensor';
-  const hasPermission = await doesUserHavePermission(req.user.id, permission);
-  if (!hasPermission) {
-    throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
-  }
+router.post('/sensors', permissionsCheck('create:sensor'), asyncWrapper(async (req, res): Promise<any> => {
 
   // Let's catch an invalid sensor early, i.e. before calling the event stream.
   const {error: bodyErr, value: body} = createSensorBodySchema.validate(req.body);
   if (bodyErr) throw new InvalidSensor(bodyErr.message);  
 
   const createdSensor = await createSensor(body);
-  return res.status(201).json(createdSensor);
+  const createdSensorForClient = formatSensorForClient(createdSensor);
+  return res.status(201).json(createdSensorForClient);
 
 }));
 
@@ -64,18 +55,7 @@ router.post('/sensors', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 // Get Sensor
 //-------------------------------------------------
-router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => {
-
-  if (!req.user.id) {
-    throw new Unauthorized('Can not get sensor because your request has not provided any user credentials');
-  }
-
-  // Does this user have permission to do this - this is import as I don't want unauthorised users finding out the registration key.
-  const permission = 'get:sensor';
-  const hasPermission = await doesUserHavePermission(req.user.id, permission);
-  if (!hasPermission) {
-    throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
-  }
+router.get('/sensors/:sensorId', permissionsCheck('get:sensor'), asyncWrapper(async (req, res): Promise<any> => {
 
   const sensorId = req.params.sensorId;
   const sensor = await getSensor(sensorId);
@@ -89,7 +69,7 @@ router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => 
 //-------------------------------------------------
 const getSensorsQuerySchema = joi.object({
   inDeployment: joi.string(),
-  inDeployment__isDefined: joi.boolean(),
+  inDeployment__isDefined: joi.boolean(), // TODO: rename this __exists?
   isHostedBy: joi.string(),
   isHostedBy__isDefined: joi.boolean(),
   permanentHost: joi.string(),
@@ -102,18 +82,8 @@ const getSensorsQuerySchema = joi.object({
 .without('permanentHost__isDefined', ['permanentHost'])
 .required();
 
-router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
-
-  if (!req.user.id) {
-    throw new Unauthorized('Can not get sensors because your request has not provided any user credentials');
-  }
-
-  // Does this user have permission to do this - this is import as I don't want unauthorised users finding out the registration keys.
-  const permission = 'get:sensors';
-  const hasPermission = await doesUserHavePermission(req.user.id, permission);
-  if (!hasPermission) {
-    throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
-  }
+// Can't see a reason why not to use get:sensor as permission to get either a single or multiple sensors.
+router.get('/sensors', permissionsCheck('get:sensor'), asyncWrapper(async (req, res): Promise<any> => {
 
   logger.debug('Raw query parameters', req.query);
   const {error: queryErr, value: query} = getSensorsQuerySchema.validate(req.query);
@@ -121,6 +91,7 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
   logger.debug('Validated query parameters', query);
 
   const where = convertQueryToWhere(query);
+  // TODO: At some point you may start needing to limit the number of sensors returned, e.g. allowing a user to provide a query parameter: limit=100, when this becomes the case you'll want to create an options argument for the getSensors function and for the event stream call, e.g. {limit: 100}, otherwise this could get messy trying to combine it with the where object.
 
   const sensors = await getSensors(where);
   return res.json(sensors);

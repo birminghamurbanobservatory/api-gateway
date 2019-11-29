@@ -8,12 +8,13 @@ import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {Unauthorized} from '../../errors/Unauthorized';
 import * as check from 'check-types';
-import {doesUserHavePermission} from '../../utils/permissions';
+import {permissionsCheck} from '../../routes/middleware/permissions';
 import {Forbidden} from '../../errors/Forbidden';
 import {InsufficientDeploymentRights} from '../../errors/InsufficientDeploymentRights';
 import {InvalidDeployment} from './errors/InvalidDeployment';
 import {InvalidDeploymentUpdates} from './errors/InvalidDeploymentUpdates';
 import * as logger from 'node-logger';
+import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
 
 const router = express.Router();
 
@@ -111,17 +112,10 @@ const createDeploymentsBodySchema = joi.object({
 })
 .required();
 
-router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
+router.post('/deployments', permissionsCheck('create:deployment'), asyncWrapper(async (req, res): Promise<any> => {
 
   if (!req.user.id) {
     throw new Unauthorized('Deployment can not be created because your request has not provided any user credentials');
-  }
-
-  // Does this user have permission to do this
-  const permission = 'create:deployment';
-  const hasPermission = await doesUserHavePermission(req.user.id, permission);
-  if (!hasPermission) {
-    throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
   }
 
   const {error: queryErr, value: body} = createDeploymentsBodySchema.validate(req.body);
@@ -147,11 +141,7 @@ const updateDeploymentsBodySchema = joi.object({
 .min(1)
 .required();
 
-router.patch('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<any> => {
-
-  if (req.user.deploymentLevel !== 'admin') {
-    throw new InsufficientDeploymentRights(`To update a deployment you must have 'admin' level rights to it.`);
-  }
+router.patch('/deployments/:deploymentId', deploymentLevelCheck(['admin']), asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: body} = updateDeploymentsBodySchema.validate(req.body);
   if (queryErr) throw new InvalidDeploymentUpdates(queryErr.message);
@@ -168,11 +158,7 @@ router.patch('/deployments/:deploymentId', asyncWrapper(async (req, res): Promis
 //-------------------------------------------------
 // Delete Deployment
 //-------------------------------------------------
-router.delete('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<any> => {
-
-  if (req.user.deploymentLevel !== 'admin') {
-    throw new InsufficientDeploymentRights(`To delete a deployment you must have 'admin' level rights to it.`);
-  }
+router.delete('/deployments/:deploymentId', deploymentLevelCheck(['admin']), asyncWrapper(async (req, res): Promise<any> => {
 
   const deploymentId = req.params.deploymentId;
   await deleteDeployment(deploymentId);

@@ -35,7 +35,7 @@ logger.warn(`${appName} restarted`);
 //-------------------------------------------------
 // Server
 //-------------------------------------------------
-const port = 80;
+const port = 8080;
 app.listen(port, (): void => {
   logger.info(`Server is running on port ${port}`);
 });

@@ -1,11 +1,9 @@
 import * as joi from '@hapi/joi';
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
-import {Unauthorized} from '../../errors/Unauthorized';
-import {doesUserHavePermission} from '../../utils/permissions';
-import {Forbidden} from '../../errors/Forbidden';
 import {InvalidPermanentHost} from './errors/InvalidPermanentHost';
-import {createPermanentHost, formatPermanentHostForClient} from './permanent-host.controller';
+import {createPermanentHost, formatPermanentHostForClient, getPermanentHost} from './permanent-host.controller';
+import {permissionsCheck} from '../../routes/middleware/permissions';
 
 const router = express.Router();
 
@@ -23,18 +21,7 @@ const createPermanentHostBodySchema = joi.object({
 })
 .required();
 
-router.post('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
-
-  if (!req.user.id) {
-    throw new Unauthorized('Permanent host can not be created because your request has not provided any user credentials');
-  }
-
-  // Does this user have permission to do this?
-  const permission = 'create:permanent-host';
-  const hasPermission = await doesUserHavePermission(req.user.id, permission);
-  if (!hasPermission) {
-    throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
-  }
+router.post('/permanent-hosts', permissionsCheck('create:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: bodyErr, value: body} = createPermanentHostBodySchema.validate(req.body);
   if (bodyErr) throw new InvalidPermanentHost(bodyErr.message);
@@ -42,5 +29,18 @@ router.post('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
   const createdPermanentHost = await createPermanentHost(body);
   const createdPermanentHostForClient = formatPermanentHostForClient(createdPermanentHost);
   return res.status(201).json(createdPermanentHostForClient);
+
+}));
+
+
+//-------------------------------------------------
+// Get Permanent Host
+//-------------------------------------------------
+router.get('/permanent-hosts/:permanentHostId', permissionsCheck('get:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+
+  const permanentHostId = req.params.permanentHostId;
+  const permanentHost = await getPermanentHost(permanentHostId);
+  const permanentHostForClient = formatPermanentHostForClient(permanentHost);
+  return res.status(201).json(permanentHostForClient);
 
 }));

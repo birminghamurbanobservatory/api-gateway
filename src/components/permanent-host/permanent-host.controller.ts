@@ -11,6 +11,15 @@ export async function createPermanentHost(permanentHost): Promise<any> {
 }
 
 
+export async function getPermanentHost(permanentHostId: string): Promise<any> {
+  const permanentHost = await event.publishExpectingResponse('permanent-host.get.request', {
+    where: {
+      id: permanentHostId
+    }
+  });
+  return permanentHost;
+}
+
 
 export function formatPermanentHostForClient(permanentHost: object): object {
   const forClient = cloneDeep(permanentHost);

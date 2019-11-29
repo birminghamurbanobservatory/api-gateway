@@ -1,5 +1,6 @@
-
 import * as event from 'event-stream';
+import {cloneDeep} from 'lodash';
+import orderObjectKeys from '../../utils/order-object-keys';
 
 export async function createSensor(sensor): Promise<any> {
 
@@ -26,4 +27,11 @@ export async function getSensors(where): Promise<any> {
     where
   }); 
   return sensors;
+}
+
+
+export function formatSensorForClient(sensor: object): object {
+  const forClient = cloneDeep(sensor);
+  const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'permanentHost']);
+  return ordered;
 }

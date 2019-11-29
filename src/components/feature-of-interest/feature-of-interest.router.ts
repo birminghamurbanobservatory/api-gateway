@@ -6,9 +6,9 @@ import {createFeatureOfInterest, getFeatureOfInterest, getFeaturesOfInterest} fr
 import {asyncWrapper} from '../../utils/async-wrapper';
 import {Unauthorized} from '../../errors/Unauthorized';
 import {Forbidden} from '../../errors/Forbidden';
-import {doesUserHavePermission} from '../../utils/permissions';
 import * as joi from '@hapi/joi';
 import {InvalidFeatureOfInterest} from './errors/InvalidFeatureOfInterest';
+import {permissionsCheck} from '../../routes/middleware/permissions';
 
 const router = express.Router();
 
@@ -26,17 +26,10 @@ const createFeatureOfInterestBodySchema = joi.object({
 })
 .required();
 
-router.post('/features-of-interest', asyncWrapper(async (req, res): Promise<any> => {
+router.post('/features-of-interest', permissionsCheck('create:feature-of-interest'), asyncWrapper(async (req, res): Promise<any> => {
 
   if (!req.user.id) {
     throw new Unauthorized('Observable property can not be created because your request has not provided any user credentials');
-  }
-
-  // Check this user have permission to do this
-  const permission = 'create:feature-of-interest';
-  const hasPermission = await doesUserHavePermission(req.user.id, permission);
-  if (!hasPermission) {
-    throw new Forbidden(`You do not have permission (${permission}) to make this request.`);
   }
  
   // Let's catch an invalid feature of interest early, i.e. before calling the event stream.
