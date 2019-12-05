@@ -10,7 +10,6 @@ import {Unauthorized} from '../../errors/Unauthorized';
 import * as check from 'check-types';
 import {permissionsCheck} from '../../routes/middleware/permissions';
 import {Forbidden} from '../../errors/Forbidden';
-import {InsufficientDeploymentRights} from '../../errors/InsufficientDeploymentRights';
 import {InvalidDeployment} from './errors/InvalidDeployment';
 import {InvalidDeploymentUpdates} from './errors/InvalidDeploymentUpdates';
 import * as logger from 'node-logger';

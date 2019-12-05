@@ -23,7 +23,8 @@ logger.warn(`${appName} restarted`);
   try {
     await initialiseEvents({
       url: config.events.url,
-      appName
+      appName,
+      logLevel: config.events.logLevel
     });
   } catch (err) {
     logger.error('There was an issue whilst initialising events.', err);

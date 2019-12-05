@@ -2,30 +2,29 @@ import * as event from 'event-stream';
 // const event = require('event-stream');
 import * as logger from 'node-logger';
 import {withCorrelationId, getCorrelationId} from '../utils/correlator';
-import {config} from '../config';
 
-export async function initialiseEvents(settings: {url: string; appName: string}): Promise<void> {
+export async function initialiseEvents(settings: {url: string; appName: string; logLevel: string}): Promise<void> {
 
   logger.debug('Initalising events stream');
 
-  if (logIt('error', config.events.logLevel)) {
+  if (logIt('error', settings.logLevel)) {
     event.logsEmitter.on('error', (msg): void => {
-      logger.error(msg);
+      logger.error(`(event-stream-log) ${msg}`);
     });
   }
-  if (logIt('warn', config.events.logLevel)) {
+  if (logIt('warn', settings.logLevel)) {
     event.logsEmitter.on('warn', (msg): void => {
-      logger.warn(msg);
+      logger.warn(`(event-stream-log) ${msg}`);
     });
   }
-  if (logIt('info', config.events.logLevel)) {
+  if (logIt('info', settings.logLevel)) {
     event.logsEmitter.on('info', (msg): void => {
-      logger.info(msg);
+      logger.info(`(event-stream-log) ${msg}`);
     });
   }
-  if (logIt('debug', config.events.logLevel)) {
+  if (logIt('debug', settings.logLevel)) {
     event.logsEmitter.on('debug', (msg): void => {
-      logger.debug(msg);
+      logger.debug(`(event-stream-log) ${msg}`);
     });
   }
   
