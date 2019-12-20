@@ -113,10 +113,6 @@ const createDeploymentsBodySchema = joi.object({
 
 router.post('/deployments', permissionsCheck('create:deployment'), asyncWrapper(async (req, res): Promise<any> => {
 
-  if (!req.user.id) {
-    throw new Unauthorized('Deployment can not be created because your request has not provided any user credentials');
-  }
-
   const {error: queryErr, value: body} = createDeploymentsBodySchema.validate(req.body);
   if (queryErr) throw new InvalidDeployment(queryErr.message);
 
@@ -132,7 +128,7 @@ router.post('/deployments', permissionsCheck('create:deployment'), asyncWrapper(
 //-------------------------------------------------
 // Update Deployment
 //-------------------------------------------------
-const updateDeploymentsBodySchema = joi.object({
+const updateDeploymentBodySchema = joi.object({
   name: joi.string(),
   description: joi.string(),
   public: joi.boolean()
@@ -142,7 +138,7 @@ const updateDeploymentsBodySchema = joi.object({
 
 router.patch('/deployments/:deploymentId', deploymentLevelCheck(['admin']), asyncWrapper(async (req, res): Promise<any> => {
 
-  const {error: queryErr, value: body} = updateDeploymentsBodySchema.validate(req.body);
+  const {error: queryErr, value: body} = updateDeploymentBodySchema.validate(req.body);
   if (queryErr) throw new InvalidDeploymentUpdates(queryErr.message);
 
   const deploymentId = req.params.deploymentId;

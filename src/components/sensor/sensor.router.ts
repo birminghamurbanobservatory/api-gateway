@@ -19,7 +19,6 @@ export {router as SensorRouter};
 //-------------------------------------------------
 // Create Sensor
 //-------------------------------------------------
-// TODO: Add middleware here that checks that the request has sufficient authentication crediential to identify this user as having rights to create a new sensor. Crucially I only want specific Urban Observatory team members being able to create a new sensor.
 const defaultObjectSchema = joi.object({
   value: joi.string(),
   ifs: joi.array() // TODO: add more details here.

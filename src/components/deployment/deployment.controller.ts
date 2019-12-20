@@ -1,7 +1,7 @@
 import * as event from 'event-stream';
 import * as check from 'check-types';
 import {Forbidden} from '../../errors/Forbidden';
-import * as _ from 'lodash';
+import {cloneDeep, concat, uniqBy} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 
 
@@ -24,8 +24,8 @@ export async function getDeployments(where: {user?: string; public?: string}, op
     });
   }
 
-  const deployments = _.concat(usersDeployments, allPublicDeployments);
-  const uniqueDeployments = _.uniqBy(deployments, 'id');
+  const deployments = concat(usersDeployments, allPublicDeployments);
+  const uniqueDeployments = uniqBy(deployments, 'id');
 
   return uniqueDeployments;
 
@@ -124,7 +124,7 @@ export async function deleteDeployment(deploymentId: string): Promise<void> {
 
 
 export function formatDeploymentForClient(deployment: object): object {
-  const forClient = _.cloneDeep(deployment);
+  const forClient = cloneDeep(deployment);
   delete forClient.users;
   delete forClient.createdBy;
   const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'public']);

@@ -17,6 +17,8 @@ export function convertQueryToWhere(query: any): any {
     }
   });
 
+  // TODO: if the key has a __in modifier, e.g. inDeployment__in=deployment-1,deployment-2 then you'll want to take this comma delimited string and convert it to an array.
+
   return where;
 
 }

@@ -17,6 +17,7 @@ import {SensorRouter} from '../components/sensor/sensor.router';
 import {PlatformRouter} from '../components/platform/platform.router';
 import {UserRouter} from '../components/users/users.router';
 import {PermanentHostRouter} from '../components/permanent-host/permanent-host.router';
+import {ObservationRouter} from '../components/observation/observation.router';
 
 
 export const app = express();
@@ -72,6 +73,7 @@ app.use(UserRouter);
 app.use(PlatformRouter);
 app.use(SensorRouter);
 app.use(PermanentHostRouter);
+app.use(ObservationRouter);
 
 // Error handling must go last
 app.use(logRouteErrors);

@@ -31,6 +31,31 @@ export async function getPlatforms(where: {inDeployment?: string}): Promise<any>
 }
 
 
+export async function updatePlatform(id: string, updates: any): Promise<any> {
+
+  const updatedPlatform = await event.publishExpectingResponse('platform.update.request', {
+    where: {
+      id
+    },
+    updates
+  });
+
+  return updatedPlatform;
+}
+
+
+export async function rehostPlatform(id: string, hostId: string): Promise<any> {
+  const updatedPlatform = await event.publishExpectingResponse('platform.rehost.request', {
+    where: {
+      id,
+      hostId
+    }
+  });
+  return updatedPlatform;
+}
+
+
+
 
 export function formatPlatformForClient(platform: object): object {
   const forClient = cloneDeep(platform);
