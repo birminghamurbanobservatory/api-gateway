@@ -12,10 +12,10 @@ const schema = joi.object({
     .default(true),
   LOGGER_LEVEL: joi.string()
     .default('info') // set a default value if one isn't available
-    .valid(['error', 'warn', 'info', 'verbose', 'debug', 'silly']), // allow only these values
+    .valid('error', 'warn', 'info', 'verbose', 'debug', 'silly'), // allow only these values
   LOGGER_FORMAT: joi.string()
     .default('basic') // set a default value if one isn't available
-    .valid(['basic', 'terminal', 'json', 'stackdriver']), // allow only these values
+    .valid('basic', 'terminal', 'json', 'stackdriver'), // allow only these values
 }).unknown() // allows for extra fields (i.e that we don't check for) in the object being checked.
   .required();
 

@@ -5,7 +5,7 @@ import {cloneDeep, concat, uniqBy} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 
 
-export async function getDeployments(where: {user?: string; public?: string}, options?: {includeAllPublic?: string}): Promise<any> {
+export async function getDeployments(where: {user?: string; public?: boolean}, options?: {includeAllPublic?: boolean}): Promise<any> {
 
   let usersDeployments = [];
   let allPublicDeployments = [];
@@ -55,50 +55,6 @@ export async function createDeployment(deployment, userId?: string): Promise<any
   return createdDeployment;
 }
 
-
-export async function getRightsToDeployment(deploymentId: string, userId?: string): Promise<any> {
-
-  let right;
-
-  const message: any = {
-    where: {
-      deploymentId
-    }
-  };
-  if (check.nonEmptyString(userId)) {
-    message.where.user = userId;
-  }
-
-  try {
-    right = await event.publishExpectingResponse('deployment-user.get.request', message);
-  } catch (err) {
-    if (err.name === 'RightNotFound') {
-      throw new Forbidden(err.message);
-    } else {
-      throw err;
-    }
-  }
-
-  return right;
-
-}
-
-// N.B. in reality this will probably be done through invites instead.
-export async function addRightsToDeployment(deploymentId: string, userId: string): Promise<void> {
-
-  await event.publishExpectingResponse('deployment-user.create.request', {
-    deploymentId,
-    userId
-  });
-
-}
-
-
-export async function deleteRightsToDeployment(deploymentId: string, userId: string): Promise<void> {
-
-  await event.publishExpectingResponse('deployment-user.delete.request');
-
-}
 
 
 export async function updateDeployment(deploymentId: string, updates: any): Promise<any> {

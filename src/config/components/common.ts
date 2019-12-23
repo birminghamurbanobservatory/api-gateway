@@ -9,7 +9,7 @@ import * as joi from '@hapi/joi';
 //-------------------------------------------------
 const schema = joi.object({
   NODE_ENV: joi.string()
-    .valid(['development', 'production', 'test']) // allow only these values
+    .valid('development', 'production', 'test') // allow only these values
     .required()
 }).unknown() // allows for extra fields (i.e that we don't check for) in the object being checked.
   .required();

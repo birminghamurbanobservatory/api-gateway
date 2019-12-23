@@ -12,7 +12,7 @@ const schema = joi.object({
     .uri()
     .required(),
   EVENTS_LOG_LEVEL: joi.string()
-    .valid(['error', 'warn', 'info', 'debug'])
+    .valid('error', 'warn', 'info', 'debug')
     .default('info')
 }).unknown() // allows for extra fields (i.e that we don't check for) in the object being checked.
   .required();
