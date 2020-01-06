@@ -25,8 +25,7 @@ const defaultObjectSchema = joi.object({
 });
 
 const createSensorBodySchema = joi.object({
-  id: joi.string()
-    .required(),
+  id: joi.string(),
   name: joi.string(),
   description: joi.string(),
   inDeployment: joi.string(),
