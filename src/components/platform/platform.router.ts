@@ -38,10 +38,6 @@ const createPlatformBodySchema = joi.object({
 
 router.post('/deployments/:deploymentId/platforms', deploymentLevelCheck(['admin']), asyncWrapper(async (req, res): Promise<any> => {
 
-  // TODO: I can see two options for how to register a platform that's being created from a permanent host to a deployment.
-  // 1. We use this endpoint, and if the body contains {registrationKey: 'awuegfnwie'} then we generate the platform from our permanentHost. You could let the user add some more properties at this point too.
-  // 2. We create a new endpoint, e.g. /deployments/register to which a body of {registrationKey: 'awuegfnwie'} can be posted. The benefit of this approach is that if we start allowing individual sensors to be added via a registration key (i.e. not just sensors bound to permanent hosts) then we can use this same endpoint for both sensors and permanenent host.
-
   const deploymentId = req.params.deploymentId;
 
   const sufficientRightLevels = ['admin'];
@@ -71,19 +67,36 @@ router.post('/deployments/:deploymentId/platforms', deploymentLevelCheck(['admin
 
 
 //-------------------------------------------------
-// Get Single Platform
+// For any specific platform requests
 //-------------------------------------------------
-router.get('/deployments/:deploymentId/platforms/:platformId', asyncWrapper(async (req, res): Promise<any> => {
+router.use('/deployments/:deploymentId/platforms/:platformId', asyncWrapper(async (req, res, next): Promise<any> => {
 
   const deploymentId = req.params.deploymentId;
   const platformId = req.params.platformId;
 
+  // Get the platform to check it actually exists
   const platform = await getPlatform(platformId);
+
+  // Check the platform actually belongs to this deployment
   if (!platform.inDeployments.includes(deploymentId)) {
     throw new PlatformNotFound(`Platform '${platformId}' does not belong to the deployment '${deploymentId}'.`);
-  }
+  }  
 
-  const platformForClient = formatPlatformForClient(platform);
+  req.platform = platform;
+
+  next();
+
+}));
+
+
+
+//-------------------------------------------------
+// Get Single Platform
+//-------------------------------------------------
+router.get('/deployments/:deploymentId/platforms/:platformId', asyncWrapper(async (req, res): Promise<any> => {
+
+  // The platform has already been got in the .use middleware.
+  const platformForClient = formatPlatformForClient(req.platform);
   return res.json(platformForClient);
 
 }));
@@ -126,12 +139,6 @@ router.patch('/deployments/:deploymentId/platforms/:platformId', deploymentLevel
 
   const deploymentId = req.params.deploymentId;
   const platformId = req.params.platformId;
-
-  // Check the platform actually belongs to this deployment
-  const platform = await getPlatform(platformId);
-  if (!platform.inDeployments.includes(deploymentId)) {
-    throw new PlatformNotFound(`Platform '${platformId}' does not belong to the deployment '${deploymentId}'.`);
-  }
 
   if (body.isHostedBy) {
 

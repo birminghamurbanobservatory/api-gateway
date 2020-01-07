@@ -19,6 +19,7 @@ import {UserRouter} from '../components/users/users.router';
 import {PermanentHostRouter} from '../components/permanent-host/permanent-host.router';
 import {ObservationRouter} from '../components/observation/observation.router';
 import {RegisterRouter} from '../components/register/register.router';
+import {PlatformLocationRouter} from '../components/platform-location/platform-location.router';
 
 
 export const app = express();
@@ -71,7 +72,8 @@ app.use(lookForUserCredentials);
 app.use(RootRouter);
 app.use(DeploymentRouter);
 app.use(UserRouter);
-app.use(PlatformRouter);
+app.use(PlatformRouter); // must come after the DeploymentRouter
+app.use(PlatformLocationRouter); // must come after the PlatformRouter
 app.use(SensorRouter);
 app.use(PermanentHostRouter);
 app.use(ObservationRouter);
