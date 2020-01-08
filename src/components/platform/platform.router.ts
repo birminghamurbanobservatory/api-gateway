@@ -80,7 +80,9 @@ router.use('/deployments/:deploymentId/platforms/:platformId', asyncWrapper(asyn
   // Check the platform actually belongs to this deployment
   if (!platform.inDeployments.includes(deploymentId)) {
     throw new PlatformNotFound(`Platform '${platformId}' does not belong to the deployment '${deploymentId}'.`);
-  }  
+  }
+
+  logger.debug(`Platform ${platformId} has been confirmed as belonging to deployment ${deploymentId}`);
 
   req.platform = platform;
 

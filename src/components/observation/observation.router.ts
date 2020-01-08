@@ -120,6 +120,8 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   
   // TODO: If the user doesn't provide specific deploymentIds then we get a list for them. This means that if isHostedBy or madeBySensor parameters are specified then no observations will be returned for these if they don't belong in the user's deployments. The question is whether we should throw an error that lets them know that the platform or sensor isn't in the list of deployments.
 
+  
+
   const observations = await getObservations(where, options);
   const observationsForClient = observations.map(formatObservationForClient);
   return res.json(observationsForClient);
