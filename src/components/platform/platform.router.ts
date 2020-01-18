@@ -31,7 +31,19 @@ const createPlatformBodySchema = joi.object({
   description: joi.string(),
   static: joi.boolean()
     .default(true),
-  location: joi.object(),
+  location: joi.object({
+    geometry: joi.object({
+      type: joi.string().required(),
+      coordinates: joi.array().required()
+    })
+    .custom((value): any => {
+      validateGeometry(value); // throws an error if invalid
+      return value;
+    })
+    .required()
+  }),
+  updateLocationWithSensor: joi.string()
+    .when('static', {is: true, then: joi.forbidden()}),
   isHostedBy: joi.string()
 })
 .required();
@@ -47,15 +59,6 @@ router.post('/deployments/:deploymentId/platforms', deploymentLevelCheck(['admin
 
   const {error: bodyErr, value: body} = createPlatformBodySchema.validate(req.body);
   if (bodyErr) throw new InvalidPlatform(bodyErr.message);
-
-  // Check the location is valid geojson geometry
-  if (check.assigned(body.location)) {
-    try {
-      validateGeometry(body.location); // throws InvalidGeometry error if invalid.
-    } catch (err) {
-      throw new InvalidPlatform(`Invalid location. Reason: ${err.message}`);
-    }
-  }
 
   body.ownerDeployment = deploymentId;
 

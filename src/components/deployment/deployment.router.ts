@@ -30,6 +30,8 @@ const getDeploymentsQuerySchema = joi.object({
 
 router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
+  // TODO: Need to allow a super user to be able to get a list of all the deployments.
+
   const {error: queryErr, value: query} = getDeploymentsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
 
