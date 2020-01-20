@@ -1,33 +1,17 @@
 import * as event from 'event-stream';
 import * as check from 'check-types';
 import {Forbidden} from '../../errors/Forbidden';
-import {cloneDeep, concat, uniqBy} from 'lodash';
+import {cloneDeep} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 
 
 export async function getDeployments(where: {user?: string; public?: boolean}, options?: {includeAllPublic?: boolean}): Promise<any> {
 
-  let usersDeployments = [];
-  let allPublicDeployments = [];
+  const deployments = await event.publishExpectingResponse('deployments.get.request', {
+    where
+  });
 
-  if (where.user) {
-    usersDeployments = await event.publishExpectingResponse('deployments.get.request', {
-      where
-    });
-  }
-
-  if ((options && options.includeAllPublic) || !where.user) {
-    allPublicDeployments = await event.publishExpectingResponse('deployments.get.request', {
-      where: {
-        public: true
-      }
-    });
-  }
-
-  const deployments = concat(usersDeployments, allPublicDeployments);
-  const uniqueDeployments = uniqBy(deployments, 'id');
-
-  return uniqueDeployments;
+  return deployments;
 
 }
 

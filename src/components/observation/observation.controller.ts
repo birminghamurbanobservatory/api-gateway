@@ -47,6 +47,6 @@ export async function deleteObservation(observationId: string) {
 
 export function formatObservationForClient(observation: object): object {
   const forClient = cloneDeep(observation);
-  const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'public']);
+  const ordered = orderObjectKeys(forClient, ['id', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployments', 'hostedByPath']);
   return ordered;
 }

@@ -14,6 +14,7 @@ import {InvalidDeployment} from './errors/InvalidDeployment';
 import {InvalidDeploymentUpdates} from './errors/InvalidDeploymentUpdates';
 import * as logger from 'node-logger';
 import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
+import {concat, uniqBy} from 'lodash';
 
 const router = express.Router();
 
@@ -35,23 +36,52 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
   const hasSuperRights = req.user.permissions && req.user.permissions.includes('get:deployments');
 
-  const where: any = {};
-  const options: any = {};
+  let deployments;
 
-  if (!hasSuperRights) {
-    if (check.not.assigned(query.includeAllPublic)) {
-      // If authentication is given then by default show them just their own deployments.
-      // If they haven't authenticated then show all public deployments by default.
-      query.includeAllPublic = check.not.assigned(req.user.id);
+  //------------------------
+  // Superuser
+  //------------------------
+  if (hasSuperRights) {
+    const where: any = {};
+    const options: any = {};
+    if (query.public) {
+      where.public = true;
     }
-    if (req.user.id) {
-      where.user = req.user.id;
-    } 
+    deployments = await getDeployments(where, options);
   }
 
-  if (query.public) where.public = true;
+  //------------------------
+  // User with credentials
+  //------------------------
+  if (req.user.id) {
 
-  const deployments = await getDeployments(where, options);
+    const usersDeployments = await getDeployments({user: req.user.id, public: query.public});
+
+    let allPublicDeployments = [];
+    if (query.includeAllPublic === true) {
+      allPublicDeployments = await getDeployments({public: true});
+    }
+
+    const combindedDeployments = concat(usersDeployments, allPublicDeployments);
+    const uniqueDeployments = uniqBy(combindedDeployments, 'id');
+
+    deployments = uniqueDeployments;
+
+  }
+
+  //------------------------
+  // User without credentials
+  //------------------------
+  if (!req.user.id) {
+    if (check.assigned(query.public)) {
+      throw new InvalidQueryString(`Please provide user credentials before using the 'public' query string parameter.`);
+    }
+    if (check.assigned(query.includeAllPublic)) {
+      throw new InvalidQueryString(`Please provide user credentials before using the 'includeAllPublic' query string parameter.`);
+    }
+    deployments = await getDeployments({public: true});
+  }
+
   const deploymentsForClient = deployments.map(formatDeploymentForClient);
   return res.json(deploymentsForClient);
 
