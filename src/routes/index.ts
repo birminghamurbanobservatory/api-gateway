@@ -19,6 +19,7 @@ import {UserRouter} from '../components/users/users.router';
 import {PermanentHostRouter} from '../components/permanent-host/permanent-host.router';
 import {ObservationRouter} from '../components/observation/observation.router';
 import {RegisterRouter} from '../components/register/register.router';
+import {allowCaseInsensitiveQueryParameters} from './middleware/case-insensitivity';
 
 
 export const app = express();
@@ -62,6 +63,8 @@ app.use('/', (err, req, res, next): any => {
 });
 
 
+app.use(allowCaseInsensitiveQueryParameters);
+
 // Pull out any authentication credentials
 app.use(lookForUserCredentials);
 
@@ -74,7 +77,7 @@ app.use(UserRouter);
 app.use(PlatformRouter); // must come after the DeploymentRouter
 app.use(SensorRouter);
 app.use(PermanentHostRouter);
-app.use(ObservationRouter);
+app.use(ObservationRouter); // must come after deployment and platform routers
 app.use(RegisterRouter);
 
 // Error handling must go last

@@ -30,10 +30,16 @@ export {router as ObservationRouter};
 const getObservationsQuerySchema = joi.object({
   // filtering
   observedProperty: joi.string(),
-  featureOfInterest: joi.string(),
+  hasFeatureOfInterest: joi.string(),
   inDeployment: joi.string(),
-  inDeployment_in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array
-  isHostedBy: joi.string(), // TODO: any ancestor or just direct host? probably any ancestor
+  inDeployment_in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
+  // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
+  isHostedBy: joi.string(), // platform id just has to occur anywhere in the path
+  isHostedBy__in: joi.string().custom(inConditional),
+  hostedByPath: joi.string(), // requires an exact match for the path
+  hostedByPath__in: joi.string().custom(inConditional),
+  hostedByPathSpecial: joi.string(), // allows for lquery syntax
+  hostedByPathSpecial__in: joi.string().custom(inConditional),
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
@@ -120,7 +126,10 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   
   // TODO: If the user doesn't provide specific deploymentIds then we get a list for them. This means that if isHostedBy or madeBySensor parameters are specified then no observations will be returned for these if they don't belong in the user's deployments. The question is whether we should throw an error that lets them know that the platform or sensor isn't in the list of deployments.
 
-  
+  // Quick safety check to make sure non-super users can't go retrieving observations without their deployments being defined.
+  if (!hasSuperUserPermission && (!where.inDeployment && !where.inDeployment__in)) {
+    throw new Error('Non-super user is able to request observations without specifying deployments. Code needs editing to fix this.');
+  }
 
   const observations = await getObservations(where, options);
   const observationsForClient = observations.map(formatObservationForClient);
@@ -132,13 +141,113 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 // Get observations (specific deployment)
 //-------------------------------------------------
-// TODO: i.e. /deployments/:deploymentId/observations
+const getDeploymentObservationsQuerySchema = joi.object({
+  // filtering
+  observedProperty: joi.string(),
+  featureOfInterest: joi.string(),
+  isHostedBy: joi.string(), // platform id just has to occur anywhere in the path
+  isHostedBy__in: joi.string().custom(inConditional),
+  hostedByPath: joi.string(), // requires an exact match for the path
+  hostedByPath__in: joi.string().custom(inConditional),
+  hostedByPathSpecial: joi.string(), // allows for lquery syntax
+  hostedByPathSpecial__in: joi.string().custom(inConditional),  
+  resultTime__gt: joi.string().isoDate(),
+  resultTime__gte: joi.string().isoDate(),
+  resultTime__lt: joi.string().isoDate(),
+  resultTime__lte: joi.string().isoDate(),
+  // options
+  limit: joi.number().integer().positive().max(1000),
+  offset: joi.number().integer().positive()
+});
+
+router.get('/deployments/:deploymentId/observations', asyncWrapper(async (req, res): Promise<any> => {
+
+  const deploymentId = req.params.deploymentId;
+
+  const {error: queryErr, value: query} = getDeploymentObservationsQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  // Pull out the options
+  const optionKeys = ['limit', 'offset'];
+  const options = pick(query, optionKeys);
+
+  // Pull out the where conditions (let's assume it's everything except the option parameters)
+  const wherePart = {
+    inDeployment: deploymentId
+  };
+  Object.keys(query).forEach((key): void => {
+    if (!optionKeys.includes(key)) {
+      wherePart[key] = query[key];
+    }
+  });
+  const where = convertQueryToWhere(wherePart);
+
+  const observations = await getObservations(where, options);
+  const observationsForClient = observations.map(formatObservationForClient);
+  return res.json(observationsForClient);  
+
+}));
 
 
 //-------------------------------------------------
 // Get observation (specific platform)
 //-------------------------------------------------
 // TODO: i.e. /deployments/:deploymentId/platforms/:platformId/observations
+const getPlatformObservationsQuerySchema = joi.object({
+  // filtering
+  observedProperty: joi.string(),
+  featureOfInterest: joi.string(), 
+  resultTime__gt: joi.string().isoDate(),
+  resultTime__gte: joi.string().isoDate(),
+  resultTime__lt: joi.string().isoDate(),
+  resultTime__lte: joi.string().isoDate(),
+  // options
+  limit: joi.number().integer().positive().max(1000),
+  offset: joi.number().integer().positive()
+});
+
+router.get('/deployments/:deploymentId/platforms/:platformId/observations', asyncWrapper(async (req, res): Promise<any> => {
+
+  const deploymentId = req.params.deploymentId;
+  const platformId = req.params.platformId;
+
+  const {error: queryErr, value: query} = getPlatformObservationsQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  // Pull out the options
+  const optionKeys = ['limit', 'offset'];
+  const options = pick(query, optionKeys);
+
+  // Pull out the where conditions (let's assume it's everything except the option parameters)
+  const wherePart = {
+    inDeployment: deploymentId
+  };
+  Object.keys(query).forEach((key): void => {
+    if (!optionKeys.includes(key)) {
+      wherePart[key] = query[key];
+    }
+  });
+  const where = convertQueryToWhere(wherePart);
+
+  // Adding the platform part to this where object is more complicated, as we'll actually allow the platform part of the URL to be provided in various ways, depending on the following scenarios:
+  // 1. For .../platforms/van-1/observations we'll get observations with the platform 'van-1' anywhere in the path.
+  // 2. For .../platforms/lamppost-1.wintersensor-abc/observations, i.e. periods, but no asterisk, then we'll assume the user wants an exact platform path match.
+  // 3. For .../platforms/building-1.joe-bloggs.*/observations, i.e. contains an asterisk, then we'll assume the user has provided an lquery, in this case they want any observations from any devices joe-bloggs may have been carrying, but only whilst he was in building-1.
+  const platformIdContainsPeriods = platformId.includes('.');
+  const platformIdContainsAsterisk = platformId.includes('*');
+  if (platformIdContainsAsterisk) {
+    where.hostedByPathSpecial = platformId;
+  } else if (platformIdContainsPeriods) {
+    where.hostedByPath = platformId.split('.');
+  } else {
+    where.isHostedBy = platformId;
+  }
+
+  const observations = await getObservations(where, options);
+  const observationsForClient = observations.map(formatObservationForClient);
+  return res.json(observationsForClient); 
+
+}));
 
 
 //-------------------------------------------------

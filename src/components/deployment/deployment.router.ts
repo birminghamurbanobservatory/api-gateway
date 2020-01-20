@@ -30,22 +30,28 @@ const getDeploymentsQuerySchema = joi.object({
 
 router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
-  // TODO: Need to allow a super user to be able to get a list of all the deployments.
-
   const {error: queryErr, value: query} = getDeploymentsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
 
-  if (check.not.assigned(query.includeAllPublic)) {
-    // If authentication is given then by default show them just their own deployments.
-    // If they haven't authenticated then show all public deployments by default.
-    query.includeAllPublic = check.not.assigned(req.user.id);
-  }
+  const hasSuperRights = req.user.permissions && req.user.permissions.includes('get:deployments');
 
   const where: any = {};
-  if (req.user.id) where.user = req.user.id;
+  const options: any = {};
+
+  if (!hasSuperRights) {
+    if (check.not.assigned(query.includeAllPublic)) {
+      // If authentication is given then by default show them just their own deployments.
+      // If they haven't authenticated then show all public deployments by default.
+      query.includeAllPublic = check.not.assigned(req.user.id);
+    }
+    if (req.user.id) {
+      where.user = req.user.id;
+    } 
+  }
+
   if (query.public) where.public = true;
 
-  const deployments = await getDeployments(where, {includeAllPublic: query.includeAllPublic});
+  const deployments = await getDeployments(where, options);
   const deploymentsForClient = deployments.map(formatDeploymentForClient);
   return res.json(deploymentsForClient);
 
@@ -65,23 +71,31 @@ router.use('/deployments/:deploymentId', asyncWrapper(async (req, res, next): Pr
   // Add it to the req object so we can use it in later routes.
   req.deployment = deployment;
 
-  let userHasSpecificRights;
-  const deploymentIsPublic = deployment.public;
+  const adminToAll = req.user.permissions.includes('admin-all:deployments');
+  
+  if (adminToAll) {
+    req.user.deploymentLevel = 'admin';
 
-  if (req.user.id) {
-    const matchingUser = req.deployment.users.find((user): any => user.id === req.user.id);
-    if (matchingUser) {
-      userHasSpecificRights = true;
-      req.user.deploymentLevel = matchingUser.level;
-    } 
-  }
+  } else {
+    let userHasSpecificRights;
+    const deploymentIsPublic = deployment.public;
 
-  if (!userHasSpecificRights) {
-    if (deploymentIsPublic) {
-      req.user.deploymentLevel = 'basic';
-    } else {
-      throw new Forbidden('You are not a user of this private deployment');
+    if (req.user.id) {
+      const matchingUser = req.deployment.users.find((user): any => user.id === req.user.id);
+      if (matchingUser) {
+        userHasSpecificRights = true;
+        req.user.deploymentLevel = matchingUser.level;
+      } 
     }
+
+    if (!userHasSpecificRights) {
+      if (deploymentIsPublic) {
+        req.user.deploymentLevel = 'basic';
+      } else {
+        throw new Forbidden('You are not a user of this private deployment');
+      }
+    }
+
   }
 
   logger.debug(`User ${req.user.id ? `'${req.user.id}'` : '(unauthenticated)'} has '${req.user.deploymentLevel}' rights to deployment '${deploymentId}'`);
