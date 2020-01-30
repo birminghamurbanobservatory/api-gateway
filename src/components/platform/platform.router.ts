@@ -42,8 +42,6 @@ const createPlatformBodySchema = joi.object({
     })
     .required()
   }),
-  updateLocationWithSensor: joi.string()
-    .when('static', {is: true, then: joi.forbidden()}),
   isHostedBy: joi.string()
 })
 .required();
@@ -131,8 +129,10 @@ const updatePlatformBodySchema = joi.object({
   name: joi.string(),
   description: joi.string(),
   static: joi.boolean(),
-  isHostedBy: joi.string()
+  isHostedBy: joi.string(),
   // TODO: Allow the location to be updated here? Probably only want to allow this for static platforms.
+  updateLocationWithSensor: joi.string()
+    .when('static', {is: true, then: joi.forbidden()}),
 })
 .min(1)
 .required();

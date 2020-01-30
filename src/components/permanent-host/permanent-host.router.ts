@@ -44,3 +44,9 @@ router.get('/permanent-hosts/:permanentHostId', permissionsCheck('get:permanent-
   return res.status(201).json(permanentHostForClient);
 
 }));
+
+
+//-------------------------------------------------
+// Update Permanent Host
+//-------------------------------------------------
+// TODO

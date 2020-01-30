@@ -20,6 +20,7 @@ import {PermanentHostRouter} from '../components/permanent-host/permanent-host.r
 import {ObservationRouter} from '../components/observation/observation.router';
 import {RegisterRouter} from '../components/register/register.router';
 import {allowCaseInsensitiveQueryParameters} from './middleware/case-insensitivity';
+import cors from 'cors';
 
 
 export const app = express();
@@ -62,6 +63,8 @@ app.use('/', (err, req, res, next): any => {
   }
 });
 
+// Allow cross origin resource sharing, i.e. so applications running on other domains can call the API.
+app.use(cors());
 
 app.use(allowCaseInsensitiveQueryParameters);
 
