@@ -2,7 +2,7 @@ import * as joi from '@hapi/joi';
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import {InvalidPermanentHost} from './errors/InvalidPermanentHost';
-import {createPermanentHost, formatPermanentHostForClient, getPermanentHost, getPermanentHosts} from './permanent-host.controller';
+import {createPermanentHost, formatPermanentHostForClient, getPermanentHost, getPermanentHosts, deletePermanentHost} from './permanent-host.controller';
 import {permissionsCheck} from '../../routes/middleware/permissions';
 
 const router = express.Router();
@@ -62,3 +62,17 @@ router.get('/permanent-hosts/:permanentHostId', permissionsCheck('get:permanent-
 // Update Permanent Host
 //-------------------------------------------------
 // TODO
+
+
+
+//-------------------------------------------------
+// Delete Permanent Host
+//-------------------------------------------------
+router.delete('/permanent-hosts/:permanentHostId', permissionsCheck('delete:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+
+  const permanentHostId = req.params.permanentHostId;  
+
+  await deletePermanentHost(permanentHostId);
+  return res.status(204).send();
+
+}));

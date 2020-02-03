@@ -29,6 +29,16 @@ export async function getPermanentHost(permanentHostId: string): Promise<any> {
 }
 
 
+export async function deletePermanentHost(id: string): Promise<void> {
+  await event.publishExpectingResponse('permanent-host.delete.request', {
+    where: {
+      id
+    }
+  });
+  return;
+}
+
+
 export function formatPermanentHostForClient(permanentHost: object): object {
   const forClient = cloneDeep(permanentHost);
   const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'registrationKey']);
