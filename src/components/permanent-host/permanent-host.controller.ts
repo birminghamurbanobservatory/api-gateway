@@ -10,6 +10,14 @@ export async function createPermanentHost(permanentHost): Promise<any> {
   return createdPermanentHost;
 }
 
+export async function getPermanentHosts(): Promise<any> {
+  const permanentHost = await event.publishExpectingResponse('permanent-hosts.get.request', {
+    where: {
+
+    }
+  });
+  return permanentHost;
+}
 
 export async function getPermanentHost(permanentHostId: string): Promise<any> {
   const permanentHost = await event.publishExpectingResponse('permanent-host.get.request', {

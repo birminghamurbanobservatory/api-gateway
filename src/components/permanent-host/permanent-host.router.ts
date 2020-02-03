@@ -2,7 +2,7 @@ import * as joi from '@hapi/joi';
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import {InvalidPermanentHost} from './errors/InvalidPermanentHost';
-import {createPermanentHost, formatPermanentHostForClient, getPermanentHost} from './permanent-host.controller';
+import {createPermanentHost, formatPermanentHostForClient, getPermanentHost, getPermanentHosts} from './permanent-host.controller';
 import {permissionsCheck} from '../../routes/middleware/permissions';
 
 const router = express.Router();
@@ -29,6 +29,18 @@ router.post('/permanent-hosts', permissionsCheck('create:permanent-host'), async
   const createdPermanentHost = await createPermanentHost(body);
   const createdPermanentHostForClient = formatPermanentHostForClient(createdPermanentHost);
   return res.status(201).json(createdPermanentHostForClient);
+
+}));
+
+
+//-------------------------------------------------
+// Get Permanent Hosts
+//-------------------------------------------------
+router.get('/permanent-hosts', permissionsCheck('get:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+
+  const permanentHosts = await getPermanentHosts();
+  const permanentHostsForClient = permanentHosts.map(formatPermanentHostForClient);
+  return res.json(permanentHostsForClient);
 
 }));
 
