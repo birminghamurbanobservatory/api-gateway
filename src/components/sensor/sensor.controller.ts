@@ -30,6 +30,16 @@ export async function getSensors(where): Promise<any> {
 }
 
 
+export async function deleteSensor(id: string): Promise<void> {
+  await event.publishExpectingResponse('sensor.delete.request', {
+    where: {
+      id
+    }
+  });
+  return;
+}
+
+
 export function formatSensorForClient(sensor: object): object {
   const forClient = cloneDeep(sensor);
   const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'permanentHost']);

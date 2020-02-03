@@ -78,7 +78,7 @@ app.use(RootRouter);
 app.use(DeploymentRouter);
 app.use(UserRouter);
 app.use(PlatformRouter); // must come after the DeploymentRouter
-app.use(SensorRouter);
+app.use(SensorRouter); // must come after DeploymentRouter
 app.use(PermanentHostRouter);
 app.use(ObservationRouter); // must come after deployment and platform routers
 app.use(RegisterRouter);

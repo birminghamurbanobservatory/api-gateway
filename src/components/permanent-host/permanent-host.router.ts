@@ -17,7 +17,8 @@ const createPermanentHostBodySchema = joi.object({
   id: joi.string(),
   name: joi.string()
     .required(),
-  description: joi.string()
+  description: joi.string(),
+  static: joi.boolean()
 })
 .required();
 

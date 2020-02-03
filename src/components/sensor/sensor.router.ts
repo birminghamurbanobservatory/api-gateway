@@ -4,12 +4,15 @@
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
-import {createSensor, getSensor, getSensors, formatSensorForClient} from './sensor.controller';
+import {createSensor, getSensor, getSensors, formatSensorForClient, deleteSensor} from './sensor.controller';
 import {InvalidSensor} from './errors/InvalidSensor';
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {permissionsCheck} from '../../routes/middleware/permissions';
+import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
+import {SensorNotFound} from './errors/SensorNotFound';
+import {Forbidden} from '../../errors/Forbidden';
 
 const router = express.Router();
 
@@ -111,3 +114,73 @@ router.get('/sensors', permissionsCheck('get:sensor'), asyncWrapper(async (req, 
 // Behind the scenes this won't update defaults object in the sensor document, but instead will create a new live context document for this sensor.
 
 
+//-------------------------------------------------
+// Delete Sensor
+//-------------------------------------------------
+// This endpoint is for superusers not standard users to delete a sensor. 
+router.delete('/sensors/:sensorId', permissionsCheck('delete:sensor'), asyncWrapper(async (req, res): Promise<any> => {
+
+  const sensorId = req.params.sensorId;
+
+  await deleteSensor(sensorId);
+  return res.status(204).send();
+
+}));
+
+
+
+//-------------------------------------------------
+// Create a deployment sensor
+//-------------------------------------------------
+// TODO: I.e. just a sensor with the inDeployment property already defined and without a permanentHost.
+
+
+//-------------------------------------------------
+// Update a deployment sensor
+//-------------------------------------------------
+// TODO: Only a few properties will be update-able.
+
+
+//-------------------------------------------------
+// For any deployment sensor endpoints
+//-------------------------------------------------
+router.use('/deployments/:deploymentId/sensors/:sensorId', asyncWrapper(async (req, res, next): Promise<any> => {
+
+  const deploymentId = req.params.deploymentId;
+  const sensorId = req.params.sensorId;
+
+  // Get the sensor to check it actually exists
+  const sensor = await getSensor(sensorId);
+
+  // Check the sensor actually belongs to this deployment
+  if (sensor.inDeployment !== deploymentId) {
+    throw new SensorNotFound(`Sensor '${sensorId}' does not belong to the deployment '${deploymentId}'.`);
+  }
+
+  logger.debug(`Platform ${sensorId} has been confirmed as belonging to deployment ${deploymentId}`);
+
+  req.sensor = sensor;
+
+  next();
+
+}));
+
+
+
+//-------------------------------------------------
+// Delete Sensor from Deployment
+//-------------------------------------------------
+// This is fundamentally different from the DELETE /sensors/:sensorId endpoint above. This is for standard users to delete "deployment sensors". I.e. sensors created by a users for a specific deployment. 
+// Therefore what it CAN'T delete are sensors bound to a permanent host. If a user wants to remove a permantly hosted sensor from a deployment then they'll have to delete its platform instead.
+router.delete('/deployments/:deploymentId/sensors/:sensorId', deploymentLevelCheck(['admin', 'engineer']), asyncWrapper(async (req, res): Promise<any> => {
+
+  const sensorId = req.params.sensorId;
+
+  if (req.sensor.permanentHost) {
+    throw new Forbidden(`It is not possible to delete sensor '${sensorId}' because it is permantly bound to platform ${req.sensor.isHostedBy}. Try deleting the whole platform instead.`);
+  }
+
+  await deleteSensor(sensorId);
+  return res.status(204).send();
+
+}));
