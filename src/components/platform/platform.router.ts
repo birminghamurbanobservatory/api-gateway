@@ -4,7 +4,7 @@ import * as joi from '@hapi/joi';
 import * as logger from 'node-logger';
 import {InsufficientDeploymentRights} from '../../errors/InsufficientDeploymentRights';
 import {InvalidPlatform} from './errors/InvalidPlatform';
-import {createPlatform, getPlatforms, getPlatform, formatPlatformForClient, updatePlatform, rehostPlatform} from './platform.controller';
+import {createPlatform, getPlatforms, getPlatform, formatPlatformForClient, updatePlatform, rehostPlatform, deletePlatform} from './platform.controller';
 import {validateGeometry} from '../../utils/geojson-validator';
 import * as check from 'check-types';
 import {PlatformNotFound} from './errors/PlatformNotFound';
@@ -188,5 +188,24 @@ router.patch('/deployments/:deploymentId/platforms/:platformId', deploymentLevel
   const updatedPlatform = await updatePlatform(platformId, basicUpdates);
   const platformforClient = formatPlatformForClient(updatedPlatform);
   return res.json(platformforClient);
+
+}));
+
+
+//-------------------------------------------------
+// Delete Platform
+//-------------------------------------------------
+router.delete('/deployments/:deploymentId/platforms/:platformId', deploymentLevelCheck(['admin']), asyncWrapper(async (req, res): Promise<any> => {
+
+  const deploymentId = req.params.deploymentId;
+  const platformId = req.params.platformId;  
+
+  // Check that this deployment owns this platfrom and therefore has the rights to delete it.
+  if (req.platform.ownerDeployment !== deploymentId) {
+    throw new Forbidden(`The platform '${platformId}' is owned by the deployment '${req.platform.ownerDeployment}' not '${deploymentId}'. Only the deployment that owns it can delete it.`);
+  }
+
+  await deletePlatform(platformId);
+  return res.status(204).send();
 
 }));

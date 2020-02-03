@@ -16,10 +16,10 @@ export async function getDeployments(where: {user?: string; public?: boolean}, o
 }
 
 
-export async function getDeployment(deploymentId: string): Promise<any> {
+export async function getDeployment(id: string): Promise<any> {
   const deployment = await event.publishExpectingResponse('deployment.get.request', {
     where: {
-      id: deploymentId
+      id
     }
   });
   return deployment;
@@ -41,10 +41,10 @@ export async function createDeployment(deployment, userId?: string): Promise<any
 
 
 
-export async function updateDeployment(deploymentId: string, updates: any): Promise<any> {
+export async function updateDeployment(id: string, updates: any): Promise<any> {
   const updatedDeployment = await event.publishExpectingResponse('deployment.update.request', {
     where: {
-      id: deploymentId
+      id
     },
     updates
   });
@@ -52,10 +52,10 @@ export async function updateDeployment(deploymentId: string, updates: any): Prom
 }
 
 
-export async function deleteDeployment(deploymentId: string): Promise<void> {
+export async function deleteDeployment(id: string): Promise<void> {
   await event.publishExpectingResponse('deployment.delete.request', {
     where: {
-      id: deploymentId
+      id
     }
   });
   return;

@@ -55,6 +55,15 @@ export async function rehostPlatform(id: string, hostId: string): Promise<any> {
 }
 
 
+export async function deletePlatform(id: string): Promise<void> {
+  await event.publishExpectingResponse('platform.delete.request', {
+    where: {
+      id
+    }
+  });
+  return;
+}
+
 
 
 export function formatPlatformForClient(platform: object): object {
