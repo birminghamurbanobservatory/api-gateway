@@ -4,6 +4,9 @@ import {asyncWrapper} from '../../utils/async-wrapper';
 import {InvalidPermanentHost} from './errors/InvalidPermanentHost';
 import {createPermanentHost, formatPermanentHostForClient, getPermanentHost, getPermanentHosts, deletePermanentHost} from './permanent-host.controller';
 import {permissionsCheck} from '../../routes/middleware/permissions';
+import {InvalidQueryString} from '../../errors/InvalidQueryString';
+import {convertQueryToWhere} from '../../utils/query-to-where-converter';
+import {pick} from 'lodash';
 
 const router = express.Router();
 
@@ -37,9 +40,19 @@ router.post('/permanent-hosts', permissionsCheck('create:permanent-host'), async
 //-------------------------------------------------
 // Get Permanent Hosts
 //-------------------------------------------------
+const getPermanentHostsQuerySchema = joi.object({
+  id__begins: joi.string()
+});
+
 router.get('/permanent-hosts', permissionsCheck('get:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
 
-  const permanentHosts = await getPermanentHosts();
+  const {error: queryErr, value: query} = getPermanentHostsQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  const whereKeys = ['id__begins'];
+  const where = convertQueryToWhere(pick(query, whereKeys));
+
+  const permanentHosts = await getPermanentHosts(where);
   const permanentHostsForClient = permanentHosts.map(formatPermanentHostForClient);
   return res.json(permanentHostsForClient);
 

@@ -14,7 +14,8 @@ import {InvalidDeployment} from './errors/InvalidDeployment';
 import {InvalidDeploymentUpdates} from './errors/InvalidDeploymentUpdates';
 import * as logger from 'node-logger';
 import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
-import {concat, uniqBy} from 'lodash';
+import {concat, uniqBy, pick} from 'lodash';
+import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 
 const router = express.Router();
 
@@ -26,13 +27,17 @@ export {router as DeploymentRouter};
 //-------------------------------------------------
 const getDeploymentsQuerySchema = joi.object({
   public: joi.boolean(), // lets the user filter their own deployments, returning either public OR private.
-  includeAllPublic: joi.boolean() // Returns all public deployments as well as the user's own.
+  includeAllPublic: joi.boolean(), // Returns all public deployments as well as the user's own.
+  id__begins: joi.string()
 });
 
 router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: query} = getDeploymentsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  const whereKeys = ['id__begins', 'public'];
+  const whereBase = convertQueryToWhere(pick(query, whereKeys));
 
   const hasSuperRights = req.user.permissions && req.user.permissions.includes('get:deployments');
 
@@ -42,12 +47,7 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
   // Superuser
   //------------------------
   if (hasSuperRights) {
-    const where: any = {};
-    const options: any = {};
-    if (query.public) {
-      where.public = true;
-    }
-    deployments = await getDeployments(where, options);
+    deployments = await getDeployments(whereBase);
   }
 
   //------------------------
@@ -55,7 +55,8 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
   //------------------------
   if (req.user.id) {
 
-    const usersDeployments = await getDeployments({user: req.user.id, public: query.public});
+    const usersWhere = Object.assign({}, whereBase, {user: req.user.id});
+    const usersDeployments = await getDeployments(usersWhere);
 
     let allPublicDeployments = [];
     if (query.includeAllPublic === true) {
@@ -79,7 +80,8 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
     if (check.assigned(query.includeAllPublic)) {
       throw new InvalidQueryString(`Please provide user credentials before using the 'includeAllPublic' query string parameter.`);
     }
-    deployments = await getDeployments({public: true});
+    const noCredentialsWhere = Object.assign({}, whereBase, {public: true});
+    deployments = await getDeployments(noCredentialsWhere);
   }
 
   const deploymentsForClient = deployments.map(formatDeploymentForClient);

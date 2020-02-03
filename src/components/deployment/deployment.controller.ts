@@ -5,7 +5,7 @@ import {cloneDeep} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 
 
-export async function getDeployments(where: {user?: string; public?: boolean}, options?: {includeAllPublic?: boolean}): Promise<any> {
+export async function getDeployments(where: {user?: string; public?: boolean; id?: object}): Promise<any> {
 
   const deployments = await event.publishExpectingResponse('deployments.get.request', {
     where

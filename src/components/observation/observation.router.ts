@@ -5,7 +5,6 @@ import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
-import {Unauthorized} from '../../errors/Unauthorized';
 import * as check from 'check-types';
 import {permissionsCheck} from '../../routes/middleware/permissions';
 import {Forbidden} from '../../errors/Forbidden';
@@ -13,7 +12,7 @@ import * as logger from 'node-logger';
 import {formatObservationForClient, getObservation, getObservations, deleteObservation, createObservation} from './observation.controller';
 import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {pick} from 'lodash';
+import {pick, concat, uniqBy} from 'lodash';
 import {Promise} from 'bluebird';
 import {getDeployment, getDeployments} from '../deployment/deployment.controller';
 import {inConditional} from '../../utils/custom-joi-validations';
@@ -106,13 +105,18 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
   if (!where.inDeployment && !hasSuperUserPermission) {
 
-    const deploymentWhere: any = {};
-    if (req.user.id) where.user = req.user.id;
-    const deployments = await getDeployments(deploymentWhere, {includeAllPublic: true});
-    if (deployments.length === 0) {
+    let usersDeployments = [];
+    let publicDeployments = [];
+    if (req.user.id) {
+      usersDeployments = await getDeployments({user: req.user.id});
+    }
+    publicDeployments = await getDeployments({public: true});
+    const combindedDeployments = concat(usersDeployments, publicDeployments);
+    const uniqueDeployments = uniqBy(combindedDeployments, 'id');
+    if (uniqueDeployments.length === 0) {
       throw new Forbidden('You do not have access to any deployments and therefore its not possible to retrieve any observations.');
     }
-    const deploymentIds = deployments.map((deployment): string => deployment.id);
+    const deploymentIds = uniqueDeployments.map((deployment): string => deployment.id);
     where.inDeployment = {
       in: deploymentIds
     };

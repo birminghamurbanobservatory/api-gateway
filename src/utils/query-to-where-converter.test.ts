@@ -36,7 +36,8 @@ describe('convertQueryToWhere function testing', () => {
   test('Handles multiple key conversions', () => {
     const query = {
       inDeployment__isDefined: false,
-      value__gte: 20
+      value__gte: 20,
+      id__begins: 'abc'
     };
     const expectedWhere = {
       inDeployment: {
@@ -44,6 +45,9 @@ describe('convertQueryToWhere function testing', () => {
       },
       value: {
         gte: 20
+      },
+      id: {
+        begins: 'abc'
       }      
     };
     expect(convertQueryToWhere(query)).toEqual(expectedWhere);

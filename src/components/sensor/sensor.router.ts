@@ -77,6 +77,7 @@ const getSensorsQuerySchema = joi.object({
   permanentHost__isDefined: joi.boolean(),
   hasFeatureOfInterest: joi.string(),
   observedProperty: joi.string(),
+  id__begins: joi.string
 })
 .without('inDeployment__isDefined', ['inDeployment'])
 .without('isHostedBy__isDefined', ['isHostedBy'])

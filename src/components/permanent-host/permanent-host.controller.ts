@@ -10,11 +10,9 @@ export async function createPermanentHost(permanentHost): Promise<any> {
   return createdPermanentHost;
 }
 
-export async function getPermanentHosts(): Promise<any> {
+export async function getPermanentHosts(where = {}): Promise<any> {
   const permanentHost = await event.publishExpectingResponse('permanent-hosts.get.request', {
-    where: {
-
-    }
+    where
   });
   return permanentHost;
 }
