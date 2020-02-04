@@ -22,22 +22,30 @@ export {router as SensorRouter};
 //-------------------------------------------------
 // Create Sensor
 //-------------------------------------------------
-const defaultObjectSchema = joi.object({
-  value: joi.string(),
-  ifs: joi.array() // TODO: add more details here.
+const defaultSchema = joi.object({
+  observedProperty: joi.string(),
+  hasFeatureOfInterest: joi.string(),
+  usedProcedures: joi.array().items(joi.string()),
+  when: joi.array().items(joi.object({
+    observedProperty: joi.string(),
+    hasFeatureOfInterest: joi.string(),
+    usedProcedures: joi.array().items(joi.string()),    
+  }))
 });
 
 const createSensorBodySchema = joi.object({
-  id: joi.string(),
+  id: joi.string(), // we'll leave the model schema to check the length
   name: joi.string(),
   description: joi.string(),
-  inDeployment: joi.string(),
   permanentHost: joi.string(),
-  defaults: joi.object({
-    hasFeatureOfInterest: defaultObjectSchema,
-    observedProperty: defaultObjectSchema
-  }),
+  inDeployment: joi.string(),
+  // N.B. isHostedBy is not allow here. Hosting a sensor on a platform is a separate step and depends on whether the sensor has a permanentHost or not. 
+  defaults: joi.array().items(defaultSchema)
 })
+.xor('permanentHost', 'inDeployment') 
+// Either a sensor has a permanentHost and is therefore added to a deployment via a registration key OR a standalone sensor must be created already in a deployment.
+.without('inDeployment', 'id')
+// When a sensor is being added directly to a deployment, then don't allow the user to set the id themselves, this is to avoid clashes with more readable IDs that superusers assign to sensors on permanentHosts.
 .required();
 
 router.post('/sensors', permissionsCheck('create:sensor'), asyncWrapper(async (req, res): Promise<any> => {
