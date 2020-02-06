@@ -71,7 +71,8 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   const where = convertQueryToWhere(wherePart);
 
   const userId = req.user.id;
-  const hasSuperUserPermission = req.user.permissions.includes('get:observation');
+  const hasSuperUserPermission = req.user.permissions.includes('get:observation') || req.user.permissions.includes('admin-all:deployments'); 
+  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observatiosn, but not be allowed to see any of the extra data that would accessable if they were an admin to every deployment, e.g. a platform's description.
 
   //------------------------
   // inDeployment specified

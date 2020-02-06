@@ -105,6 +105,14 @@ router.get('/deployments/:deploymentId/platforms/:platformId', asyncWrapper(asyn
 }));
 
 
+//-------------------------------------------------
+// Get Platforms
+//-------------------------------------------------
+router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
+  // TODO: This will need to work much like the /observations endpoint, in that you'll first have to work out which deployments this user has access to. If they have special rights then it will be all of them. The special right here should probably be 'admin-all:deployments' rather than trying to create some special 'get:platforms' permission, as a platform has to always belong to to a deployment, and I can't see a use case where a specific user would want to get every platform, but not have access to any other information about the deployment.
+}));
+
+
 
 //-------------------------------------------------
 // Get Deployment's Platforms

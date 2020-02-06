@@ -104,6 +104,7 @@ router.use('/deployments/:deploymentId', asyncWrapper(async (req, res, next): Pr
   req.deployment = deployment;
 
   const adminToAll = req.user.permissions.includes('admin-all:deployments');
+  // TODO: you may eventually wish to create basic-all:deployments, or engineer-all:deployments permissions, however you'd need to make sure that if the user already has specific rights to this deployment and they are higher than the generic permission, that it uses the more specific one.
   
   if (adminToAll) {
     req.user.deploymentLevel = 'admin';
