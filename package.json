@@ -17,7 +17,7 @@
   "author": "Simon Bell",
   "repository": {
     "type": "git",
-    "url": "git://github.com/birminghamurbanobservatory/sensor-deployment-manager.git"
+    "url": "git://github.com/birminghamurbanobservatory/api-gateway.git"
   },
   "license": "ISC",
   "dependencies": {
