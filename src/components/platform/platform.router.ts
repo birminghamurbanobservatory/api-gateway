@@ -11,9 +11,13 @@ import {PlatformNotFound} from './errors/PlatformNotFound';
 import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
 import {InvalidPlatformUpdates} from './errors/InvalidPlatformUpdates';
 import * as Promise from 'bluebird';
-import {getDeployment} from '../deployment/deployment.controller';
+import {getDeployment, getDeployments} from '../deployment/deployment.controller';
 import {Forbidden} from '../../errors/Forbidden';
-import {pick} from 'lodash';
+import {pick, concat, uniqBy} from 'lodash';
+import {inConditional} from '../../utils/custom-joi-validations';
+import {InvalidQueryString} from '../../errors/InvalidQueryString';
+import {convertQueryToWhere} from '../../utils/query-to-where-converter';
+import {getLevelsForDeployments} from '../deployment/deployment-users.controller';
 
 
 const router = express.Router();
@@ -106,10 +110,137 @@ router.get('/deployments/:deploymentId/platforms/:platformId', asyncWrapper(asyn
 
 
 //-------------------------------------------------
+// Get single platform (bypassing deployment)
+//-------------------------------------------------
+// This just makes it a little easier to get access to a platform without having to know exactly which of the deployments the platform belongs to is one that you have rights to.
+router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any> => {
+
+  const platformId = req.params.platformId;
+  const userId = req.user.id;
+  const hasSuperUserPermission = req.user.permissions && req.user.permissions.includes('admin-all:deployments');
+  let hasSufficientRights;
+
+  logger.debug(`Request to get platform ${platformId}`);
+
+  // Get the platform
+  const platform = await getPlatform(platformId);
+
+  if (hasSuperUserPermission) {
+    hasSufficientRights = true; 
+
+  } else {
+
+    let deploymentLevels;
+    if (userId) {
+      // N.b. this should error if any of the deployments don't exist
+      deploymentLevels = await getLevelsForDeployments(platform.inDeployments, userId);
+    } else {
+      deploymentLevels = await getLevelsForDeployments(platform.inDeployments);
+    }
+
+    const hasRightsToAtLeastOneDeployment = deploymentLevels.some((deploymentLevel): boolean => {
+      return Boolean(deploymentLevel.level);
+    }); 
+
+    if (hasRightsToAtLeastOneDeployment) {
+      hasSufficientRights = true;
+    }
+
+  }
+
+  if (hasSufficientRights) {
+    const platformForClient = formatPlatformForClient(platform);
+    return res.json(platformForClient);
+  } else {
+    throw new Forbidden(`You do not have the rights to access platform '${platformId}'`);
+  }
+
+}));
+
+
+//-------------------------------------------------
 // Get Platforms
 //-------------------------------------------------
+const getPlatformsQuerySchema = joi.object({
+  inDeployment: joi.string(),
+  inDeployment_in: joi.string().custom(inConditional),
+})
+.without('inDeployment', 'inDeployment__in');
+
+
 router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
-  // TODO: This will need to work much like the /observations endpoint, in that you'll first have to work out which deployments this user has access to. If they have special rights then it will be all of them. The special right here should probably be 'admin-all:deployments' rather than trying to create some special 'get:platforms' permission, as a platform has to always belong to to a deployment, and I can't see a use case where a specific user would want to get every platform, but not have access to any other information about the deployment.
+
+  const {error: queryErr, value: query} = getPlatformsQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  const where = convertQueryToWhere(query);
+
+  const userId = req.user.id;
+  const hasSuperUserPermission = req.user.permissions && req.user.permissions.includes('admin-all:deployments');
+  // N.B. there's no point in having a special 'get:platforms' permission, 'admin-all:deployments' is enough, because I can't see a use case where a specific super user would want to get every platform, but not have access to any other information about the deployment.
+
+  //------------------------
+  // inDeployment specified
+  //------------------------
+  // If inDeployment has been specified then check that the user has rights to these deployment(s).
+  if (where.inDeployment && !hasSuperUserPermission) {
+
+    const deploymentIdsToCheck = check.string(where.inDeployment) ? [check.string(where.inDeployment)] : where.inDeployment.in;
+
+    let deploymentLevels;
+    if (userId) {
+      // N.b. this should error if any of the deployments don't exist
+      deploymentLevels = await getLevelsForDeployments(deploymentIdsToCheck, userId);
+    } else {
+      deploymentLevels = await getLevelsForDeployments(deploymentIdsToCheck);
+    }
+
+    // If there's no level defined for any of these deployments then throw an error
+    deploymentLevels.forEach((deploymentLevel): void => {
+      if (!deploymentLevel.level) {
+        throw new Forbidden(`You do not have the rights to access platforms from the deployment '${deploymentLevel.deploymentId}'.`);
+      }
+    });
+    
+  }
+
+  //------------------------
+  // inDeployment unspecified
+  //------------------------
+  // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
+  if (!where.inDeployment && !hasSuperUserPermission) {
+
+    let usersDeployments = [];
+    let publicDeployments = [];
+    if (req.user.id) {
+      usersDeployments = await getDeployments({user: req.user.id});
+    }
+    publicDeployments = await getDeployments({public: true});
+    const combindedDeployments = concat(usersDeployments, publicDeployments);
+    const uniqueDeployments = uniqBy(combindedDeployments, 'id');
+    if (uniqueDeployments.length === 0) {
+      throw new Forbidden('You do not have access to any deployments and therefore its not possible to retrieve any platforms.');
+    }
+    const deploymentIds = uniqueDeployments.map((deployment): string => deployment.id);
+    where.inDeployment = {
+      in: deploymentIds
+    };
+
+  }
+
+  if (hasSuperUserPermission) {
+    // TODO: if the request was for specific deployments then might want to check the deployments actually exist?
+  }
+
+  // Quick safety check to make sure non-super users can't go retrieving platforms without their deployments being defined.
+  if (!hasSuperUserPermission && (!where.inDeployment && !where.inDeployment__in)) {
+    throw new Error(' A non-super user is able to request platforms without specifying deployments. Code needs editing to fix this.');
+  }
+
+  const platforms = await getPlatforms(where);
+  const platformsForClient = platforms.map(formatPlatformForClient);
+  return res.json(platformsForClient);
+
 }));
 
 
@@ -152,6 +283,11 @@ router.patch('/deployments/:deploymentId/platforms/:platformId', deploymentLevel
 
   const deploymentId = req.params.deploymentId;
   const platformId = req.params.platformId;
+
+  // Check that this deployment owns this platform and therefore has the rights to update it.
+  if (req.platform.ownerDeployment !== deploymentId) {
+    throw new Forbidden(`The platform '${platformId}' is owned by the deployment '${req.platform.ownerDeployment}' not '${deploymentId}'. Only the deployment that owns it can update it.`);
+  }
 
   if (body.isHostedBy) {
 
@@ -208,7 +344,7 @@ router.delete('/deployments/:deploymentId/platforms/:platformId', deploymentLeve
   const deploymentId = req.params.deploymentId;
   const platformId = req.params.platformId;  
 
-  // Check that this deployment owns this platfrom and therefore has the rights to delete it.
+  // Check that this deployment owns this platform and therefore has the rights to delete it.
   if (req.platform.ownerDeployment !== deploymentId) {
     throw new Forbidden(`The platform '${platformId}' is owned by the deployment '${req.platform.ownerDeployment}' not '${deploymentId}'. Only the deployment that owns it can delete it.`);
   }

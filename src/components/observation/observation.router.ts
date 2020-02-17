@@ -135,7 +135,7 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
   // Quick safety check to make sure non-super users can't go retrieving observations without their deployments being defined.
   if (!hasSuperUserPermission && (!where.inDeployment && !where.inDeployment__in)) {
-    throw new Error('Non-super user is able to request observations without specifying deployments. Code needs editing to fix this.');
+    throw new Error(' A non-super user is able to request observations without specifying deployments. Code needs editing to fix this.');
   }
 
   const observations = await getObservations(where, options);

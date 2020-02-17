@@ -37,9 +37,9 @@ export async function getLevelsForDeployments(deploymentIds: string[], userId?: 
 
   // e.g. returns something like:
   // [
-  //   {deploymentId: 'deployment-1', level: 'basic'},
+  //   {deploymentId: 'deployment-1', level: 'basic'},   will also return 'basic' for public deployments
   //   {deploymentId: 'deployment-2', level: 'admin'},
-  //   {deploymentId: 'deployment-3'},    i.e. when the user has no rights to this deployment
+  //   {deploymentId: 'deployment-3'},                   i.e. when the user has no rights to this deployment
   // ]
   const deploymentLevels = await event.publishExpectingResponse('deployment-user.get-levels-for-deployments.request', message);
 
