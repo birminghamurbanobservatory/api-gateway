@@ -22,6 +22,7 @@ import {RegisterRouter} from '../components/register/register.router';
 import {allowCaseInsensitiveQueryParameters} from './middleware/case-insensitivity';
 import cors from 'cors';
 import {UnknownSensorRouter} from '../components/unknown-sensor/unknown-sensor.router';
+import {AccountRouter} from '../components/account/account.router';
 
 
 export const app = express();
@@ -84,6 +85,7 @@ app.use(UnknownSensorRouter);
 app.use(PermanentHostRouter);
 app.use(ObservationRouter); // must come after deployment and platform routers
 app.use(RegisterRouter);
+app.use(AccountRouter);
 
 // Error handling must go last
 app.use(logRouteErrors);
