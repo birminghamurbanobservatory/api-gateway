@@ -4,7 +4,7 @@ import * as joi from '@hapi/joi';
 import * as logger from 'node-logger';
 import {InsufficientDeploymentRights} from '../../errors/InsufficientDeploymentRights';
 import {InvalidPlatform} from './errors/InvalidPlatform';
-import {createPlatform, getPlatforms, getPlatform, formatPlatformForClient, updatePlatform, rehostPlatform, deletePlatform} from './platform.controller';
+import {createPlatform, getPlatforms, getPlatform, formatPlatformForClient, updatePlatform, rehostPlatform, deletePlatform, releasePlatformSensors} from './platform.controller';
 import {validateGeometry} from '../../utils/geojson-validator';
 import * as check from 'check-types';
 import {PlatformNotFound} from './errors/PlatformNotFound';
@@ -353,3 +353,25 @@ router.delete('/deployments/:deploymentId/platforms/:platformId', deploymentLeve
   return res.status(204).send();
 
 }));
+
+
+//-------------------------------------------------
+// Release a Platform's Sensors
+//-------------------------------------------------
+// For when a user wants to release all sensors directly hosted on a platform, whilst keeping a record of the platform in the deployment.
+router.delete('/deployments/:deploymentId/platforms/:platformId/sensors', deploymentLevelCheck(['admin', 'engineer']), asyncWrapper(async (req, res): Promise<any> => {
+
+  const deploymentId = req.params.deploymentId;
+  const platformId = req.params.platformId;
+
+  // Check that this deployment owns this platform and therefore has the rights to update it.
+  if (req.platform.ownerDeployment !== deploymentId) {
+    throw new Forbidden(`The platform '${platformId}' is owned by the deployment '${req.platform.ownerDeployment}' not '${deploymentId}'. Only the deployment that owns it can release its sensors.`);
+  }
+
+  await releasePlatformSensors(platformId);
+
+  return res.status(204).send();
+
+}));
+

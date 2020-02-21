@@ -62,6 +62,17 @@ export async function deletePlatform(id: string): Promise<void> {
 
 
 
+export async function releasePlatformSensors(platformId: string): Promise<void> {
+  await event.publishExpectingResponse('platform.release-sensors.request', {
+    where: {
+      platformId
+    }
+  });
+  return;
+}
+
+
+
 export function formatPlatformForClient(platform: object): object {
   const forClient = cloneDeep(platform);
   delete forClient.users;

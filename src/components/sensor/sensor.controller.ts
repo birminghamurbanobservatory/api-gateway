@@ -3,12 +3,10 @@ import {cloneDeep} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 
 export async function createSensor(sensor): Promise<any> {
-
   const createdSensor = await event.publishExpectingResponse('sensor.create.request',  {
     new: sensor
   });
   return createdSensor;
-
 }
 
 
@@ -27,6 +25,17 @@ export async function getSensors(where): Promise<any> {
     where
   }); 
   return sensors;
+}
+
+
+export async function updateSensor(id: string, updates: any): Promise<any> {
+  const updatedSensor = await event.publishExpectingResponse('sensor.update.request',  {
+    where: {
+      id
+    },
+    updates
+  });
+  return updatedSensor;
 }
 
 

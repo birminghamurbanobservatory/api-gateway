@@ -4,7 +4,7 @@
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
-import {createSensor, getSensor, getSensors, formatSensorForClient, deleteSensor} from './sensor.controller';
+import {createSensor, getSensor, getSensors, formatSensorForClient, deleteSensor, updateSensor} from './sensor.controller';
 import {InvalidSensor} from './errors/InvalidSensor';
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
@@ -13,6 +13,7 @@ import {permissionsCheck} from '../../routes/middleware/permissions';
 import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
 import {SensorNotFound} from './errors/SensorNotFound';
 import {Forbidden} from '../../errors/Forbidden';
+import {InvalidBody} from '../../errors/InvalidBody';
 
 const router = express.Router();
 
@@ -42,10 +43,10 @@ const createSensorBodySchema = joi.object({
   // N.B. isHostedBy is not allow here. Hosting a sensor on a platform is a separate step and depends on whether the sensor has a permanentHost or not. 
   defaults: joi.array().items(defaultSchema)
 })
-.xor('permanentHost', 'inDeployment') 
-// Either a sensor has a permanentHost and is therefore added to a deployment via a registration key OR a standalone sensor must be created already in a deployment.
-.without('inDeployment', 'id')
-// When a sensor is being added directly to a deployment, then don't allow the user to set the id themselves, this is to avoid clashes with more readable IDs that superusers assign to sensors on permanentHosts.
+.or('id', 'inDeployment')
+// If an ID isn't provided, then inDeployment must be, as this indicates that a deployment sensor is being created.
+.without('inDeployment', 'permanentHost')
+// I don't want inDeployment and permanentHost to be set at the same time. Is the sensor has a permanentHost then the mechanism for adding the sensor to a deployment is via a registration key.
 .required();
 
 router.post('/sensors', permissionsCheck('create:sensor'), asyncWrapper(async (req, res): Promise<any> => {
@@ -59,6 +60,15 @@ router.post('/sensors', permissionsCheck('create:sensor'), asyncWrapper(async (r
   return res.status(201).json(createdSensorForClient);
 
 }));
+
+
+//-------------------------------------------------
+// Create a deployment sensor
+//-------------------------------------------------
+// TODO: Do not allow the following properties to be set via this endpoint:
+// 1. id - this will be auto-assigned to ensure it has a "ds-" prefix to avoid clashes with non-deployment-sensor ids.
+// 2. inDeployment - this should come from the url path.
+// 3. permanentHost - deployment-bound sensors should not have a permanentHost.
 
 
 //-------------------------------------------------
@@ -110,9 +120,31 @@ router.get('/sensors', permissionsCheck('get:sensor'), asyncWrapper(async (req, 
 
 
 //-------------------------------------------------
-// Update sensor
+// Update sensor (for superusers)
 //-------------------------------------------------
-// i.e. PATCH /sensors/:sensorId (for superusers only)
+const updateSensorBodySchema = joi.object({
+  name: joi.string(),
+  description: joi.string(),
+  inDeployment: joi.string().allow(null),
+  permanentHost: joi.string().allow(null),
+  defaults: joi.array().items(defaultSchema).allow(null)
+  // N.B. this isn't where the isHostedBy can be changed, for sensors on permanentHosts this is changed during registration, and for deployment sensors this is handled at an endpoint with the deploymentId in the path.
+})
+.min(1)
+.required(); 
+
+router.patch('/sensors/:sensorId', permissionsCheck('update:sensor'), asyncWrapper(async (req, res): Promise<any> => {
+
+  const {error: bodyErr, value: body} = updateSensorBodySchema.validate(req.body);
+  if (bodyErr) throw new InvalidBody(bodyErr.message);
+
+  const sensorId = req.params.sensorId;
+
+  const updatedSensor = await updateSensor(sensorId, body);
+  const updatedSensorForClient = formatSensorForClient(updatedSensor);
+  return res.json(updatedSensorForClient);
+
+}));
 
 
 //-------------------------------------------------
@@ -138,10 +170,7 @@ router.delete('/sensors/:sensorId', permissionsCheck('delete:sensor'), asyncWrap
 
 
 
-//-------------------------------------------------
-// Create a deployment sensor
-//-------------------------------------------------
-// TODO: I.e. just a sensor with the inDeployment property already defined and without a permanentHost.
+
 
 
 //-------------------------------------------------
@@ -193,3 +222,4 @@ router.delete('/deployments/:deploymentId/sensors/:sensorId', deploymentLevelChe
   return res.status(204).send();
 
 }));
+
