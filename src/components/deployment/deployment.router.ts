@@ -179,7 +179,7 @@ router.post('/deployments', permissionsCheck('create:deployment'), asyncWrapper(
 //-------------------------------------------------
 const updateDeploymentBodySchema = joi.object({
   name: joi.string(),
-  description: joi.string(),
+  description: joi.string().allow(''),
   public: joi.boolean()
 })
 .min(1)

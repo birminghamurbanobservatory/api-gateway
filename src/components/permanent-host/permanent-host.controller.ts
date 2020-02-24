@@ -27,6 +27,17 @@ export async function getPermanentHost(permanentHostId: string): Promise<any> {
 }
 
 
+export async function updatePermanentHost(id: string, updates: any): Promise<any> {
+  const updatedSensor = await event.publishExpectingResponse('permament-host.update.request',  {
+    where: {
+      id
+    },
+    updates
+  });
+  return updatedSensor;
+}
+
+
 export async function deletePermanentHost(id: string): Promise<void> {
   await event.publishExpectingResponse('permanent-host.delete.request', {
     where: {

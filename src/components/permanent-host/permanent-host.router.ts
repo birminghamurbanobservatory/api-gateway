@@ -2,7 +2,8 @@ import * as joi from '@hapi/joi';
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import {InvalidPermanentHost} from './errors/InvalidPermanentHost';
-import {createPermanentHost, formatPermanentHostForClient, getPermanentHost, getPermanentHosts, deletePermanentHost} from './permanent-host.controller';
+import {InvalidPermanentHostUpdates} from './errors/InvalidPermanentHostUpdates';
+import {createPermanentHost, formatPermanentHostForClient, getPermanentHost, getPermanentHosts, deletePermanentHost, updatePermanentHost} from './permanent-host.controller';
 import {permissionsCheck} from '../../routes/middleware/permissions';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
@@ -75,7 +76,26 @@ router.get('/permanent-hosts/:permanentHostId', permissionsCheck('get:permanent-
 //-------------------------------------------------
 // Update Permanent Host
 //-------------------------------------------------
-// TODO
+const updatePermanentHostBodySchema = joi.object({
+  name: joi.string(),
+  description: joi.string().allow(''),
+  static: joi.boolean(),
+  updateLocationWithSensor: joi.string().allow(null)
+})
+.min(1)
+.required();
+
+router.patch('/permanent-hosts/:permanentHostId', permissionsCheck('update:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+
+  const {error: queryErr, value: body} = updatePermanentHostBodySchema.validate(req.body);
+  if (queryErr) throw new InvalidPermanentHostUpdates(queryErr.message);
+
+  const permanentHostId = req.params.permanentHostId;
+  const updatedPermanentHost = await updatePermanentHost(permanentHostId, body);
+  const permanentHostforClient = formatPermanentHostForClient(updatedPermanentHost);
+  return res.json(permanentHostforClient);
+
+}));
 
 
 
