@@ -23,15 +23,12 @@ export {router as SensorRouter};
 //-------------------------------------------------
 // Create Sensor
 //-------------------------------------------------
-const defaultSchema = joi.object({
-  observedProperty: joi.string(),
+const configSchema = joi.object({
+  hasPriority: joi.boolean().required(),
+  observedProperty: joi.string().required(),
   hasFeatureOfInterest: joi.string(),
-  usedProcedures: joi.array().items(joi.string()),
-  when: joi.array().items(joi.object({
-    observedProperty: joi.string(),
-    hasFeatureOfInterest: joi.string(),
-    usedProcedures: joi.array().items(joi.string()),    
-  }))
+  disciplines: joi.array().items(joi.string()),
+  usedProcedure: joi.array().items(joi.string())
 });
 
 const createSensorBodySchema = joi.object({
@@ -41,7 +38,8 @@ const createSensorBodySchema = joi.object({
   permanentHost: joi.string(),
   inDeployment: joi.string(),
   // N.B. isHostedBy is not allow here. Hosting a sensor on a platform is a separate step and depends on whether the sensor has a permanentHost or not. 
-  defaults: joi.array().items(defaultSchema)
+  initialConfig: joi.array().items(configSchema)
+  // No need to specify the currentConfig, because the sensor-deployment-mananger will handle this.
 })
 .or('id', 'inDeployment')
 // If an ID isn't provided, then inDeployment must be, as this indicates that a deployment sensor is being created.
@@ -128,7 +126,8 @@ const updateSensorBodySchema = joi.object({
   description: joi.string(),
   inDeployment: joi.string().allow(null),
   permanentHost: joi.string().allow(null),
-  defaults: joi.array().items(defaultSchema).allow(null)
+  initialConfig: joi.array().items(configSchema),
+  currentConfig: joi.array().items(configSchema)
   // N.B. this isn't where the isHostedBy can be changed, for sensors on permanentHosts this is changed during registration, and for deployment sensors this is handled at an endpoint with the deploymentId in the path.
 })
 .min(1)
@@ -202,16 +201,17 @@ router.use('/deployments/:deploymentId/sensors/:sensorId', asyncWrapper(async (r
 //-------------------------------------------------
 // Get Sensor (in deployment)
 //-------------------------------------------------
-// For a standard user to get sensors details. When it comes to showing the sensor's observedProperty, featureOfInterest or discipline, then these should probably come from the current context record rather than the sensor defaults as set by a superuser.
+// For a standard user to get sensors details. 
+// You'll probably want to remove the initialConfig object for these standard users, and just return the currentConfig instead.
 
 
 
 //-------------------------------------------------
 // Update sensor (deployment user)
 //-------------------------------------------------
-// Your bog standard deployment users won't be able to update much of a sensors details (even if they are an admin of the deployment). For example its name and description have come from whichever superuser created the sensor in the first place and thus a deployment user can't edit them. However this is a good endpoint from which to allow users to edit some of the context properties of a sensor. E.g. its current observedProperty, discipline and featureOfInterest. E.g.
-// PATCH /deployments/:deploymentId/sensors/:sensorID with body {observedProperty: 'temperature'};
-// Behind the scenes this won't update the defaults object in the sensor document, but instead will create a new live context document for this sensor.
+// PATCH /deployments/:deploymentId/sensors/:sensorId
+// Your bog standard deployment users won't be able to update much of a sensors details (even if they are an admin of the deployment). For example its name and description have come from whichever superuser created the sensor in the first place and thus a deployment user can't edit them. 
+// Here the user won't be able to update the initialConfig, however they can update the currentConfig, which will in turn affect which context properties are added to this sensor's incoming observations.
 
 
 

@@ -312,7 +312,7 @@ const createObservationBodySchema = joi.object({
     .required(),
   hasFeatureOfInterest: joi.string(),
   observedProperty: joi.string(),
-  usedProcedures: joi.array().items(joi.string())  
+  usedProcedure: joi.array().items(joi.string())  
 })
 .required();
 
