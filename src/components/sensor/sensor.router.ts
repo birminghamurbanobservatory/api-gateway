@@ -168,6 +168,7 @@ router.delete('/sensors/:sensorId', permissionsCheck('delete:sensor'), asyncWrap
 // Get a Deployment's sensors
 //-------------------------------------------------
 // TODO
+// For standard users to get a list of sensors in a particular deployment
 // /deployments/:deploymentId/sensors
 
 
@@ -198,13 +199,19 @@ router.use('/deployments/:deploymentId/sensors/:sensorId', asyncWrapper(async (r
 }));
 
 
+//-------------------------------------------------
+// Get Sensor (in deployment)
+//-------------------------------------------------
+// For a standard user to get sensors details. When it comes to showing the sensor's observedProperty, featureOfInterest or discipline, then these should probably come from the current context record rather than the sensor defaults as set by a superuser.
+
+
 
 //-------------------------------------------------
 // Update sensor (deployment user)
 //-------------------------------------------------
-// Your bog standard deployment users won't be able to update much of a sensors details (even if they are an admin of the deployment). For example its name and description have come from whichever superuser created the sensor in the first place and thus a deployment user can't edit them. However this is a good endpoint from which to allow users to edit some of the context properties of a sensor. E.g. its current observed property and feature of interest. E.g.
+// Your bog standard deployment users won't be able to update much of a sensors details (even if they are an admin of the deployment). For example its name and description have come from whichever superuser created the sensor in the first place and thus a deployment user can't edit them. However this is a good endpoint from which to allow users to edit some of the context properties of a sensor. E.g. its current observedProperty, discipline and featureOfInterest. E.g.
 // PATCH /deployments/:deploymentId/sensors/:sensorID with body {observedProperty: 'temperature'};
-// Behind the scenes this won't update defaults object in the sensor document, but instead will create a new live context document for this sensor.
+// Behind the scenes this won't update the defaults object in the sensor document, but instead will create a new live context document for this sensor.
 
 
 
