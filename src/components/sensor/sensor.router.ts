@@ -27,7 +27,7 @@ const configSchema = joi.object({
   hasPriority: joi.boolean().required(),
   observedProperty: joi.string().required(),
   hasFeatureOfInterest: joi.string(),
-  disciplines: joi.array().items(joi.string()),
+  discipline: joi.array().items(joi.string()),
   usedProcedure: joi.array().items(joi.string())
 });
 
