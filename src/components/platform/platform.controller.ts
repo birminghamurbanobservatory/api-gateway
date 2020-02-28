@@ -77,6 +77,12 @@ export function formatPlatformForClient(platform: object): object {
   const forClient = cloneDeep(platform);
   delete forClient.users;
   delete forClient.createdBy;
-  const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'location']);
+  const ordered: any = orderObjectKeys(forClient, ['id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'location']);
+  if (ordered.location) {
+    ordered.location = orderObjectKeys(ordered.location, ['id', 'geometry', 'validAt']);
+    if (ordered.location.geometry) {
+      ordered.location.geometry = orderObjectKeys(ordered.location.geometry, ['type', 'coordinates']);
+    }
+  }
   return ordered;
 }

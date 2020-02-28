@@ -47,6 +47,7 @@ const createPlatformBodySchema = joi.object({
     .required()
   }),
   isHostedBy: joi.string()
+  // N.B. ownerDeployment is not allowed in here, this must come from the url
 })
 .required();
 
@@ -159,7 +160,7 @@ router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any>
 
 
 //-------------------------------------------------
-// Get Platforms
+// Get Platforms (bypassing deployment)
 //-------------------------------------------------
 const getPlatformsQuerySchema = joi.object({
   inDeployment: joi.string(),
