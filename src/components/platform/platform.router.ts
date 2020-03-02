@@ -281,8 +281,8 @@ const updatePlatformBodySchema = joi.object({
     })
     .required()
   }),
-  updateLocationWithSensor: joi.string()
-    .when('static', {is: true, then: joi.forbidden()}),
+  updateLocationWithSensor: joi.string().allow(null)
+    .when('static', {is: true, then: joi.forbidden()})
 })
 .min(1)
 .required();
