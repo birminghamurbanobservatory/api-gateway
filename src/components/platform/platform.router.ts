@@ -4,7 +4,7 @@ import * as joi from '@hapi/joi';
 import * as logger from 'node-logger';
 import {InsufficientDeploymentRights} from '../../errors/InsufficientDeploymentRights';
 import {InvalidPlatform} from './errors/InvalidPlatform';
-import {createPlatform, getPlatforms, getPlatform, formatPlatformForClient, updatePlatform, rehostPlatform, deletePlatform, releasePlatformSensors} from './platform.controller';
+import {createPlatform, getPlatforms, getPlatform, formatPlatformForClient, updatePlatform, rehostPlatform, deletePlatform, releasePlatformSensors, unhostPlatform} from './platform.controller';
 import {validateGeometry} from '../../utils/geojson-validator';
 import * as check from 'check-types';
 import {PlatformNotFound} from './errors/PlatformNotFound';
@@ -269,8 +269,18 @@ const updatePlatformBodySchema = joi.object({
   name: joi.string(),
   description: joi.string(),
   static: joi.boolean(),
-  isHostedBy: joi.string(),
-  // TODO: Allow the location to be updated here? Probably only want to allow this for static platforms.
+  isHostedBy: joi.string().allow(),
+  location: joi.object({
+    geometry: joi.object({
+      type: joi.string().required(),
+      coordinates: joi.array().required()
+    })
+    .custom((value): any => {
+      validateGeometry(value); // throws an error if invalid
+      return value;
+    })
+    .required()
+  }),
   updateLocationWithSensor: joi.string()
     .when('static', {is: true, then: joi.forbidden()}),
 })
@@ -327,6 +337,11 @@ router.patch('/deployments/:deploymentId/platforms/:platformId', deploymentLevel
     // Rehost the platform
     await rehostPlatform(platformId, body.isHostedBy);
 
+  }
+
+  // Unhost a platform
+  if (body.isHostedBy === null) {
+    await unhostPlatform(platformId);
   }
 
   const basicUpdates = pick(body, ['name', 'description', 'static']);

@@ -51,6 +51,16 @@ export async function rehostPlatform(id: string, hostId: string): Promise<any> {
 }
 
 
+export async function unhostPlatform(id: string): Promise<any> {
+  const updatedPlatform = await event.publishExpectingResponse('platform.unhost.request', {
+    where: {
+      id
+    }
+  });
+  return updatedPlatform;
+}
+
+
 export async function deletePlatform(id: string): Promise<void> {
   await event.publishExpectingResponse('platform.delete.request', {
     where: {
