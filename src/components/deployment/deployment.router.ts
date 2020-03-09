@@ -2,7 +2,7 @@
 // Dependencies
 //-------------------------------------------------
 import express from 'express';
-import {getDeployments, getDeployment, createDeployment, deleteDeployment, updateDeployment, formatDeploymentForClient} from './deployment.controller';
+import {getDeployments, getDeployment, createDeployment, deleteDeployment, updateDeployment} from './deployment.service';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
@@ -16,6 +16,7 @@ import * as logger from 'node-logger';
 import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
 import {concat, uniqBy, pick} from 'lodash';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
+import {formatDeploymentForClient} from './deployment.formatter';
 
 const router = express.Router();
 

@@ -11,13 +11,13 @@ import {PlatformNotFound} from './errors/PlatformNotFound';
 import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
 import {InvalidPlatformUpdates} from './errors/InvalidPlatformUpdates';
 import * as Promise from 'bluebird';
-import {getDeployment, getDeployments} from '../deployment/deployment.controller';
+import {getDeployment, getDeployments} from '../deployment/deployment.service';
 import {Forbidden} from '../../errors/Forbidden';
 import {pick, concat, uniqBy} from 'lodash';
 import {inConditional} from '../../utils/custom-joi-validations';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {getLevelsForDeployments} from '../deployment/deployment-users.controller';
+import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 
 
 const router = express.Router();
@@ -165,6 +165,7 @@ router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any>
 const getPlatformsQuerySchema = joi.object({
   inDeployment: joi.string(),
   inDeployment_in: joi.string().custom(inConditional),
+  // Add the option to exclude platforms in public deployments that are not the user's deployment.
 })
 .without('inDeployment', 'inDeployment__in');
 

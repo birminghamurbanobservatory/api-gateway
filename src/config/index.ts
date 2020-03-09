@@ -6,8 +6,10 @@ dotenv.config();
 import * as common from './components/common';
 import * as logger from './components/logger';
 import * as events from './components/events';
+import * as api from './components/api';
 import * as auth0 from './components/auth0';
 
+
 // Export
-export const config = Object.assign({}, common, logger, events, auth0);
+export const config = Object.assign({}, common, logger, events, api, auth0);
 

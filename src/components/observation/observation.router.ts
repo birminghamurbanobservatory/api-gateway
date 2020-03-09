@@ -9,14 +9,17 @@ import * as check from 'check-types';
 import {permissionsCheck} from '../../routes/middleware/permissions';
 import {Forbidden} from '../../errors/Forbidden';
 import * as logger from 'node-logger';
-import {formatObservationForClient, getObservation, getObservations, deleteObservation, createObservation} from './observation.controller';
+import {getObservation, deleteObservation, createObservation} from './observation.service';
+import {getObservations, getObservationsFromSingleDeployment, getObservationsFromSinglePlatform} from './observation.controller';
 import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {pick, concat, uniqBy} from 'lodash';
+import {pick} from 'lodash';
 import {Promise} from 'bluebird';
-import {getDeployment, getDeployments} from '../deployment/deployment.controller';
+import {getDeployment, getDeployments} from '../deployment/deployment.service';
 import {inConditional} from '../../utils/custom-joi-validations';
-import {getLevelsForDeployments} from '../deployment/deployment-users.controller';
+import {getLevelsForDeployments} from '../deployment/deployment-users.service';
+import {formatObservationForClient} from './observation.formatter';
+
 
 const router = express.Router();
 
@@ -70,77 +73,18 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   });
   const where = convertQueryToWhere(wherePart);
 
-  const userId = req.user.id;
-  const hasSuperUserPermission = req.user.permissions && 
+  const canAccessAllObservations = req.user.permissions && 
     (req.user.permissions.includes('get:observation') || 
-    req.user.permissions.includes('admin-all:deployments')); 
-  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observatiosn, but not be allowed to see any of the extra data that would accessable if they were an admin to every deployment, e.g. a platform's description.
+    req.user.permissions.includes('admin-all:deployments'));
+  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observation, but not be allowed to see any of the extra data that would accessable if they were an admin to every deployment, e.g. a platform's description.
 
-  //------------------------
-  // inDeployment specified
-  //------------------------
-  // If inDeployment has been specified then check that the user has rights to these deployment(s).
-  if (where.inDeployment && !hasSuperUserPermission) {
+  const user = {
+    id: req.user.id,
+    canAccessAllObservations
+  };
 
-    const deploymentIdsToCheck = check.string(where.inDeployment) ? [check.string(where.inDeployment)] : where.inDeployment.in;
-
-    // Decided to add an event-stream that lets us check a user's rights to multiple deployments in a single request. I.e can pass a single userId (or none at all), and an array of deployment IDs, and for each we return the level of access they have. The benefit being that we have a single even stream request, with only the vital data being returned, and the sensor-deployment-manager can be setup so it only makes a single mongodb request to get info on multiple deployments. Therefore should be faster.
-    let deploymentLevels;
-    if (userId) {
-      // N.b. this should error if any of the deployments don't exist
-      deploymentLevels = await getLevelsForDeployments(deploymentIdsToCheck, userId);
-    } else {
-      deploymentLevels = await getLevelsForDeployments(deploymentIdsToCheck);
-    }
-
-    // If there's no level defined for any of these deployments then throw an error
-    deploymentLevels.forEach((deploymentLevel): void => {
-      if (!deploymentLevel.level) {
-        throw new Forbidden(`You do not have the rights to access observations from the deployment '${deploymentLevel.deploymentId}'.`);
-      }
-    });
-    
-  }
-
-  //------------------------
-  // inDeployment unspecified
-  //------------------------
-  // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
-  if (!where.inDeployment && !hasSuperUserPermission) {
-
-    let usersDeployments = [];
-    let publicDeployments = [];
-    if (req.user.id) {
-      usersDeployments = await getDeployments({user: req.user.id});
-    }
-    publicDeployments = await getDeployments({public: true});
-    const combindedDeployments = concat(usersDeployments, publicDeployments);
-    const uniqueDeployments = uniqBy(combindedDeployments, 'id');
-    if (uniqueDeployments.length === 0) {
-      throw new Forbidden('You do not have access to any deployments and therefore its not possible to retrieve any observations.');
-    }
-    const deploymentIds = uniqueDeployments.map((deployment): string => deployment.id);
-    where.inDeployment = {
-      in: deploymentIds
-    };
-
-  }
-
-  if (hasSuperUserPermission) {
-    // TODO: might want to check the deployments actually exist.
-  }
-
-  
-  // TODO: If the user doesn't provide specific deploymentIds then we get a list for them. This means that if isHostedBy or madeBySensor parameters are specified then no observations will be returned for these if they don't belong in the user's deployments. The question is whether we should throw an error that lets them know that the platform or sensor isn't in the list of deployments.
-
-  // Quick safety check to make sure non-super users can't go retrieving observations without their deployments being defined.
-  if (!hasSuperUserPermission && (!where.inDeployment && !where.inDeployment__in)) {
-    throw new Error(' A non-super user is able to request observations without specifying deployments. Code needs editing to fix this.');
-  }
-
-  const observations = await getObservations(where, options);
-  const observationsForClient = observations.map(formatObservationForClient);
-  return res.json(observationsForClient);
+  const jsonResponse = await getObservations(where, options, user);
+  return res.json(jsonResponse);
 
 }));
 
@@ -167,6 +111,7 @@ const getDeploymentObservationsQuerySchema = joi.object({
   offset: joi.number().integer().positive()
 });
 
+// The user's rights to the deployment should have already been checked by the deployment router.
 router.get('/deployments/:deploymentId/observations', asyncWrapper(async (req, res): Promise<any> => {
 
   const deploymentId = req.params.deploymentId;
@@ -179,9 +124,7 @@ router.get('/deployments/:deploymentId/observations', asyncWrapper(async (req, r
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
-  const wherePart = {
-    inDeployment: deploymentId
-  };
+  const wherePart = {};
   Object.keys(query).forEach((key): void => {
     if (!optionKeys.includes(key)) {
       wherePart[key] = query[key];
@@ -189,9 +132,9 @@ router.get('/deployments/:deploymentId/observations', asyncWrapper(async (req, r
   });
   const where = convertQueryToWhere(wherePart);
 
-  const observations = await getObservations(where, options);
-  const observationsForClient = observations.map(formatObservationForClient);
-  return res.json(observationsForClient);  
+  const jsonResponse = await getObservationsFromSingleDeployment(deploymentId, where, options);
+
+  return res.json(jsonResponse);
 
 }));
 
@@ -250,9 +193,8 @@ router.get('/deployments/:deploymentId/platforms/:platformId/observations', asyn
     where.isHostedBy = platformId;
   }
 
-  const observations = await getObservations(where, options);
-  const observationsForClient = observations.map(formatObservationForClient);
-  return res.json(observationsForClient); 
+  const jsonResponse = await getObservationsFromSinglePlatform(where, options);
+  return res.json(jsonResponse); 
 
 }));
 

@@ -103,6 +103,8 @@ const getSensorsQuerySchema = joi.object({
 // Can't see a reason why not to use get:sensor as permission to get either a single or multiple sensors.
 router.get('/sensors', permissionsCheck('get:sensor'), asyncWrapper(async (req, res): Promise<any> => {
 
+  // TODO: Is this yet another endpoint that we need to allow non-superusers to access. E.g. to be able to find all the sensors that could be used to update the location of a platform.
+
   logger.debug('Raw query parameters', req.query);
   const {error: queryErr, value: query} = getSensorsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);  
