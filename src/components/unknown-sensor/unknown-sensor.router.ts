@@ -4,7 +4,9 @@
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import {permissionsCheck} from '../../routes/middleware/permissions';
-import {getUnknownSensors, formatUnknownSensorForClient} from './unknown-sensor.controller';
+import {getUnknownSensors} from './unknown-sensor.controller';
+import * as joi from '@hapi/joi';
+import {InvalidQueryString} from '../../errors/InvalidQueryString';
 
 const router = express.Router();
 
@@ -13,13 +15,23 @@ export {router as UnknownSensorRouter};
 
 
 //-------------------------------------------------
-// Get Sensor
+// Get Unknown Sensors
 //-------------------------------------------------
+const getUnknownSensorsQuerySchema = joi.object({
+  limit: joi.number().integer().positive().max(1000),
+  offset: joi.number().integer().positive(),
+  sortBy: joi.string().valid('id'),
+  sortOrder: joi.string().valid('asc', 'desc')
+});
+
 router.get('/unknown-sensors', permissionsCheck('get:unknown-sensor'), asyncWrapper(async (req, res): Promise<any> => {
 
-  const unknownSensors = await getUnknownSensors();
-  const unknownSensorsForClient = unknownSensors.map(formatUnknownSensorForClient);
-  return res.json(unknownSensorsForClient);
+  const {error: queryErr, value: query} = getUnknownSensorsQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  // TODO: Add a header to indicate that the content-type is JSON-LD?
+  const jsonResponse = await getUnknownSensors(query);
+  return res.json(jsonResponse);
 
 }));
 

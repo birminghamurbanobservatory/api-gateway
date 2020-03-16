@@ -193,6 +193,7 @@ router.get('/deployments/:deploymentId/platforms/:platformId/observations', asyn
     where.isHostedBy = platformId;
   }
 
+  // TODO: Add a header to indicate that the content-type is JSON-LD?
   const jsonResponse = await getObservationsFromSinglePlatform(where, options);
   return res.json(jsonResponse); 
 

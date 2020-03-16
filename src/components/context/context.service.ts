@@ -5,5 +5,6 @@ const ext = '.jsonld';
 
 export const contextLinks = {
   collection: `${apiBase}/context/collection${ext}`,
-  observation: `${apiBase}/context/observation${ext}`
+  observation: `${apiBase}/context/observation${ext}`,
+  unknownSensor: `${apiBase}/context/unknown-sensor${ext}`
 };

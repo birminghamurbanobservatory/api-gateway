@@ -1,5 +1,9 @@
 
 const dictionary: any = {
+  limit: 'limit',
+  offset: 'offset',
+  sortby: 'sortBy',
+  sortorder: 'sortOrder',
   includeallpublic: 'includeAllPublic',
   indeployment: 'inDeployment',
   indeployment__in: 'inDeployment__in',
@@ -16,7 +20,7 @@ const dictionary: any = {
   resulttime__lt: 'resultTime__lt',
   resulttime__lte: 'resultTime__lte',
   permanenthost: 'permanentHost',
-  permanenthost__isdefined: 'permanentHost__isDefined'
+  permanenthost__isdefined: 'permanentHost__isDefined',
 };
 
 
