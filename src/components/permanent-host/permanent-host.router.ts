@@ -3,8 +3,7 @@ import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import {InvalidPermanentHost} from './errors/InvalidPermanentHost';
 import {InvalidPermanentHostUpdates} from './errors/InvalidPermanentHostUpdates';
-import {createPermanentHost, formatPermanentHostForClient, getPermanentHost, getPermanentHosts, deletePermanentHost, updatePermanentHost} from './permanent-host.controller';
-import {permissionsCheck} from '../../routes/middleware/permissions';
+import {createPermanentHost, getPermanentHost, getPermanentHosts, deletePermanentHost, updatePermanentHost} from './permanent-host.controller';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick} from 'lodash';
@@ -26,14 +25,13 @@ const createPermanentHostBodySchema = joi.object({
 })
 .required();
 
-router.post('/permanent-hosts', permissionsCheck('create:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+router.post('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: bodyErr, value: body} = createPermanentHostBodySchema.validate(req.body);
   if (bodyErr) throw new InvalidPermanentHost(bodyErr.message);
 
-  const createdPermanentHost = await createPermanentHost(body);
-  const createdPermanentHostForClient = formatPermanentHostForClient(createdPermanentHost);
-  return res.status(201).json(createdPermanentHostForClient);
+  const jsonResponse = await createPermanentHost(body, req.user);
+  return res.status(201).json(jsonResponse);
 
 }));
 
@@ -45,7 +43,7 @@ const getPermanentHostsQuerySchema = joi.object({
   id__begins: joi.string()
 });
 
-router.get('/permanent-hosts', permissionsCheck('get:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+router.get('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: query} = getPermanentHostsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
@@ -53,9 +51,8 @@ router.get('/permanent-hosts', permissionsCheck('get:permanent-host'), asyncWrap
   const whereKeys = ['id__begins'];
   const where = convertQueryToWhere(pick(query, whereKeys));
 
-  const permanentHosts = await getPermanentHosts(where);
-  const permanentHostsForClient = permanentHosts.map(formatPermanentHostForClient);
-  return res.json(permanentHostsForClient);
+  const jsonResponse = await getPermanentHosts(where, req.user);
+  return res.json(jsonResponse);
 
 }));
 
@@ -63,12 +60,11 @@ router.get('/permanent-hosts', permissionsCheck('get:permanent-host'), asyncWrap
 //-------------------------------------------------
 // Get Permanent Host
 //-------------------------------------------------
-router.get('/permanent-hosts/:permanentHostId', permissionsCheck('get:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+router.get('/permanent-hosts/:permanentHostId', asyncWrapper(async (req, res): Promise<any> => {
 
   const permanentHostId = req.params.permanentHostId;
-  const permanentHost = await getPermanentHost(permanentHostId);
-  const permanentHostForClient = formatPermanentHostForClient(permanentHost);
-  return res.status(201).json(permanentHostForClient);
+  const jsonResponse = await getPermanentHost(permanentHostId, req.user);
+  return res.status(201).json(jsonResponse);
 
 }));
 
@@ -85,15 +81,14 @@ const updatePermanentHostBodySchema = joi.object({
 .min(1)
 .required();
 
-router.patch('/permanent-hosts/:permanentHostId', permissionsCheck('update:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+router.patch('/permanent-hosts/:permanentHostId', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: body} = updatePermanentHostBodySchema.validate(req.body);
   if (queryErr) throw new InvalidPermanentHostUpdates(queryErr.message);
 
   const permanentHostId = req.params.permanentHostId;
-  const updatedPermanentHost = await updatePermanentHost(permanentHostId, body);
-  const permanentHostforClient = formatPermanentHostForClient(updatedPermanentHost);
-  return res.json(permanentHostforClient);
+  const jsonResponse = await updatePermanentHost(permanentHostId, body, req.user);
+  return res.json(jsonResponse);
 
 }));
 
@@ -102,11 +97,11 @@ router.patch('/permanent-hosts/:permanentHostId', permissionsCheck('update:perma
 //-------------------------------------------------
 // Delete Permanent Host
 //-------------------------------------------------
-router.delete('/permanent-hosts/:permanentHostId', permissionsCheck('delete:permanent-host'), asyncWrapper(async (req, res): Promise<any> => {
+router.delete('/permanent-hosts/:permanentHostId', asyncWrapper(async (req, res): Promise<any> => {
 
   const permanentHostId = req.params.permanentHostId;  
 
-  await deletePermanentHost(permanentHostId);
+  await deletePermanentHost(permanentHostId, req.user);
   return res.status(204).send();
 
 }));

@@ -48,3 +48,59 @@ export function getObservationContext(): object {
   };
   return context;
 }
+
+
+//-------------------------------------------------
+// Unknown Sensor
+//-------------------------------------------------
+export function getUnknownSensorContext(): object {
+  const context = {
+    // TODO
+  };
+  return context;
+}
+
+
+
+//-------------------------------------------------
+// Deployment
+//-------------------------------------------------
+export function getDeploymentContext(): object {
+  const context = {
+    // TODO
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
+// Platform
+//-------------------------------------------------
+export function getPlatformContext(): object {
+  const context = {
+    // TODO
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
+// Sensor
+//-------------------------------------------------
+export function getSensorContext(): object {
+  const context = {
+    // TODO
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
+// Permanent Host
+//-------------------------------------------------
+export function getPermanentHostContext(): object {
+  const context = {
+    // TODO
+  };
+  return context;
+}

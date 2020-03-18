@@ -3,7 +3,6 @@
 //-------------------------------------------------
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
-import {permissionsCheck} from '../../routes/middleware/permissions';
 import {getUnknownSensors} from './unknown-sensor.controller';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
@@ -24,13 +23,13 @@ const getUnknownSensorsQuerySchema = joi.object({
   sortOrder: joi.string().valid('asc', 'desc')
 });
 
-router.get('/unknown-sensors', permissionsCheck('get:unknown-sensor'), asyncWrapper(async (req, res): Promise<any> => {
+router.get('/unknown-sensors', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: query} = getUnknownSensorsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
 
   // TODO: Add a header to indicate that the content-type is JSON-LD?
-  const jsonResponse = await getUnknownSensors(query);
+  const jsonResponse = await getUnknownSensors(query, req.user);
   return res.json(jsonResponse);
 
 }));

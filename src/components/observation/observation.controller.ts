@@ -4,15 +4,20 @@ import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {Forbidden} from '../../errors/Forbidden';
 import {getDeployments} from '../deployment/deployment.service';
 import {concat, uniqBy} from 'lodash';
-import {formatObservationForClient} from './observation.formatter';
+import {formatObservationForClient, addContextToObservation, addContextToObservations} from './observation.formatter';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
+import {ApiUser} from '../common/api-user.class';
+import {permissionsCheck} from '../common/permissions-check';
 
 
 //-------------------------------------------------
 // Get observations 
 //-------------------------------------------------
-export async function getObservations(where: any, options: {limit?: number; offset?: number}, user: {id?: string; canAccessAllObservations?: boolean}): Promise<any> {
+export async function getObservations(where: any, options: {limit?: number; offset?: number}, user: ApiUser): Promise<any> {
+
+  const canAccessAllObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
+  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observation, but not be allowed to see any of the extra data that would accessable if they were an admin to every deployment, e.g. a platform's description.
 
   //------------------------
   // inDeployment specified
@@ -22,13 +27,13 @@ export async function getObservations(where: any, options: {limit?: number; offs
 
     const deploymentIdsToCheck = check.string(where.inDeployment) ? [check.string(where.inDeployment)] : where.inDeployment.in;
 
-    if (user.canAccessAllObservations) {
+    if (canAccessAllObservations) {
       // For users that can access all observations, all we need to check here is that the deployment ID(s) they have provided are for deployments that actually exist.
       // N.b. this should error if any of the deployments don't exist
       await getLevelsForDeployments(deploymentIdsToCheck);
     }
 
-    if (!user.canAccessAllObservations) {
+    if (!canAccessAllObservations) {
       // Decided to add an event-stream that lets us check a user's rights to multiple deployments in a single request. I.e can pass a single userId (or none at all), and an array of deployment IDs, and for each we return the level of access they have. The benefit being that we have a single even stream request, with only the vital data being returned, and the sensor-deployment-manager can be setup so it only makes a single mongodb request to get info on multiple deployments. Therefore should be faster.
       let deploymentLevels;
       if (user.id) {
@@ -53,7 +58,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
   // inDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
-  if (!where.inDeployment && !user.canAccessAllObservations) {
+  if (!where.inDeployment && !canAccessAllObservations) {
 
     let usersDeployments = [];
     let publicDeployments = [];
@@ -76,56 +81,84 @@ export async function getObservations(where: any, options: {limit?: number; offs
   // TODO: If the user doesn't provide specific deploymentIds then we get a list for them. This means that if isHostedBy or madeBySensor parameters are specified then no observations will be returned for these if they don't belong in the user's deployments. The question is whether we should throw an error that lets them know that the platform or sensor isn't in the list of deployments.
 
   // Quick safety check to make sure non-super users can't go retrieving observations without their deployments being defined.
-  if (!user.canAccessAllObservations && (!where.inDeployment && !where.inDeployment.in)) {
+  if (canAccessAllObservations && (!where.inDeployment && !where.inDeployment.in)) {
     throw new Error(' A non-superuser is able to request observations without specifying deployments. Server code needs editing to fix this.');
   }
 
   const observations = await observationService.getObservations(where, options);
   const observationsForClient = observations.map(formatObservationForClient);
-
-  const observationsWithContext = {
-    '@context': [
-      contextLinks.collection,
-      contextLinks.observation
-    ],
-    '@id': `${config.api.base}/observations`, // better defining this in the router?
-    '@type': [
-      'Collection'
-      // TODO: Any more types to add in here?
-    ], 
-    member: observationsForClient
-  };
-
+  const observationsWithContext = addContextToObservations(observationsForClient);
   return observationsWithContext;
 
 }
 
 
 //-------------------------------------------------
-// Get Observations from a single deployment
+// Get Observation
 //-------------------------------------------------
-export async function getObservationsFromSingleDeployment(deploymentId: string, where: any, options: {limit?: number; offset?: number}): Promise<any> {
+export async function getObservation(observationId, user: ApiUser): Promise<any> {
 
-  where.inDeployment = deploymentId;
+  let hasSufficientRights; 
+  const canAccessAllObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
 
-  const observations = await observationService.getObservations(where, options);
-  const observationsForClient = observations.map(formatObservationForClient);
+  const observation = await observationService.getObservation(observationId);
 
-  // TODO: Need to make this a JSON-LD response
-  return observationsForClient;
+  if (canAccessAllObservations) {
+    hasSufficientRights = true;
+
+  } else {
+    
+    let deploymentLevels;
+    if (user.id) {
+      // N.b. this should error if any of the deployments don't exist
+      deploymentLevels = await getLevelsForDeployments(observation.inDeployments, user.id);
+    } else {
+      deploymentLevels = await getLevelsForDeployments(observation.inDeployments);
+    }
+
+    const hasRightsToAtLeastOneDeployment = deploymentLevels.some((deploymentLevel): boolean => {
+      return Boolean(deploymentLevel.level);
+    }); 
+
+    if (hasRightsToAtLeastOneDeployment) {
+      hasSufficientRights = true;
+    }
+
+  }
+
+  if (!hasSufficientRights) {
+    throw new Forbidden(`You do not have the deployment access levels required to access observation '${observationId}'`);
+  }
+
+  const observationForClient = formatObservationForClient(observation);
+  const observationWithContext = addContextToObservation(observationForClient);
+  return observationWithContext;
 
 }
 
 
 //-------------------------------------------------
-// Get Observations from a single platform
+// Create Observation
 //-------------------------------------------------
-export async function getObservationsFromSinglePlatform(where: any, options: {limit?: number; offset?: number}): Promise<any> {
+export async function createObservation(observation, user: ApiUser): Promise<any> {
 
-  const observations = await observationService.getObservations(where, options);
-  const observationsForClient = observations.map(formatObservationForClient);
+  permissionsCheck(user, 'create:observation');
 
-  // TODO: Need to make this a JSON-LD response
-  return observationsForClient;
+  const createdObservation = await observationService.createObservation(observation);
+  const observationForClient = formatObservationForClient(createdObservation);
+  const observationWithContext = addContextToObservation(observationForClient);
+  return observationWithContext;
+
+}
+
+
+//-------------------------------------------------
+// Delete Observation
+//-------------------------------------------------
+export async function deleteObservation(observationId: string, user: ApiUser): Promise<any> {
+
+  permissionsCheck(user, 'delete:observation');
+  await observationService.deleteObservation(observationId);
+  return;
 
 }

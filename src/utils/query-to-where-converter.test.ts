@@ -20,13 +20,13 @@ describe('convertQueryToWhere function testing', () => {
   });
 
 
-  test('Handles __isDefined', () => {
+  test('Handles __exists', () => {
     const query = {
-      inDeployment__isDefined: false
+      inDeployment__exists: false
     };
     const expectedWhere = {
       inDeployment: {
-        isDefined: false
+        exists: false
       }
     };
     expect(convertQueryToWhere(query)).toEqual(expectedWhere);
@@ -35,13 +35,13 @@ describe('convertQueryToWhere function testing', () => {
 
   test('Handles multiple key conversions', () => {
     const query = {
-      inDeployment__isDefined: false,
+      inDeployment__exists: false,
       value__gte: 20,
       id__begins: 'abc'
     };
     const expectedWhere = {
       inDeployment: {
-        isDefined: false,
+        exists: false,
       },
       value: {
         gte: 20

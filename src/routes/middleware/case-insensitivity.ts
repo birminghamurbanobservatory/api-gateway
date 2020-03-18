@@ -20,7 +20,7 @@ const dictionary: any = {
   resulttime__lt: 'resultTime__lt',
   resulttime__lte: 'resultTime__lte',
   permanenthost: 'permanentHost',
-  permanenthost__isdefined: 'permanentHost__isDefined',
+  permanenthost__exists: 'permanentHost__exists',
 };
 
 

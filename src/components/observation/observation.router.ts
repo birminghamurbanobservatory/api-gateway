@@ -6,11 +6,9 @@ import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import * as check from 'check-types';
-import {permissionsCheck} from '../../routes/middleware/permissions';
 import {Forbidden} from '../../errors/Forbidden';
 import * as logger from 'node-logger';
-import {getObservation, deleteObservation, createObservation} from './observation.service';
-import {getObservations, getObservationsFromSingleDeployment, getObservationsFromSinglePlatform} from './observation.controller';
+import {getObservations, getObservation, deleteObservation, createObservation} from './observation.controller';
 import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick} from 'lodash';
@@ -34,7 +32,7 @@ const getObservationsQuerySchema = joi.object({
   observedProperty: joi.string(),
   hasFeatureOfInterest: joi.string(),
   inDeployment: joi.string(),
-  inDeployment_in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
+  inDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
   isHostedBy: joi.string(), // platform id just has to occur anywhere in the path
   isHostedBy__in: joi.string().custom(inConditional),
@@ -73,17 +71,7 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   });
   const where = convertQueryToWhere(wherePart);
 
-  const canAccessAllObservations = req.user.permissions && 
-    (req.user.permissions.includes('get:observation') || 
-    req.user.permissions.includes('admin-all:deployments'));
-  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observation, but not be allowed to see any of the extra data that would accessable if they were an admin to every deployment, e.g. a platform's description.
-
-  const user = {
-    id: req.user.id,
-    canAccessAllObservations
-  };
-
-  const jsonResponse = await getObservations(where, options, user);
+  const jsonResponse = await getObservations(where, options, req.user);
   return res.json(jsonResponse);
 
 }));
@@ -132,7 +120,9 @@ router.get('/deployments/:deploymentId/observations', asyncWrapper(async (req, r
   });
   const where = convertQueryToWhere(wherePart);
 
-  const jsonResponse = await getObservationsFromSingleDeployment(deploymentId, where, options);
+  where.inDeployment = deploymentId;
+
+  const jsonResponse = await getObservations(where, options, req.user);
 
   return res.json(jsonResponse);
 
@@ -140,9 +130,8 @@ router.get('/deployments/:deploymentId/observations', asyncWrapper(async (req, r
 
 
 //-------------------------------------------------
-// Get observation (specific platform)
+// Get observations (specific deployment platform)
 //-------------------------------------------------
-// TODO: i.e. /deployments/:deploymentId/platforms/:platformId/observations
 const getPlatformObservationsQuerySchema = joi.object({
   // filtering
   observedProperty: joi.string(),
@@ -194,7 +183,7 @@ router.get('/deployments/:deploymentId/platforms/:platformId/observations', asyn
   }
 
   // TODO: Add a header to indicate that the content-type is JSON-LD?
-  const jsonResponse = await getObservationsFromSinglePlatform(where, options);
+  const jsonResponse = await getObservations(where, options, req.user);
   return res.json(jsonResponse); 
 
 }));
@@ -206,37 +195,9 @@ router.get('/deployments/:deploymentId/platforms/:platformId/observations', asyn
 router.get('/observations/:observationId', asyncWrapper(async (req, res): Promise<any> => {
 
   const observationId = req.params.observationId;
-  const observation = await getObservation(observationId);
 
-  const requiredPermission = 'get:observation';
-  if (!req.user.permissions || !req.user.permissions.includes(requiredPermission)) {
-    // Make sure the user has rights to at least one of the deployments this observation is in, or that the deployment is public.
-    if (!observation.inDeployments || observation.inDeployments.length === 0) {
-      throw new Forbidden('You do not have permission to see this observation. The observation does not belong to a deployment.');
-    }
-    const deployments = await Promise.map(observation.inDeployments, async (deploymentId): Promise<any> => {
-      return await getDeployment(deploymentId);
-    });
-    // Are any of these deployments public or one that this user has rights too
-    const match = deployments.find((deployment): any => {
-      if (deployment.public === true) {
-        return true;
-      }
-      if (req.user.id && req.deployment.users) {
-        const userIds = req.deployment.users.map((user): string => user.id);
-        if (userIds.includes(req.user.id)) {
-          return true;
-        }
-      }
-      return false;
-    });
-    if (!match) {
-      throw new Forbidden('This observation does not belong to a deployment that you have access to.');
-    }
-  }
-
-  const observationforClient = formatObservationForClient(observation);
-  return res.json(observationforClient);
+  const jsonResponse = await getObservation(observationId, req.user);
+  return res.json(jsonResponse);
 
 }));
 
@@ -260,14 +221,13 @@ const createObservationBodySchema = joi.object({
 .required();
 
 // This endpoint is more for superusers. If I ever want to allow standard users to contribute observation then it should be via an endpoint that includes the deployment ID in the url. 
-router.post('/observations', permissionsCheck('create:observation'), asyncWrapper(async (req, res): Promise<any> => {
+router.post('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: body} = createObservationBodySchema.validate(req.body);
   if (queryErr) throw new InvalidObservation(queryErr.message);
 
-  const createdObservation = await createObservation(body);
-  const observationforClient = formatObservationForClient(createdObservation);
-  return res.status(201).json(observationforClient);
+  const jsonResponse = await createObservation(body, req.user);
+  return res.status(201).json(jsonResponse);
 
 }));
 
@@ -277,10 +237,10 @@ router.post('/observations', permissionsCheck('create:observation'), asyncWrappe
 // Delete Observation
 //-------------------------------------------------
 // This endpoint is for superusers. If users of a deployment want to delete observations from one of their deployments then they must do this via DELETE /deployments/:deploymentId/observations/:observationId.
-router.delete('/observation/:observationId', permissionsCheck('delete:observation'), asyncWrapper(async (req, res): Promise<any> => {
+router.delete('/observation/:observationId', asyncWrapper(async (req, res): Promise<any> => {
 
   const observationId = req.params.observationId;
-  await deleteObservation(observationId);
+  await deleteObservation(observationId, req.user);
   return res.status(204).send();
 
 }));

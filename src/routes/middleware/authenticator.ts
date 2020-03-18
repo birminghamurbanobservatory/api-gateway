@@ -28,7 +28,9 @@ async function getKey(kid: string): Promise<string> {
 //-------------------------------------------------
 export async function lookForUserCredentials(req, res, next): Promise<void> {
 
-  req.user = {};
+  req.user = {
+    permissions: [] // saves having to check this exists in my controllers.
+  };
 
   // Is an access token present in the Authorization header
   if (req.headers.authorization) {

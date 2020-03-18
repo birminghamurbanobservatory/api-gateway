@@ -1,8 +1,6 @@
-import {InsufficientDeploymentRights} from '../../errors/InsufficientDeploymentRights';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as express from 'express';
-import {deploymentLevelCheck} from '../../routes/middleware/deployment-level';
-
+import {getDeploymentUsers} from './users.controller';
 
 const router = express.Router();
 
@@ -12,16 +10,15 @@ export {router as UserRouter};
 //-------------------------------------------------
 // Get a deployment's users
 //-------------------------------------------------
-router.get('/deployments/:deploymentId/users', deploymentLevelCheck(['admin', 'social']), asyncWrapper(async (req, res): Promise<any> => {
+router.get('/deployments/:deploymentId/users', asyncWrapper(async (req, res): Promise<any> => {
   
   // TODO: Call Auth0 to get some more meaningful user data.
 
-  const sufficientRightLevels = ['admin', 'social'];
-  if (!sufficientRightLevels.includes(req.user.deploymentLevel)) {
-    throw new InsufficientDeploymentRights(`To see a deployment's users you must have sufficient rights to the deployment (i.e. ${sufficientRightLevels.join(', ')}). Your level: ${req.user.deploymentLevel}.`);
-  }  
+  const deploymentId = req.params.deploymentId;
 
-  return res.json(req.deployment.users);
+  const jsonResponse = await getDeploymentUsers(deploymentId, req.user);
+  return res.json(jsonResponse);
+
 }));
 
 
