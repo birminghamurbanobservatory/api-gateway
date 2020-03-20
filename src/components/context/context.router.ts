@@ -1,6 +1,6 @@
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
-import {getObservationContext, getCollectionContext, getUnknownSensorContext, getDeploymentContext, getPlatformContext, getSensorContext} from './context.controller';
+import {getObservationContext, getCollectionContext, getUnknownSensorContext, getDeploymentContext, getPlatformContext, getSensorContext, getUrbanObservatoryContext} from './context.controller';
 
 const router = express.Router();  
 
@@ -39,5 +39,11 @@ router.get('/context/platform.jsonld', asyncWrapper(async (req, res): Promise<an
 
 router.get('/context/sensor.jsonld', asyncWrapper(async (req, res): Promise<any> => {
   const context = getSensorContext();
+  return res.json(context);
+}));
+
+
+router.get('/context/urban-observatory.jsonld', asyncWrapper(async (req, res): Promise<any> => {
+  const context = getUrbanObservatoryContext();
   return res.json(context);
 }));

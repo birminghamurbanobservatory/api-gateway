@@ -14,6 +14,6 @@ export {router as RootRouter};
 // Get
 //-------------------------------------------------
 router.get('/', asyncWrapper(async (req, res): Promise<any> => {
-  const jsonResponse = getRoot();
+  const jsonResponse = await getRoot();
   return res.send(jsonResponse);
 }));

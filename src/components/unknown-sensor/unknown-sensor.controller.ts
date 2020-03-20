@@ -1,4 +1,3 @@
-import * as event from 'event-stream';
 import * as unknownSensorService from './unknown-sensor.service';
 import {formatUnknownSensorForClient, addContextToUnknownSensors} from './unknown-sensor.formatter';
 import {PaginationOptions} from '../common/pagination-options.class';

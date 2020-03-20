@@ -104,3 +104,16 @@ export function getPermanentHostContext(): object {
   };
   return context;
 }
+
+
+//-------------------------------------------------
+// Urban Observatory
+//-------------------------------------------------
+export function getUrbanObservatoryContext(): object {
+  const context = {
+    schema: 'https://schema.org/',
+    name: 'schema:name',
+    description: 'schema:description'
+  };
+  return context;
+}

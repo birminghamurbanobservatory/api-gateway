@@ -10,5 +10,6 @@ export const contextLinks = {
   deployment: `${apiBase}/context/deployment${ext}`,
   platform: `${apiBase}/context/platform${ext}`,
   sensor: `${apiBase}/context/sensor${ext}`,
-  permanentHost: `${apiBase}/context/permanent-host${ext}`
+  permanentHost: `${apiBase}/context/permanent-host${ext}`,
+  urbanObservatory: `${apiBase}/context/urban-observatory${ext}`
 };
