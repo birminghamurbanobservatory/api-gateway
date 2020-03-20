@@ -4,7 +4,7 @@
 import {config} from './config';
 import * as logger from 'node-logger';
 const appName = require('../package.json').name; // Annoyingly if i use import here, the built app doesn't update.
-import {app} from './routes';
+import {app} from './server';
 import {initialiseEvents} from './events/initialise-events';
 import {getCorrelationId} from './utils/correlator';
 

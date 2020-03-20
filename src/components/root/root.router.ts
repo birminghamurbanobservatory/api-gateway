@@ -2,6 +2,9 @@
 // Dependencies
 //-------------------------------------------------
 import express from 'express';
+import {getRoot} from './root.controller';
+import {asyncWrapper} from '../../utils/async-wrapper';
+
 const router = express.Router();
 
 export {router as RootRouter};
@@ -10,6 +13,7 @@ export {router as RootRouter};
 //-------------------------------------------------
 // Get
 //-------------------------------------------------
-router.get('/', (req, res) => {
-  return res.send('Welcome to the API Gateway.');
-});
+router.get('/', asyncWrapper(async (req, res): Promise<any> => {
+  const jsonResponse = getRoot();
+  return res.send(jsonResponse);
+}));

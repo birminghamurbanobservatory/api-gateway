@@ -4,7 +4,7 @@
 import * as bodyParser from 'body-parser';
 import methodOverride from 'method-override';
 import express from 'express';
-import {RootRouter} from './root';
+import {RootRouter} from '../components/root/root.router';
 import {logRouteErrors} from './log-errors';
 import {handleRouteErrors} from './handle-errors';
 import {correlationIdMiddleware} from './middleware/correlator-id-middleware';

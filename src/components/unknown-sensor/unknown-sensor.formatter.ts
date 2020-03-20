@@ -35,7 +35,7 @@ export function addContextToUnknownSensor(unknownSensor: any): object {
 
 
 
-export function addContextToUnknownSensors(unknownSensors: any[]): object {
+export function addContextToUnknownSensors(unknownSensors: any[], extraInfo: {totalCount: number}): object {
 
   const unknownSensorsLd = unknownSensors.map(formatUnknownSensorAsLinkedData);
 
@@ -50,6 +50,9 @@ export function addContextToUnknownSensors(unknownSensors: any[]): object {
       // TODO: Any more types to add in here?
     ], 
     member: unknownSensorsLd,
+    meta: {
+      totalCount: extraInfo.totalCount
+    }
   };
 
   return unknownSensorsWithContext;
