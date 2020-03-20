@@ -50,6 +50,7 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
   const jsonResponse = await getDeployments(where, req.user, options);
   res.set('Content-Type', 'application/ld+json');
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -62,6 +63,7 @@ router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<
 
   const deploymentId = req.params.deploymentId;
   const jsonResponse = await getDeployment(deploymentId, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -85,6 +87,7 @@ router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidDeployment(queryErr.message);
 
   const jsonResponse = await createDeployment(body, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.status(201).json(jsonResponse);
 
 }));
@@ -109,6 +112,7 @@ router.patch('/deployments/:deploymentId', asyncWrapper(async (req, res): Promis
   const deploymentId = req.params.deploymentId;
 
   const jsonResponse = await updateDeployment(deploymentId, body, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));

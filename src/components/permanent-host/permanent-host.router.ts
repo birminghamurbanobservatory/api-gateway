@@ -52,6 +52,7 @@ router.get('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
   const where = convertQueryToWhere(pick(query, whereKeys));
 
   const jsonResponse = await getPermanentHosts(where, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -64,6 +65,7 @@ router.get('/permanent-hosts/:permanentHostId', asyncWrapper(async (req, res): P
 
   const permanentHostId = req.params.permanentHostId;
   const jsonResponse = await getPermanentHost(permanentHostId, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.status(201).json(jsonResponse);
 
 }));
@@ -88,6 +90,7 @@ router.patch('/permanent-hosts/:permanentHostId', asyncWrapper(async (req, res):
 
   const permanentHostId = req.params.permanentHostId;
   const jsonResponse = await updatePermanentHost(permanentHostId, body, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));

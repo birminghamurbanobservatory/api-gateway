@@ -30,6 +30,7 @@ router.get('/unknown-sensors', asyncWrapper(async (req, res): Promise<any> => {
 
   // TODO: Add a header to indicate that the content-type is JSON-LD?
   const jsonResponse = await getUnknownSensors(query, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));

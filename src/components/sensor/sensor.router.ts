@@ -66,6 +66,7 @@ router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => 
 
   const sensorId = req.params.sensorId;
   const jsonResponse = await getSensor(sensorId, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -105,6 +106,7 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
   // TODO: At some point you may start needing to limit the number of sensors returned, e.g. allowing a user to provide a query parameter: limit=100, when this becomes the case you'll want to create an options argument for the getSensors function and for the event stream call, e.g. {limit: 100}, otherwise this could get messy trying to combine it with the where object.
 
   const jsonResponse = await getSensors(where, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -133,6 +135,7 @@ router.patch('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> =
   const sensorId = req.params.sensorId;
 
   const jsonResponse = await updateSensor(sensorId, body, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));

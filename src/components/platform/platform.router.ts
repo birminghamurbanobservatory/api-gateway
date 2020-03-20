@@ -62,6 +62,7 @@ router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any>
   const platformId = req.params.platformId;
   logger.debug(`Request to get platform ${platformId}`);
   const jsonResponse = await getPlatform(platformId, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -87,6 +88,7 @@ router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
   const where = convertQueryToWhere(query);
 
   const jsonResponse = await getPlatforms(where, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -127,6 +129,7 @@ router.patch('/platforms/:platformId', asyncWrapper(async (req, res): Promise<an
 
   const platformId = req.params.platformId;
   const jsonResponse = await updatePlatform(platformId, body, req.user);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
