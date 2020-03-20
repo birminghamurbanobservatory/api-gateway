@@ -49,6 +49,7 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
   }
 
   const jsonResponse = await getDeployments(where, req.user, options);
+  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));

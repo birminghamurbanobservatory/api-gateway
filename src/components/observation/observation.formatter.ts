@@ -57,24 +57,24 @@ export function formatObservationAsLinkedData(observation: any): object {
 
 export function addContextToObservation(observation: object): object {
 
-  const deploymentWithContext = formatObservationAsLinkedData(observation);
+  const observationWithContext = formatObservationAsLinkedData(observation);
 
-  deploymentWithContext['@context'] = [
+  observationWithContext['@context'] = [
     contextLinks.observation
   ];
 
-  const ordered = orderObjectKeys(deploymentWithContext, ['@context', '@id', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployment', 'isHostedBy']);
+  const ordered = orderObjectKeys(observationWithContext, ['@context', '@id', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployment', 'isHostedBy']);
   return ordered;
   
 }
 
 
 
-export function addContextToObservations(observations: any[]): object {
+export function addContextToObservations(observations: any[], extraInfo: any): object {
 
   const observationsLd = observations.map(formatObservationAsLinkedData);
 
-  const deploymentsWithContext = {
+  const observationsWithContext: any = {
     '@context': [
       contextLinks.collection,
       contextLinks.observation
@@ -85,9 +85,16 @@ export function addContextToObservations(observations: any[]): object {
       // TODO: Any more types to add in here?
     ], 
     member: observationsLd,
+    meta: {}
+    // TODO: Should the next property inside this meta object be an object, e.g. with a @id property for the actual link, but also a breakdown of the query string parameters, e.g. offset: 10. This can make it easier for front end applications to build their own links.
+    // TODO: For the next link we may want to incorporate a resultTime
   };
 
-  return deploymentsWithContext;
+  if (extraInfo.total) {
+    observationsWithContext.meta.total = extraInfo.total;
+  }
+
+  return observationsWithContext;
 
 }
 

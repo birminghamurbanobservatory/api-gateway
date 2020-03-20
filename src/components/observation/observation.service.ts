@@ -3,12 +3,15 @@ import * as event from 'event-stream';
 
 export async function getObservations(where: object, options: object): Promise<any> {
 
-  const observations = await event.publishExpectingResponse('observations.get.request', {
+  const response = await event.publishExpectingResponse('observations.get.request', {
     where,
     options
   });
 
-  return observations;
+  return {
+    observations: response.data,
+    meta: response.meta
+  };
 
 }
 

@@ -47,6 +47,7 @@ const getObservationsQuerySchema = joi.object({
   // options
   limit: joi.number().integer().positive().max(1000),
   offset: joi.number().integer().positive()
+  // TODO: Provide a way of omitting some of the properties to save data, e.g. if they asked for discipline=meteorology then we could exclude the discipline property. Maybe have a query string parameter such as `lean=true`.
 })
 .without('inDeployment', 'inDeployment__in')
 .without('resultTime__gt', 'resultTime__gte')

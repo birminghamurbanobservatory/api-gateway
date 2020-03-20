@@ -85,9 +85,9 @@ export async function getObservations(where: any, options: {limit?: number; offs
     throw new Error(' A non-superuser is able to request observations without specifying deployments. Server code needs editing to fix this.');
   }
 
-  const observations = await observationService.getObservations(where, options);
+  const {observations, meta} = await observationService.getObservations(where, options);
   const observationsForClient = observations.map(formatObservationForClient);
-  const observationsWithContext = addContextToObservations(observationsForClient);
+  const observationsWithContext = addContextToObservations(observationsForClient, meta);
   return observationsWithContext;
 
 }

@@ -9,10 +9,10 @@ export async function getUnknownSensors(options: PaginationOptions, user: ApiUse
 
   permissionsCheck(user, 'get:unknown-sensor');
 
-  const {unknownSensors, totalCount} = await unknownSensorService.getUnknownSensors(options);
+  const {unknownSensors, total} = await unknownSensorService.getUnknownSensors(options);
   const unknownSensorsForClient = unknownSensors.map(formatUnknownSensorForClient);
   // TODO: this step of adding context may have to be moved to the router, so that we know what querystring parameters to add in order to construct the next URL, unless we can figure it out from the options argument.
-  const unknownSensorsWithContext = addContextToUnknownSensors(unknownSensorsForClient, {totalCount});
+  const unknownSensorsWithContext = addContextToUnknownSensors(unknownSensorsForClient, {total});
   return unknownSensorsWithContext;
 
 }
