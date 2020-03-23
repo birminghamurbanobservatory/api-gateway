@@ -74,8 +74,8 @@ router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any>
 const getPlatformsQuerySchema = joi.object({
   inDeployment: joi.string(),
   inDeployment__in: joi.string().custom(inConditional),
+  isHostedBy__exists: joi.boolean()
   // TODO: Add the option to exclude platforms in public deployments that are not the user's deployment.
-  // TODO: Add in isHostedBy_exists so I can filter down to just top level platforms.
 })
 .without('inDeployment', 'inDeployment__in');
 
