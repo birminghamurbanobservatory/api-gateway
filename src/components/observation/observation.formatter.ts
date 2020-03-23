@@ -34,6 +34,7 @@ export function formatObservationAsLinkedData(observation: any): object {
 
   forClient.madeBySensor = `${apiBase}/sensors/${forClient.madeBySensor}`;
 
+  // TODO: Replace this with a @base in the context instead.
   if (forClient.inDeployments) {
     forClient.inDeployment = forClient.inDeployments.map((deploymentId): string => {
       return `${apiBase}/deployments/${deploymentId}`;
@@ -41,6 +42,7 @@ export function formatObservationAsLinkedData(observation: any): object {
     delete forClient.inDeployments;
   }
 
+  // TODO: Replace this with a @base in the context instead.
   if (forClient.hostedByPath) {
     forClient.isHostedBy = forClient.hostedByPath.map((platformId): string => {
       return `${apiBase}/platforms/${platformId}`;
