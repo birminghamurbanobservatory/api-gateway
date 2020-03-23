@@ -17,6 +17,7 @@ export function formatDeploymentAsLinkedData(deployment: any): object {
   const deploymentLinked = cloneDeep(deployment);
   deploymentLinked['@id'] = deploymentLinked.id;
   delete deploymentLinked.id;
+  deploymentLinked['@type'] = 'Deployment';
   return deploymentLinked;
 }
 
