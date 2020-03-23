@@ -19,7 +19,7 @@ export async function getPlatform(id: string): Promise<any> {
 }
 
 
-export async function getPlatforms(where: {inDeployment?: string}): Promise<any> {
+export async function getPlatforms(where: {inDeployment?: string; isHostedBy?: any; hostedByPath?: any}): Promise<any> {
   const platforms = await event.publishExpectingResponse('platforms.get.request', {
     where
   });

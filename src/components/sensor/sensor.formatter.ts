@@ -15,6 +15,7 @@ export function formatSensorAsLinkedData(sensor: any): object {
   const sensorLinked = cloneDeep(sensor);
   sensorLinked['@id'] = sensorLinked.id;
   delete sensorLinked.id;
+  sensorLinked['@type'] = 'Sensor';
   return sensorLinked;
 }
 

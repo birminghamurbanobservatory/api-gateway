@@ -27,30 +27,24 @@ export function formatObservationAsLinkedData(observation: any): object {
 
   const apiBase = config.api.base;
 
-  const forClient = cloneDeep(observation);
-  forClient['@id'] = forClient.id;
-  delete forClient.id;
-  forClient['@type'] = 'Observation';
+  const observationLinked = cloneDeep(observation);
+  observationLinked['@id'] = observationLinked.id;
+  delete observationLinked.id;
+  observationLinked['@type'] = 'Observation';
 
-  forClient.madeBySensor = `${apiBase}/sensors/${forClient.madeBySensor}`;
+  observationLinked.madeBySensor = `${apiBase}/sensors/${observationLinked.madeBySensor}`;
 
-  // TODO: Replace this with a @base in the context instead.
-  if (forClient.inDeployments) {
-    forClient.inDeployment = forClient.inDeployments.map((deploymentId): string => {
-      return `${apiBase}/deployments/${deploymentId}`;
-    });
-    delete forClient.inDeployments;
+  if (observationLinked.inDeployments) {
+    observationLinked.inDeployment = observationLinked.inDeployments;
+    delete observationLinked.inDeployments;
   }
 
-  // TODO: Replace this with a @base in the context instead.
-  if (forClient.hostedByPath) {
-    forClient.isHostedBy = forClient.hostedByPath.map((platformId): string => {
-      return `${apiBase}/platforms/${platformId}`;
-    });
+  if (observationLinked.hostedByPath) {
+    observationLinked.ancestorPlatform = observationLinked.hostedByPath;
   }
-  delete forClient.hostedByPath;
+  delete observationLinked.hostedByPath;
 
-  const ordered = orderObjectKeys(forClient, ['@id', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployment', 'isHostedBy']);
+  const ordered = orderObjectKeys(observationLinked, ['@id', '@type', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployment', 'ancestorPlatform']);
   return ordered;
 
 }

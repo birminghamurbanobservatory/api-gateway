@@ -6,7 +6,7 @@ import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {Forbidden} from '../../errors/Forbidden';
 import {ApiUser} from '../common/api-user.class';
 import * as check from 'check-types';
-import {pick, concat, uniqBy} from 'lodash';
+import {pick, concat, uniqBy, cloneDeep} from 'lodash';
 import * as Promise from 'bluebird';
 
 
@@ -64,7 +64,9 @@ export async function getPlatform(platformId: string, user): Promise<any> {
 }
 
 
-export async function getPlatforms(where: {inDeployment?: any}, user: ApiUser): Promise<any> {
+export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatform: any}, user: ApiUser): Promise<any> {
+
+  const updatedWhere: any = cloneDeep(where);
 
   // N.B. there's no point in having a special 'get:platforms' permission, 'admin-all:deployments' is enough, because I can't see a use case where a specific super user would want to get every platform, but not have access to any other information about the deployment.
   const hasSuperUserPermission = user.permissions.includes('admin-all:deployments');
@@ -112,7 +114,7 @@ export async function getPlatforms(where: {inDeployment?: any}, user: ApiUser): 
       throw new Forbidden('You do not have access to any deployments and therefore its not possible to retrieve any platforms.');
     }
     const deploymentIds = uniqueDeployments.map((deployment): string => deployment.id);
-    where.inDeployment = {
+    updatedWhere.inDeployment = {
       in: deploymentIds
     };
 
@@ -122,7 +124,12 @@ export async function getPlatforms(where: {inDeployment?: any}, user: ApiUser): 
     // TODO: if the request was for specific deployment then might want to check the deployments actually exist?
   }
 
-  const platforms = await platformService.getPlatforms(where);
+  if (where.ancestorPlatform) {
+    updatedWhere.hostedByPath = where.ancestorPlatform;
+  }
+  delete updatedWhere.ancestorPlatform;
+
+  const platforms = await platformService.getPlatforms(updatedWhere);
   const platformsForClient = platforms.map(formatPlatformForClient);
   const platformsWithContext = addContextToPlatforms(platformsForClient);
   return platformsWithContext;
@@ -134,9 +141,8 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
 
   const platform = await platformService.getPlatform(platformId);
 
-  let ownerDeployment;
-  if (!user.permissions || !user.permissions.includes('admin-all:deployments')) {
-    ownerDeployment = await getDeployment(platform.ownerDeployment);
+  const ownerDeployment = await getDeployment(platform.ownerDeployment);
+  if (!user.permissions.includes('admin-all:deployments')) {
     deploymentLevelCheck(ownerDeployment, user, ['admin', 'engineer']);
   }
 

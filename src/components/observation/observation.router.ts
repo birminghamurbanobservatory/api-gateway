@@ -86,6 +86,8 @@ const getDeploymentObservationsQuerySchema = joi.object({
   // filtering
   observedProperty: joi.string(),
   featureOfInterest: joi.string(),
+  discipline: joi.string(),
+  // TODO: Update the following so it aligns with the getPlatforms endpoint, i.e. no hostedByPath key
   isHostedBy: joi.string(), // platform id just has to occur anywhere in the path
   isHostedBy__in: joi.string().custom(inConditional),
   hostedByPath: joi.string(), // requires an exact match for the path
