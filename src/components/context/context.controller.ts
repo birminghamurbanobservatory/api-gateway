@@ -22,8 +22,7 @@ export function getCollectionContext(): object {
     uo: common.uo,
     Collection: 'uo:Collection',
     member: {
-      '@id': 'uo:hasMember',
-      '@container': '@id',
+      '@id': 'uo:member',
     }
     // TODO: More to add
   };
@@ -106,7 +105,8 @@ export function getObservationContext(): object {
       '@id': 'sosa:madeBySensor',
       '@type': '@id',
       '@context': {
-        '@base': '/sensors/'
+        // When I tried this in the json-ld playground as just "/sensors/"", it didn't added the correct first part of the url, so I'm specifically including it here.
+        '@base': `${apiBase}/sensors/`
       }
     },
     resultTime: 'sosa:resultTime',
@@ -121,14 +121,14 @@ export function getObservationContext(): object {
       '@id': 'buo:ancestorPlatform',
       '@type': '@id',
       '@context': {
-        '@base': '/platforms/'
+        '@base': `${apiBase}/platforms/`
       }
     },
     inDeployment: {
       '@id': 'ssn:inDeployment',
       '@type': '@id',
       '@context': {
-        '@base': '/deployments/'
+        '@base': `${apiBase}/deployments/`
       }
     },
     

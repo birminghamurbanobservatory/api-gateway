@@ -14,7 +14,7 @@ import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick} from 'lodash';
 import {Promise} from 'bluebird';
 import {getDeployment, getDeployments} from '../deployment/deployment.service';
-import {inConditional} from '../../utils/custom-joi-validations';
+import {inConditional, ancestorPlatformConditional} from '../../utils/custom-joi-validations';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {formatObservationForClient} from './observation.formatter';
 
@@ -34,12 +34,8 @@ const getObservationsQuerySchema = joi.object({
   inDeployment: joi.string(),
   inDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
-  isHostedBy: joi.string(), // platform id just has to occur anywhere in the path
-  isHostedBy__in: joi.string().custom(inConditional),
-  hostedByPath: joi.string(), // requires an exact match for the path
-  hostedByPath__in: joi.string().custom(inConditional),
-  hostedByPathSpecial: joi.string(), // allows for lquery syntax
-  hostedByPathSpecial__in: joi.string().custom(inConditional),
+  ancestorPlatform: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
+  ancestorPlatform__includes: joi.string(), // platform occurs anywhere in path, e.g. west-school
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
@@ -47,6 +43,7 @@ const getObservationsQuerySchema = joi.object({
   // options
   limit: joi.number().integer().positive().max(1000),
   offset: joi.number().integer().positive()
+  // TODO: Add a onePer parameter, e.g. onePer=platform or onePer=sensor or onePer=timeseries
   // TODO: Provide a way of omitting some of the properties to save data, e.g. if they asked for discipline=meteorology then we could exclude the discipline property. Maybe have a query string parameter such as `lean=true`.
 })
 .without('inDeployment', 'inDeployment__in')

@@ -3,10 +3,8 @@ import * as check from 'check-types';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {Forbidden} from '../../errors/Forbidden';
 import {getDeployments} from '../deployment/deployment.service';
-import {concat, uniqBy} from 'lodash';
+import {concat, uniqBy, cloneDeep} from 'lodash';
 import {formatObservationForClient, addContextToObservation, addContextToObservations} from './observation.formatter';
-import {contextLinks} from '../context/context.service';
-import {config} from '../../config';
 import {ApiUser} from '../common/api-user.class';
 import {permissionsCheck} from '../common/permissions-check';
 
@@ -15,6 +13,8 @@ import {permissionsCheck} from '../common/permissions-check';
 // Get observations 
 //-------------------------------------------------
 export async function getObservations(where: any, options: {limit?: number; offset?: number}, user: ApiUser): Promise<any> {
+
+  const updatedWhere: any = cloneDeep(where);
 
   const canAccessAllObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
   // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observation, but not be allowed to see any of the extra data that would accessable if they were an admin to every deployment, e.g. a platform's description.
@@ -72,7 +72,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
       throw new Forbidden('You do not have access to any deployments and therefore its not possible to retrieve any observations.');
     }
     const deploymentIds = uniqueDeployments.map((deployment): string => deployment.id);
-    where.inDeployment = {
+    updatedWhere.inDeployment = {
       in: deploymentIds
     };
 
@@ -83,6 +83,14 @@ export async function getObservations(where: any, options: {limit?: number; offs
   // Quick safety check to make sure non-super users can't go retrieving observations without their deployments being defined.
   if (canAccessAllObservations && (!where.inDeployment && !where.inDeployment.in)) {
     throw new Error(' A non-superuser is able to request observations without specifying deployments. Server code needs editing to fix this.');
+  }
+
+  // Some service/event-stream where properties are a tad different to the query parameters
+  if (check.string(where.ancestorPlatform)) {
+    updatedWhere.hostedByPath = where.ancestorPlatform;
+  }
+  if (check.object(where.ancestorPlatform) && where.ancestorPlatform.includes) {
+    updatedWhere.isHostedBy = where.ancestorPlatform.includes;
   }
 
   const {observations, meta} = await observationService.getObservations(where, options);

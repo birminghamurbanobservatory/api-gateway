@@ -13,7 +13,7 @@ export function formatObservationForClient(observation: object): object {
   const forClient = cloneDeep(observation);
 
   if (forClient.hostedByPath) {
-    forClient.isHostedBy = forClient.hostedByPath
+    forClient.ancestorPlatform = forClient.hostedByPath;
   }
   delete forClient.hostedByPath;
 
@@ -31,8 +31,6 @@ export function formatObservationAsLinkedData(observation: any): object {
   observationLinked['@id'] = observationLinked.id;
   delete observationLinked.id;
   observationLinked['@type'] = 'Observation';
-
-  observationLinked.madeBySensor = `${apiBase}/sensors/${observationLinked.madeBySensor}`;
 
   if (observationLinked.inDeployments) {
     observationLinked.inDeployment = observationLinked.inDeployments;
