@@ -4,6 +4,7 @@ const dictionary: any = {
   offset: 'offset',
   sortby: 'sortBy',
   sortorder: 'sortOrder',
+  oneper: 'onePer',
   includeallpublic: 'includeAllPublic',
   indeployment: 'inDeployment',
   indeployment__in: 'inDeployment__in',
@@ -21,6 +22,10 @@ const dictionary: any = {
   resulttime__lte: 'resultTime__lte',
   permanenthost: 'permanentHost',
   permanenthost__exists: 'permanentHost__exists',
+  ancestorplatform: 'ancestorPlatform',
+  ancestorplatform__includes: 'ancestorPlatform__includes',
+  flag__exists: 'flag__exists',
+  discipline: 'discipline'
 };
 
 

@@ -86,7 +86,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
   }
 
   // Some service/event-stream where properties are a tad different to the query parameters
-  if (check.string(where.ancestorPlatform)) {
+  if (check.nonEmptyArray(where.ancestorPlatform)) {
     updatedWhere.hostedByPath = where.ancestorPlatform;
   }
   if (check.object(where.ancestorPlatform) && where.ancestorPlatform.includes) {
@@ -98,6 +98,10 @@ export async function getObservations(where: any, options: {limit?: number; offs
     updatedWhere.flags = where.flag;
   }
   delete updatedWhere.flag;
+
+  if (check.object(where.discipline) && check.nonEmptyString(where.discipline.includes)) {
+    updatedWhere.discipline = where.discipline.includes;
+  }
 
   const {observations, meta} = await observationService.getObservations(updatedWhere, options);
   const observationsForClient = observations.map(formatObservationForClient);

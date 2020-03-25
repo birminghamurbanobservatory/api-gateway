@@ -14,7 +14,7 @@ import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick} from 'lodash';
 import {Promise} from 'bluebird';
 import {getDeployment, getDeployments} from '../deployment/deployment.service';
-import {inConditional, ancestorPlatformConditional} from '../../utils/custom-joi-validations';
+import {inConditional, ancestorPlatformConditional, kebabCaseValidation} from '../../utils/custom-joi-validations';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {formatObservationForClient} from './observation.formatter';
 
@@ -29,13 +29,16 @@ export {router as ObservationRouter};
 //-------------------------------------------------
 const getObservationsQuerySchema = joi.object({
   // filtering
+  madeBySensor: joi.string(),
+  madeBySensor__in: joi.string().custom(inConditional),
   observedProperty: joi.string(),
   hasFeatureOfInterest: joi.string(),
+  discipline__includes: joi.string(),
   inDeployment: joi.string(),
   inDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
   ancestorPlatform: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
-  ancestorPlatform__includes: joi.string(), // platform occurs anywhere in path, e.g. west-school
+  ancestorPlatform__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
