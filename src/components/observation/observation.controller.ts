@@ -12,7 +12,7 @@ import {permissionsCheck} from '../common/permissions-check';
 //-------------------------------------------------
 // Get observations 
 //-------------------------------------------------
-export async function getObservations(where: any, options: {limit?: number; offset?: number}, user: ApiUser): Promise<any> {
+export async function getObservations(where: any, options: {limit?: number; offset?: number; onePer?: string}, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
@@ -92,8 +92,14 @@ export async function getObservations(where: any, options: {limit?: number; offs
   if (check.object(where.ancestorPlatform) && where.ancestorPlatform.includes) {
     updatedWhere.isHostedBy = where.ancestorPlatform.includes;
   }
+  delete updatedWhere.ancestorPlatform;
 
-  const {observations, meta} = await observationService.getObservations(where, options);
+  if (check.object(where.flag)) {
+    updatedWhere.flags = where.flag;
+  }
+  delete updatedWhere.flag;
+
+  const {observations, meta} = await observationService.getObservations(updatedWhere, options);
   const observationsForClient = observations.map(formatObservationForClient);
   const observationsWithContext = addContextToObservations(observationsForClient, meta);
   return observationsWithContext;

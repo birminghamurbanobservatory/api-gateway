@@ -40,10 +40,11 @@ const getObservationsQuerySchema = joi.object({
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
   resultTime__lte: joi.string().isoDate(),
+  flag__exists: joi.boolean(),
   // options
-  limit: joi.number().integer().positive().max(1000),
-  offset: joi.number().integer().positive()
-  // TODO: Add a onePer parameter, e.g. onePer=platform or onePer=sensor or onePer=timeseries
+  limit: joi.number().integer().positive().max(1000).default(100),
+  offset: joi.number().integer().positive(),
+  onePer: joi.string().valid('sensor', 'timeseries')
   // TODO: Provide a way of omitting some of the properties to save data, e.g. if they asked for discipline=meteorology then we could exclude the discipline property. Maybe have a query string parameter such as `lean=true`.
 })
 .without('inDeployment', 'inDeployment__in')
@@ -57,7 +58,7 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidQueryString(queryErr.message);
 
   // Pull out the options
-  const optionKeys = ['limit', 'offset'];
+  const optionKeys = ['limit', 'offset', 'onePer'];
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)

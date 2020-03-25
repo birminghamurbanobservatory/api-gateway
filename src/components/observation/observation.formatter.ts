@@ -17,6 +17,11 @@ export function formatObservationForClient(observation: object): object {
   }
   delete forClient.hostedByPath;
 
+  if (forClient.hasResult.flags) {
+    forClient.hasResult.flag = forClient.hasResult.flags;
+  }
+  delete forClient.hasResult.flags;
+
   const ordered = orderObjectKeys(forClient, ['id', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployment', 'isHostedBy']);
   return ordered;
 
