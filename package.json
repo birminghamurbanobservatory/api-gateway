@@ -1,6 +1,6 @@
 {
   "name": "api-gateway",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "Serves the public REST API.",
   "main": "index.js",
   "scripts": {
