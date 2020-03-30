@@ -110,7 +110,7 @@ const updatePlatformBodySchema = joi.object({
   name: joi.string(),
   description: joi.string(),
   static: joi.boolean(),
-  isHostedBy: joi.string().allow(),
+  isHostedBy: joi.string().allow(null),
   location: joi.object({
     geometry: joi.object({
       type: joi.string().required(),
