@@ -25,6 +25,7 @@ export {router as SensorRouter};
 const configSchema = joi.object({
   hasPriority: joi.boolean().required(),
   observedProperty: joi.string().required(),
+  unit: joi.string(),
   hasFeatureOfInterest: joi.string(),
   discipline: joi.array().items(joi.string()),
   usedProcedure: joi.array().items(joi.string())

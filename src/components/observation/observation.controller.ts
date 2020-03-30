@@ -4,7 +4,7 @@ import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {Forbidden} from '../../errors/Forbidden';
 import {getDeployments} from '../deployment/deployment.service';
 import {concat, uniqBy, cloneDeep} from 'lodash';
-import {formatObservationForClient, addContextToObservation, addContextToObservations} from './observation.formatter';
+import {formatObservationForClient, addContextToObservation, addContextToObservations, formatObservationForApp} from './observation.formatter';
 import {ApiUser} from '../common/api-user.class';
 import {permissionsCheck} from '../common/permissions-check';
 
@@ -136,7 +136,7 @@ export async function getObservation(observationId, user: ApiUser): Promise<any>
 
     const hasRightsToAtLeastOneDeployment = deploymentLevels.some((deploymentLevel): boolean => {
       return Boolean(deploymentLevel.level);
-    }); 
+    });
 
     if (hasRightsToAtLeastOneDeployment) {
       hasSufficientRights = true;
@@ -162,7 +162,8 @@ export async function createObservation(observation, user: ApiUser): Promise<any
 
   permissionsCheck(user, 'create:observation');
 
-  const createdObservation = await observationService.createObservation(observation);
+  const observationForApp = formatObservationForApp(observation);
+  const createdObservation = await observationService.createObservation(observationForApp);
   const observationForClient = formatObservationForClient(createdObservation);
   const observationWithContext = addContextToObservation(observationForClient);
   return observationWithContext;

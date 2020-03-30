@@ -7,6 +7,23 @@ import {contextLinks} from '../context/context.service';
 // Were I not to do this, and I tried to get test the /observations endpoint, I would not only end up mocking the event-stream response but also the formatObservationForClient function which would return undefined by default, and thus no observations would actually be returned.
 
 
+export function formatObservationForApp(fromClient): object {
+  const forApp = cloneDeep(fromClient);
+  if (forApp.usedProcedure) {
+    forApp.usedProcedures = forApp.usedProcedure;
+    delete forApp.usedProcedures;
+  }
+  if (forApp.discipline) {
+    forApp.disciplines = forApp.discipline;
+    delete forApp.disciplines;
+  }
+  if (forApp.hasResult.flag) {
+    forApp.hasResult.flags = forApp.hasResult.flag;
+    delete forApp.hasResult.flag;
+  }
+  return forApp;
+}
+
 
 export function formatObservationForClient(observation: object): object {
 
@@ -14,13 +31,18 @@ export function formatObservationForClient(observation: object): object {
 
   if (forClient.hostedByPath) {
     forClient.ancestorPlatform = forClient.hostedByPath;
+    delete forClient.hostedByPath;
   }
-  delete forClient.hostedByPath;
 
   if (forClient.hasResult.flags) {
     forClient.hasResult.flag = forClient.hasResult.flags;
+    delete forClient.hasResult.flags;
   }
-  delete forClient.hasResult.flags;
+
+  if (forClient.usedProcedures) {
+    forClient.usedProcedure = forClient.usedProcedures;
+    delete forClient.usedProcedures;
+  }
 
   const ordered = orderObjectKeys(forClient, ['id', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployment', 'isHostedBy']);
   return ordered;
@@ -29,8 +51,6 @@ export function formatObservationForClient(observation: object): object {
 
 
 export function formatObservationAsLinkedData(observation: any): object {
-
-  const apiBase = config.api.base;
 
   const observationLinked = cloneDeep(observation);
   observationLinked['@id'] = observationLinked.id;

@@ -1,7 +1,7 @@
 import {permissionsCheck} from '../common/permissions-check';
 import {ApiUser} from '../common/api-user.class';
 import * as sensorService from './sensor.service';
-import {formatSensorForClient, addContextToSensor, addContextToSensors} from './sensor.formatter';
+import {formatSensorForClient, addContextToSensor, addContextToSensors, formatSensorForApp} from './sensor.formatter';
 import {getDeployment, getDeployments} from '../deployment/deployment.service';
 import {deploymentLevelCheck} from '../deployment/deployment-level-check';
 import * as check from 'check-types';
@@ -14,7 +14,8 @@ export async function createSensor(sensor, user: ApiUser): Promise<any> {
 
   permissionsCheck(user, 'create:sensor');
 
-  const createdSensor = await sensorService.createSensor(sensor);
+  const sensorForApp = formatSensorForApp(sensor);
+  const createdSensor = await sensorService.createSensor(sensorForApp);
   const sensorForClient = formatSensorForClient(createdSensor);
   const sensorWithContext = addContextToSensor(sensorForClient);
   return sensorWithContext;
@@ -112,7 +113,8 @@ export async function updateSensor(sensorId: string, updates: any, user: ApiUser
   // This is for superusers only
   permissionsCheck(user, 'update:sensor');
 
-  const updatedSensor = await sensorService.updateSensor(sensorId, updates);
+  const updatesForApp = formatSensorForApp(updates);
+  const updatedSensor = await sensorService.updateSensor(sensorId, updatesForApp);
   const sensorForClient = formatSensorForClient(updatedSensor);
   const sensorWithContext = addContextToSensor(sensorForClient);
   return sensorWithContext;

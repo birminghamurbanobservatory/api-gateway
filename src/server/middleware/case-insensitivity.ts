@@ -25,7 +25,10 @@ const dictionary: any = {
   ancestorplatform: 'ancestorPlatform',
   ancestorplatform__includes: 'ancestorPlatform__includes',
   flag__exists: 'flag__exists',
-  discipline: 'discipline'
+  discipline: 'discipline',
+  unit: 'unit',
+  unit__in: 'unit__in',
+  unit__exists: 'unit__exists',
 };
 
 

@@ -5,18 +5,13 @@ import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
-import * as check from 'check-types';
-import {Forbidden} from '../../errors/Forbidden';
 import * as logger from 'node-logger';
 import {getObservations, getObservation, deleteObservation, createObservation} from './observation.controller';
 import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick} from 'lodash';
 import {Promise} from 'bluebird';
-import {getDeployment, getDeployments} from '../deployment/deployment.service';
 import {inConditional, ancestorPlatformConditional, kebabCaseValidation} from '../../utils/custom-joi-validations';
-import {getLevelsForDeployments} from '../deployment/deployment-users.service';
-import {formatObservationForClient} from './observation.formatter';
 
 
 const router = express.Router();
@@ -32,6 +27,9 @@ const getObservationsQuerySchema = joi.object({
   madeBySensor: joi.string(),
   madeBySensor__in: joi.string().custom(inConditional),
   observedProperty: joi.string(),
+  unit: joi.string(),
+  unit__in: joi.string().custom(inConditional),
+  unit__exists: joi.boolean(),
   hasFeatureOfInterest: joi.string(),
   discipline__includes: joi.string(),
   inDeployment: joi.string(),
@@ -86,15 +84,15 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 const getDeploymentObservationsQuerySchema = joi.object({
   // filtering
   observedProperty: joi.string(),
+  unit: joi.string(),
+  unit__in: joi.string().custom(inConditional),
+  unit__exists: joi.boolean(),
   featureOfInterest: joi.string(),
   discipline: joi.string(),
-  // TODO: Update the following so it aligns with the getPlatforms endpoint, i.e. no hostedByPath key
   isHostedBy: joi.string(), // platform id just has to occur anywhere in the path
   isHostedBy__in: joi.string().custom(inConditional),
-  hostedByPath: joi.string(), // requires an exact match for the path
-  hostedByPath__in: joi.string().custom(inConditional),
-  hostedByPathSpecial: joi.string(), // allows for lquery syntax
-  hostedByPathSpecial__in: joi.string().custom(inConditional),  
+  ancestorPlatform: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
+  ancestorPlatform__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
@@ -141,6 +139,9 @@ router.get('/deployments/:deploymentId/observations', asyncWrapper(async (req, r
 const getPlatformObservationsQuerySchema = joi.object({
   // filtering
   observedProperty: joi.string(),
+  unit: joi.string(),
+  unit__in: joi.string().custom(inConditional),
+  unit__exists: joi.boolean(),
   featureOfInterest: joi.string(), 
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
@@ -222,9 +223,10 @@ const createObservationBodySchema = joi.object({
   resultTime: joi.string()
     .isoDate()
     .required(),
-  hasFeatureOfInterest: joi.string(),
   observedProperty: joi.string(),
-  usedProcedure: joi.array().items(joi.string())  
+  unit: joi.string(),
+  usedProcedure: joi.array().items(joi.string())
+  // for now at least the discipline and hasFeatureOfInterest should come from the saved context.
 })
 .required();
 
