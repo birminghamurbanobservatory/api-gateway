@@ -34,7 +34,7 @@ describe('', () => {
 
   beforeEach(() => {
     // Load our express.js app
-    const app = require('../../routes').app;
+    const app = require('../../server').app;
     request = supertest(app);
   });
 
@@ -58,42 +58,47 @@ describe('', () => {
       updatedAt: '2020-03-09T14:12:35.265Z'
     }]);
 
-    mockedGetObservations.mockResolvedValue([
-      {
-        id: '803-111-2020-03-09T10:17:37.000Z',
-        resultTime: '2020-03-09T10:17:37.000Z',
-        hasResult: {
-          value: 78
-        },
-        madeBySensor: 'netatmo-02-00-00-3f-16-4c-humidity',
-        observedProperty: 'RelativeHumidity',
-        hasFeatureOfInterest: 'EarthAtmosphere',
-        inDeployments: [
-          'netatmo-gatekeepers'
-        ],
-        hostedByPath: [
-          'forestdale-primary-school',
-          'netatmo-02-00-00-3f-16-4c-r4e'
-        ],
-        discipline: [
-          'Meteorology'
-        ],
-        location: {
-          id: '7164feea-d076-4ffa-8d48-c09643656f43',
-          geometry: {
-            type: 'Point',
-            coordinates: [
-              -2.004847526550293,
-              52.4073600769043
-            ]
+    mockedGetObservations.mockResolvedValue({
+      observations: [
+        {
+          id: '803-111-2020-03-09T10:17:37.000Z',
+          resultTime: '2020-03-09T10:17:37.000Z',
+          hasResult: {
+            value: 78
           },
-          validAt: '2020-02-13T20:30:32.007Z'
-        },
-        usedProcedure: [
-          'PointSample'
-        ]
+          madeBySensor: 'netatmo-02-00-00-3f-16-4c-humidity',
+          observedProperty: 'RelativeHumidity',
+          hasFeatureOfInterest: 'EarthAtmosphere',
+          inDeployments: [
+            'netatmo-gatekeepers'
+          ],
+          hostedByPath: [
+            'forestdale-primary-school',
+            'netatmo-02-00-00-3f-16-4c-r4e'
+          ],
+          discipline: [
+            'Meteorology'
+          ],
+          location: {
+            id: '7164feea-d076-4ffa-8d48-c09643656f43',
+            geometry: {
+              type: 'Point',
+              coordinates: [
+                -2.004847526550293,
+                52.4073600769043
+              ]
+            },
+            validAt: '2020-02-13T20:30:32.007Z'
+          },
+          usedProcedure: [
+            'PointSample'
+          ]
+        }
+      ],
+      meta: {
+
       }
-    ]);
+    });
 
     const response = await request
     .get('/observations')
@@ -116,15 +121,15 @@ describe('', () => {
           hasResult: {
             value: 78
           },
-          madeBySensor: `${apiBase}/sensors/netatmo-02-00-00-3f-16-4c-humidity`,
+          madeBySensor: `netatmo-02-00-00-3f-16-4c-humidity`,
           observedProperty: 'RelativeHumidity',
           hasFeatureOfInterest: 'EarthAtmosphere',
           inDeployment: [
-            `${apiBase}/deployments/netatmo-gatekeepers`
+            `netatmo-gatekeepers`
           ],
-          isHostedBy: [
-            `${apiBase}/platforms/forestdale-primary-school`,
-            `${apiBase}/platforms/netatmo-02-00-00-3f-16-4c-r4e`
+          ancestorPlatform: [
+            'forestdale-primary-school',
+            'netatmo-02-00-00-3f-16-4c-r4e'
           ],
           discipline: [
             'Meteorology'
@@ -144,7 +149,8 @@ describe('', () => {
             'PointSample'
           ]
         }
-      ]
+      ],
+      meta: {}
     };
 
     expect(response.body).toEqual(expectedResponseBody);
