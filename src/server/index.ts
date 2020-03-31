@@ -24,6 +24,7 @@ import cors from 'cors';
 import {UnknownSensorRouter} from '../components/unknown-sensor/unknown-sensor.router';
 import {AccountRouter} from '../components/account/account.router';
 import {ContextRouter} from '../components/context/context.router';
+import {SchemaRouter} from './schema.router';
 
 
 export const app = express();
@@ -78,6 +79,7 @@ app.use(lookForUserCredentials);
 // Routes
 //-------------------------------------------------
 app.use(RootRouter);
+app.use(SchemaRouter);
 app.use(ContextRouter);
 app.use(DeploymentRouter);
 app.use(UserRouter);
