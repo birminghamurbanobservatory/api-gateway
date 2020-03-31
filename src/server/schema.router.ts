@@ -13,6 +13,7 @@ export {router as SchemaRouter};
 // https://expressjs.com/en/starter/static-files.html
 // https://expressjs.com/en/resources/middleware/serve-static.html
 
+const commonPartOfPath = '../../src/components/';
 
-router.use('/schemas', express.static(path.join(__dirname, '../components/deployment/schemas')));
-router.use('/schemas', express.static(path.join(__dirname, '../components/platform/schemas')));
+router.use('/schemas', express.static(path.join(__dirname, `${commonPartOfPath}deployment/schemas`)));
+router.use('/schemas', express.static(path.join(__dirname, `${commonPartOfPath}platform/schemas`)));
