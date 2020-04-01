@@ -55,7 +55,7 @@ export function validateAgainstSchema(data: any, nameOfSchema: string): any {
   if (isValid) {
     return dataClone; // any defaults will have been applied to this.
   } else {
-    logger.debug(validate.errors);
+    logger.warn(validate.errors);
     const errorMessage = ajv.errorsText(validate.errors);
     if (nameOfSchema.includes('request-body')) {
       throw new InvalidBody(errorMessage);
