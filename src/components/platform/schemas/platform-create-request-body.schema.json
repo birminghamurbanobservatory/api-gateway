@@ -1,5 +1,5 @@
 {
-  "title": "create-platform-body",
+  "title": "platform-create-request-body",
   "type": "object",
   "x-tags": [
     "platforms"

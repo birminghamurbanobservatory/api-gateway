@@ -1,5 +1,5 @@
 {
-  "title": "deployment-create",
+  "title": "deployment-create-request-body",
   "type": "object",
   "x-tags": [
     "deployments"
@@ -21,10 +21,12 @@
       "type": "string"
     },
     "public": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [
     "name"
-  ]
+  ],
+  "additionalProperties": false
 }

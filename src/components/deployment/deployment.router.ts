@@ -10,8 +10,10 @@ import * as check from 'check-types';
 import {InvalidDeployment} from './errors/InvalidDeployment';
 import {InvalidDeploymentUpdates} from './errors/InvalidDeploymentUpdates';
 import * as logger from 'node-logger';
-import {pick} from 'lodash';
+import {pick, cloneDeep} from 'lodash';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
+import * as createDeploymentBodySchema from './schemas/deployment-create-request-body.schema.json';
+import {validator} from '../../utils/json-schema-validator';
 
 const router = express.Router();
 
@@ -72,21 +74,15 @@ router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<
 //-------------------------------------------------
 // Create Deployment
 //-------------------------------------------------
-const createDeploymentsBodySchema = joi.object({
-  id: joi.string(),
-  name: joi.string()
-    .required(),
-  description: joi.string(),
-  public: joi.boolean()
-})
-.required();
-
 router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
-  const {error: queryErr, value: body} = createDeploymentsBodySchema.validate(req.body);
-  if (queryErr) throw new InvalidDeployment(queryErr.message);
+  const body = cloneDeep(req.body);
+  const valid = validator.validate(createDeploymentBodySchema, body);
+  if (!valid) {
+    throw new InvalidDeployment(validator.errorsText());
+  }
 
-  const jsonResponse = await createDeployment(body, req.user);
+  const jsonResponse = await createDeployment(req.body, req.user);
   res.set('Content-Type', 'application/ld+json');
   return res.status(201).json(jsonResponse);
 

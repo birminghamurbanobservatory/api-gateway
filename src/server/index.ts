@@ -41,6 +41,8 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
 app.use(methodOverride());
 
+// Get rid of the unnecessary header X-Powered-By: Express
+app.disable('x-powered-by'); 
 
 // Logs this as soon as the request comes in
 app.use(morgan(`:method :url`, {

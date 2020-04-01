@@ -24,6 +24,7 @@
     "@hapi/joi": "^16.1.8",
     "@mapbox/geojsonhint": "^3.0.0",
     "@types/morgan": "^1.7.36",
+    "ajv": "^6.12.0",
     "bluebird": "^3.5.5",
     "body-parser": "^1.19.0",
     "check-types": "^9.0.1",

@@ -31,7 +31,8 @@ export function formatPlatformAsLinkedData(platform: any): object {
   platformLinked['@id'] = platformLinked.id;
   delete platformLinked.id;
   platformLinked['@type'] = 'Platform';
-  return platformLinked;
+  const ordered = orderObjectKeys(platformLinked, ['@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatform', 'location']);
+  return ordered;
 }
 
 
