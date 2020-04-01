@@ -30,9 +30,7 @@
       "type": "string"
     },
     "name": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 40
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/deployment.json#definitions/name"
     },
     "users": {
       "type": "array",
