@@ -12,8 +12,7 @@ import {InvalidDeploymentUpdates} from './errors/InvalidDeploymentUpdates';
 import * as logger from 'node-logger';
 import {pick, cloneDeep} from 'lodash';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import * as createDeploymentBodySchema from './schemas/deployment-create-request-body.json';
-import {getSchema, validateAgainstSchema} from '../../utils/json-schema-validator';
+import {validateAgainstSchema} from '../schemas/json-schema-validator';
 
 const router = express.Router();
 

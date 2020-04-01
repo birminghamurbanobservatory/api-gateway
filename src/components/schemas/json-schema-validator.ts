@@ -2,10 +2,10 @@ import Ajv from 'ajv';
 import {cloneDeep} from 'lodash';
 import * as check from 'check-types';
 
-import * as deploymentCreateRequestBodySchema from '../components/deployment/schemas/deployment-create-request-body.json';
-import * as deploymentGetResponseBodySchema from '../components/deployment/schemas/deployment-get-response.body.json';
-import {InvalidBody} from '../errors/InvalidBody';
-import {InvalidResponseBody} from '../errors/InvalidResponseBody';
+import * as deploymentCreateRequestBodySchema from './json-schemas/deployment-create-request-body.json';
+import * as deploymentGetResponseBodySchema from './json-schemas/deployment-get-response.body.json';
+import {InvalidBody} from '../../errors/InvalidBody';
+import {InvalidResponseBody} from '../../errors/InvalidResponseBody';
 
 
 // This is the bit that should be at the start of the $id for all your schemas

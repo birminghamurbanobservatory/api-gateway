@@ -24,7 +24,7 @@
       "const": "Platform"
     },
     "name": {
-      "$ref": "https://api.birminghamurbanobservatory.com/schemas/platform.json#/definitions/name"
+      "type": "string"
     },
     "description": {
       "type": "string"

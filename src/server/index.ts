@@ -24,7 +24,7 @@ import cors from 'cors';
 import {UnknownSensorRouter} from '../components/unknown-sensor/unknown-sensor.router';
 import {AccountRouter} from '../components/account/account.router';
 import {ContextRouter} from '../components/context/context.router';
-import {SchemaRouter} from './schema.router';
+import {SchemaRouter} from '../components/schemas/schema.router';
 
 
 export const app = express();
