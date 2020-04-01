@@ -15,9 +15,7 @@
     },
     "@id": {
       "type": "string",
-      "format": "uri",
-      "maxLength": 44,
-      "minLength": 1
+      "format": "uri"
     },
     "@type": {
       "type": "array",
