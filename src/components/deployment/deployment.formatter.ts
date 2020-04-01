@@ -29,7 +29,6 @@ export function addContextToDeployment(deployment: any): object {
   deploymentWithContext['@context'] = [
     contextLinks.deployment
   ];
-  deploymentWithContext['@type'] = 'Deployment';
 
   const ordered = orderObjectKeys(deploymentWithContext, ['@context', '@id', '@type', 'name', 'description', 'public']);
   return ordered;

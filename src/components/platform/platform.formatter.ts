@@ -9,10 +9,10 @@ export function formatPlatformForClient(platform: object): object {
   delete forClient.users;
   delete forClient.createdBy;
   // Initially I was tempted to have isHostedBy be an array containing the full path of ancestor platform. The issue with this is that it's then confusing for clients who want to rehost/unhost a platform as they should be POSTing us a string value, rather than an array, for the new host.
-  // Therefore I'm going to use a ancestorPlatform array instead. 
+  // Therefore I'm going to use a ancestorPlatforms array instead. 
   // TODO I'll need to define ancestorPlatform in a bhamUrbanObs vocabulary somewhere.
   if (forClient.hostedByPath) {
-    forClient.ancestorPlatform = forClient.hostedByPath;
+    forClient.ancestorPlatforms = forClient.hostedByPath;
   }
   delete forClient.hostedByPath;
   const ordered: any = orderObjectKeys(forClient, ['id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location']);
@@ -65,7 +65,7 @@ export function addContextToPlatforms(platforms: any[]): object {
       'Collection'
       // TODO: Any more types to add in here?
     ], 
-    member: platformsLd,
+    member: platformsLd
   };
 
   return platformsWithContext;

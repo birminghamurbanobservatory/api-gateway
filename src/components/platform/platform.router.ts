@@ -10,6 +10,7 @@ import * as Promise from 'bluebird';
 import {inConditional} from '../../utils/custom-joi-validations';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
+import {validateAgainstSchema} from '../schemas/json-schema-validator';
 
 const router = express.Router();
 
@@ -19,36 +20,15 @@ export {router as PlatformRouter};
 //-------------------------------------------------
 // Create Platform
 //-------------------------------------------------
-const createPlatformBodySchema = joi.object({
-  id: joi.string(),
-  name: joi.string()
-    .required(),
-  description: joi.string(),
-  ownerDeployment: joi.string().required(),
-  static: joi.boolean()
-    .default(true),
-  location: joi.object({
-    geometry: joi.object({
-      type: joi.string().required(),
-      coordinates: joi.array().required()
-    })
-    .custom((value): any => {
-      validateGeometry(value); // throws an error if invalid
-      return value;
-    })
-    .required()
-  }),
-  isHostedBy: joi.string()
-  // N.B. ownerDeployment is not allowed in here, this must come from the url
-})
-.required();
-
 router.post('/platforms', asyncWrapper(async (req, res): Promise<any> => {
 
-  const {error: bodyErr, value: body} = createPlatformBodySchema.validate(req.body);
-  if (bodyErr) throw new InvalidPlatform(bodyErr.message);
-
+  const body = validateAgainstSchema(req.body, 'platform-create-request-body');
+  // Check the geometry separately
+  if (body.location) {
+    validateGeometry(body.location.geometry);
+  }
   const jsonResponse = await createPlatform(body, req.user);
+  validateAgainstSchema(jsonResponse, 'platform-get-response-body');
   return res.status(201).json(jsonResponse);
 
 }));
@@ -95,6 +75,7 @@ router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
   const where = convertQueryToWhere(query);
 
   const jsonResponse = await getPlatforms(where, req.user);
+  validateAgainstSchema(jsonResponse, 'platforms-get-response-body');
   res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 

@@ -22,15 +22,8 @@ export {router as SchemaRouter};
 const schemaDirectory = path.join(__dirname, '../../../src/components/schemas/json-schemas');
 
 
-// TODO: When a user clicks on a $ref, I want express to ignore the fact that it contains #hash/definitions/someProperty at the end. How to do this? Some middleware perhaps?
-function accountForDefinitions(req, res, next): any {
-  console.log(req.url);
-  return next();
-}
-
 // This serves each json schema file at /schemas/json-file-name-here.json
-router.use(`/schemas`, accountForDefinitions, express.static(schemaDirectory));
-
+router.use(`/schemas`, express.static(schemaDirectory));
 
 
 // Let's also get a list of all the json file names so we can serve them all in JSON file at the /schemas endpoint, for the sake of discoverability.

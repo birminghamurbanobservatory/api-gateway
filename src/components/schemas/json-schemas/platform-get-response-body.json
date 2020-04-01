@@ -24,13 +24,98 @@
       "const": "Platform"
     },
     "name": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
     },
     "description": {
       "type": "string"
     },
     "static": {
       "type": "boolean"
+    },
+    "ownerDeployment": {
+      "type": "string"
+    },
+    "inDeployments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "isHostedBy": {
+      "type": "string"
+    },
+    "ancesterPlatforms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "initialisedFrom": {
+      "type": "string"
+    },
+    "updateLocationWithSensor": {
+      "type": "string"
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "geometry": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Point",
+                "LineString",
+                "Polygon"
+              ]
+            },
+            "coordinates": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "type",
+            "coordinates"
+          ]
+        },
+        "centroid": {
+          "type": "object",
+          "properties": {
+            "lat": {
+              "type": "number",
+              "min": -90,
+              "max": 90
+            },
+            "lng": {
+              "type": "number",
+              "min": -180,
+              "max": 180
+            },
+            "height": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "lat",
+            "lon"
+          ]
+        },
+        "validAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "geometry",
+        "validAt"
+      ]
     },
     "createdAt": {
       "type": "string",
@@ -48,7 +133,7 @@
     "@type",
     "name",
     "description",
-    "public",
+    "static",
     "createdAt",
     "updatedAt"
   ]

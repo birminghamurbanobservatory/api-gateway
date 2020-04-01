@@ -30,7 +30,7 @@
       "type": "string"
     },
     "name": {
-      "$ref": "https://api.birminghamurbanobservatory.com/schemas/deployment.json#definitions/name"
+      "type": "string"
     },
     "users": {
       "type": "array",

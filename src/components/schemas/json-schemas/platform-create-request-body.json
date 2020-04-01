@@ -14,13 +14,12 @@
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
     },
     "name": {
-      "$ref": "https://api.birminghamurbanobservatory.com/schemas/platform.json#/definitions/name"
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 40
     },
     "description": {
       "type": "string"
-    },
-    "static": {
-      "type": "boolean"
     },
     "ownerDeployment": {
       "type": "string"
@@ -28,11 +27,41 @@
     "isHostedBy": {
       "type": "string"
     },
+    "static": {
+      "type": "boolean",
+      "default": true
+    },
     "location": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Point",
+                "LineString",
+                "Polygon"
+              ]
+            },
+            "coordinates": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "type",
+            "coordinates"
+          ]
+        }
+      },
+      "required": [
+        "geometry"
+      ]
     }
   },
   "required": [
-    "name"
+    "name",
+    "ownerDeployment"
   ]
 }

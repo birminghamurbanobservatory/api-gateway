@@ -1,11 +1,15 @@
 import Ajv from 'ajv';
 import {cloneDeep} from 'lodash';
 import * as check from 'check-types';
+import {InvalidBody} from '../../errors/InvalidBody';
+import {InvalidResponseBody} from '../../errors/InvalidResponseBody';
+import * as logger from 'node-logger';
 
 import * as deploymentCreateRequestBodySchema from './json-schemas/deployment-create-request-body.json';
 import * as deploymentGetResponseBodySchema from './json-schemas/deployment-get-response.body.json';
-import {InvalidBody} from '../../errors/InvalidBody';
-import {InvalidResponseBody} from '../../errors/InvalidResponseBody';
+import * as platformGetResponseBodySchema from './json-schemas/platform-get-response-body.json';
+import * as platformCreateRequestBodySchema from './json-schemas/platform-create-request-body.json';
+import * as platformsGetResponseBodySchema from './json-schemas/platforms-get-response-body.json';
 
 
 // This is the bit that should be at the start of the $id for all your schemas
@@ -21,7 +25,10 @@ const ajv = new Ajv({
   useDefaults: true,
   schemas: [
     deploymentCreateRequestBodySchema,
-    deploymentGetResponseBodySchema
+    deploymentGetResponseBodySchema,
+    platformGetResponseBodySchema,
+    platformCreateRequestBodySchema,
+    platformsGetResponseBodySchema
   ]
 });
 
@@ -48,6 +55,7 @@ export function validateAgainstSchema(data: any, nameOfSchema: string): any {
   if (isValid) {
     return dataClone; // any defaults will have been applied to this.
   } else {
+    logger.debug(validate.errors);
     const errorMessage = ajv.errorsText(validate.errors);
     if (nameOfSchema.includes('request-body')) {
       throw new InvalidBody(errorMessage);
