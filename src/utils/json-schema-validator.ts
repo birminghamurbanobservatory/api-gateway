@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 import {cloneDeep} from 'lodash';
 import * as check from 'check-types';
 
-import * as deploymentCreateRequestBodySchema from '../components/deployment/schemas/deployment-create-request-body.schema.json';
+import * as deploymentCreateRequestBodySchema from '../components/deployment/schemas/deployment-create-request-body.json';
 import * as deploymentGetResponseBodySchema from '../components/deployment/schemas/deployment-get-response.body.json';
 import {InvalidBody} from '../errors/InvalidBody';
 import {InvalidResponseBody} from '../errors/InvalidResponseBody';
