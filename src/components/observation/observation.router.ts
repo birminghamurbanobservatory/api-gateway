@@ -35,8 +35,8 @@ const getObservationsQuerySchema = joi.object({
   inDeployment: joi.string(),
   inDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
-  ancestorPlatform: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
-  ancestorPlatform__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
+  ancestorPlatforms: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
+  ancestorPlatforms__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
@@ -88,11 +88,12 @@ const getDeploymentObservationsQuerySchema = joi.object({
   unit__in: joi.string().custom(inConditional),
   unit__exists: joi.boolean(),
   featureOfInterest: joi.string(),
-  discipline: joi.string(),
+  disciplines__includes: joi.string(),
+  // TODO: Do I need these isHostedBy parameters? Surely the ancestorPlatforms ones are enough?
   isHostedBy: joi.string(), // platform id just has to occur anywhere in the path
   isHostedBy__in: joi.string().custom(inConditional),
-  ancestorPlatform: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
-  ancestorPlatform__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
+  ancestorPlatforms: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
+  ancestorPlatforms__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),

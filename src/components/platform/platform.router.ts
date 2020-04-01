@@ -58,10 +58,10 @@ const getPlatformsQuerySchema = joi.object({
   isHostedBy: joi.string(), // For exact match of direct host, e.g. west-school
   isHostedBy__in: joi.string().custom(inConditional), // Find platforms with a direct host in the comma-separated list provided e.g. west-school,east-school
   isHostedBy__exists: joi.boolean(), // find platforms not hosted by any others, i.e. top-level platforms
-  ancestorPlatform__includes: joi.string(), // platform occurs anywhere in path, e.g. west-school
+  ancestorPlatforms__includes: joi.string(), // platform occurs anywhere in path, e.g. west-school
   // TODO: Possible future additions:
-  // 1. ancestorPlatform__includes__in
-  // 2. ancesterPlatform=west-school.weather-station-1.*, i.e. postgresql lquery format. Would also use this for find an exact match of the whole path. N.b. however my MongoDB array approach doesn't support lquery style queries out of the box, so it would require a bit of code writting to further filter database results.
+  // 1. ancestorPlatforms__includes__in
+  // 2. ancestorPlatforms=west-school.weather-station-1.*, i.e. postgresql lquery format. Would also use this for find an exact match of the whole path. N.b. however my MongoDB array approach doesn't support lquery style queries out of the box, so it would require a bit of code writting to further filter database results.
   // TODO: Add the option to exclude platforms in public deployments that are not the user's deployment.
 })
 .without('inDeployment', 'inDeployment__in');

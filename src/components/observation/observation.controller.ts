@@ -86,13 +86,13 @@ export async function getObservations(where: any, options: {limit?: number; offs
   }
 
   // Some service/event-stream where properties are a tad different to the query parameters
-  if (check.nonEmptyArray(where.ancestorPlatform)) {
-    updatedWhere.hostedByPath = where.ancestorPlatform;
+  if (check.nonEmptyArray(where.ancestorPlatforms)) {
+    updatedWhere.hostedByPath = where.ancestorPlatforms;
   }
-  if (check.object(where.ancestorPlatform) && where.ancestorPlatform.includes) {
-    updatedWhere.isHostedBy = where.ancestorPlatform.includes;
+  if (check.object(where.ancestorPlatforms) && where.ancestorPlatforms.includes) {
+    updatedWhere.isHostedBy = where.ancestorPlatforms.includes;
   }
-  delete updatedWhere.ancestorPlatform;
+  delete updatedWhere.ancestorPlatforms;
 
   if (check.object(where.flag)) {
     updatedWhere.flags = where.flag;

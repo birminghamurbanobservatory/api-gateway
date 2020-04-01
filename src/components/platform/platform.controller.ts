@@ -64,7 +64,7 @@ export async function getPlatform(platformId: string, user): Promise<any> {
 }
 
 
-export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatform: any}, user: ApiUser): Promise<any> {
+export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatforms: any}, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
@@ -124,10 +124,10 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
     // TODO: if the request was for specific deployment then might want to check the deployments actually exist?
   }
 
-  if (where.ancestorPlatform) {
-    updatedWhere.hostedByPath = where.ancestorPlatform;
+  if (where.ancestorPlatforms) {
+    updatedWhere.hostedByPath = where.ancestorPlatforms;
   }
-  delete updatedWhere.ancestorPlatform;
+  delete updatedWhere.ancestorPlatforms;
 
   const platforms = await platformService.getPlatforms(updatedWhere);
   const platformsForClient = platforms.map(formatPlatformForClient);

@@ -46,7 +46,7 @@
     "isHostedBy": {
       "type": "string"
     },
-    "ancesterPlatforms": {
+    "ancestorPlatforms": {
       "type": "array",
       "items": {
         "type": "string"
