@@ -25,12 +25,13 @@ export function formatDeploymentAsLinkedData(deployment: any): object {
 export function addContextToDeployment(deployment: any): object {
 
   const deploymentWithContext = formatDeploymentAsLinkedData(deployment);
-
+  
   deploymentWithContext['@context'] = [
     contextLinks.deployment
   ];
+  deploymentWithContext['@type'] = 'Deployment';
 
-  const ordered = orderObjectKeys(deploymentWithContext, ['@context', 'id', 'name', 'description', 'public']);
+  const ordered = orderObjectKeys(deploymentWithContext, ['@context', '@id', '@type', 'name', 'description', 'public']);
   return ordered;
 
 }

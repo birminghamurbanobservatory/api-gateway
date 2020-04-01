@@ -42,6 +42,7 @@ const schemaDirectories = schemaDirectoriesPartial.map((partialPath): string => 
 // This file serve each json schema file at /schemas/json-file-name-here.json
 schemaDirectories.forEach((schemaDir): any => {
   router.use(`/schemas`, express.static(schemaDir));
+  // TODO: When a user clicks on a $ref, I want express to ignore the fact that it contains #hash/definitions/someProperty at the end. How to do this?
 });
 
 

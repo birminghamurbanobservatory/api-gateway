@@ -1,0 +1,63 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/deployment-get-response-body.json",
+  "title": "deployment-get-response-body",
+  "type": "object",
+  "x-tags": [
+    "deployments"
+  ],
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "@id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 44,
+      "minLength": 1
+    },
+    "@type": {
+      "type": "string",
+      "const": "Deployment"
+    },
+    "public": {
+      "type": "boolean"
+    },
+    "description": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "@context",
+    "@id",
+    "@type",
+    "name",
+    "description",
+    "public",
+    "createdAt",
+    "updatedAt"
+  ]
+}

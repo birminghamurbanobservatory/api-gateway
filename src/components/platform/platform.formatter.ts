@@ -15,7 +15,7 @@ export function formatPlatformForClient(platform: object): object {
     forClient.ancestorPlatform = forClient.hostedByPath;
   }
   delete forClient.hostedByPath;
-  const ordered: any = orderObjectKeys(forClient, ['id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatform', 'location']);
+  const ordered: any = orderObjectKeys(forClient, ['id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location']);
   if (ordered.location) {
     ordered.location = orderObjectKeys(ordered.location, ['id', 'geometry', 'validAt']);
     if (ordered.location.geometry) {
@@ -31,7 +31,7 @@ export function formatPlatformAsLinkedData(platform: any): object {
   platformLinked['@id'] = platformLinked.id;
   delete platformLinked.id;
   platformLinked['@type'] = 'Platform';
-  const ordered = orderObjectKeys(platformLinked, ['@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatform', 'location']);
+  const ordered = orderObjectKeys(platformLinked, ['@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location']);
   return ordered;
 }
 
@@ -44,7 +44,7 @@ export function addContextToPlatform(platform: any): object {
     contextLinks.platform
   ];
 
-  const ordered = orderObjectKeys(platformWithContext, ['@context', 'id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatform', 'location']);
+  const ordered = orderObjectKeys(platformWithContext, ['@context', '@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location']);
   return ordered;
 
 }

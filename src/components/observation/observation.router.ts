@@ -218,14 +218,14 @@ const createObservationBodySchema = joi.object({
   madeBySensor: joi.string().required(),
   // Don't want inDeployment or isHostedBy being provided here, as this should be derived from any saved context instead.
   hasResult: joi.object({
-    value: joi.any().required()
+    value: joi.any().required(),
+    unit: joi.string()
   }).required(),
   resultTime: joi.string()
     .isoDate()
     .required(),
   observedProperty: joi.string(),
-  unit: joi.string(),
-  usedProcedure: joi.array().items(joi.string())
+  usedProcedures: joi.array().items(joi.string())
   // for now at least the discipline and hasFeatureOfInterest should come from the saved context.
 })
 .required();
@@ -233,6 +233,7 @@ const createObservationBodySchema = joi.object({
 // This endpoint is more for superusers. If I ever want to allow standard users to contribute observation then it should be via an endpoint that includes the deployment ID in the url. 
 router.post('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
+  // TODO: Replace this with a JSON Schema validation
   const {error: queryErr, value: body} = createObservationBodySchema.validate(req.body);
   if (queryErr) throw new InvalidObservation(queryErr.message);
 

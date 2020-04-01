@@ -1,4 +1,5 @@
 {
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/deployment-create-request-body.json",
   "title": "deployment-create-request-body",
   "type": "object",
   "x-tags": [

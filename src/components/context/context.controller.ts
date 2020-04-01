@@ -99,6 +99,7 @@ export function getObservationContext(): object {
     '@base': `${apiBase}/`,
     sosa: common.sosa,
     ssn: common.ssn,
+    uo: common.uo,
     buo: common.buo,
     Observation: 'sosa:Observation',
     madeBySensor: {
@@ -111,20 +112,23 @@ export function getObservationContext(): object {
     },
     resultTime: 'sosa:resultTime',
     hasResult: 'sosa:hasResult',
+    unit: 'uo:unit',
+    flags: 'buo:Flag',
     observedProperty: 'sosa:ObservedProperty',
+    displines: 'uo:Discipline',
     hasFeatureOfInterest: {
       '@id': 'sosa:hasFeatureOfInterest',
       '@type': '@id'
     },
-    usedProcedure: 'sosa:usedProcedure',
-    ancestorPlatform: {
+    usedProcedures: 'sosa:usedProcedure',
+    ancestorPlatforms: {
       '@id': 'buo:ancestorPlatform',
       '@type': '@id',
       '@context': {
         '@base': `${apiBase}/platforms/`
       }
     },
-    inDeployment: {
+    inDeployments: {
       '@id': 'ssn:inDeployment',
       '@type': '@id',
       '@context': {

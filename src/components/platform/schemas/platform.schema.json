@@ -1,0 +1,10 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/platform.json",
+  "definitions": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    }
+  }
+}

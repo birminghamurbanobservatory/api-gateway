@@ -4,6 +4,7 @@ import {OperationalError} from '../errors';
 import {statusCodeToStatus} from '../utils/status-code-to-status';
 import {config} from '../config';
 import {EventStreamOperationalError} from 'event-stream';
+import {InvalidResponseBody} from '../errors/InvalidResponseBody';
 
 const env = config.common.env;
 
@@ -16,7 +17,11 @@ export function handleRouteErrors(err, req, res, next): void {
   // Operational Errors
   //-------------------------------------------------
   // TODO: Need to make sure that operational event stream errors will count here, i.e. a error response from the responding microservice which should be passed onto the client.
-  if (err instanceof OperationalError || err instanceof EventStreamOperationalError) {
+  if (
+    err instanceof OperationalError || 
+    err instanceof EventStreamOperationalError || 
+    err instanceof InvalidResponseBody
+  ) {
 
     //------------------------
     // In production

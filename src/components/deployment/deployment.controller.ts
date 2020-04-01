@@ -66,7 +66,6 @@ export async function getDeployment(deploymentid: string, user: ApiUser): Promis
 
   const deploymentForClient = formatDeploymentForClient(deployment);
   const deploymentWithContext = addContextToDeployment(deploymentForClient);
-
   return deploymentWithContext;
 
 }

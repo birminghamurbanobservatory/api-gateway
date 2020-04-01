@@ -13,7 +13,7 @@ import * as logger from 'node-logger';
 import {pick, cloneDeep} from 'lodash';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import * as createDeploymentBodySchema from './schemas/deployment-create-request-body.schema.json';
-import {validator} from '../../utils/json-schema-validator';
+import {getSchema, validateAgainstSchema} from '../../utils/json-schema-validator';
 
 const router = express.Router();
 
@@ -65,6 +65,7 @@ router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<
 
   const deploymentId = req.params.deploymentId;
   const jsonResponse = await getDeployment(deploymentId, req.user);
+  validateAgainstSchema(jsonResponse, 'deployment-get-response-body');
   res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
@@ -76,13 +77,9 @@ router.get('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<
 //-------------------------------------------------
 router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
-  const body = cloneDeep(req.body);
-  const valid = validator.validate(createDeploymentBodySchema, body);
-  if (!valid) {
-    throw new InvalidDeployment(validator.errorsText());
-  }
-
-  const jsonResponse = await createDeployment(req.body, req.user);
+  const body = validateAgainstSchema(req.body, 'deployment-create-request-body');
+  const jsonResponse = await createDeployment(body, req.user);
+  validateAgainstSchema(jsonResponse, 'deployment-get-response-body');
   res.set('Content-Type', 'application/ld+json');
   return res.status(201).json(jsonResponse);
 
