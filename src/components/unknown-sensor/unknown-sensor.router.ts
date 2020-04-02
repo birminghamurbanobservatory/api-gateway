@@ -18,7 +18,7 @@ export {router as UnknownSensorRouter};
 //-------------------------------------------------
 const getUnknownSensorsQuerySchema = joi.object({
   limit: joi.number().integer().positive().max(1000),
-  offset: joi.number().integer().positive(),
+  offset: joi.number().integer().min(0),
   sortBy: joi.string().valid('id'),
   sortOrder: joi.string().valid('asc', 'desc')
 });
