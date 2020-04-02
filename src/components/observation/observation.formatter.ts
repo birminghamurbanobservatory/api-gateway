@@ -79,6 +79,9 @@ export function addContextToObservations(observations: any[], extraInfo: any): o
   if (extraInfo.total) {
     observationsWithContext.meta.total = extraInfo.total;
   }
+  if (extraInfo.count) {
+    observationsWithContext.meta.count = extraInfo.count;
+  }
 
   return observationsWithContext;
 

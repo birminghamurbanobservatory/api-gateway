@@ -12,7 +12,7 @@ import {permissionsCheck} from '../common/permissions-check';
 //-------------------------------------------------
 // Get observations 
 //-------------------------------------------------
-export async function getObservations(where: any, options: {limit?: number; offset?: number; onePer?: string}, user: ApiUser): Promise<any> {
+export async function getObservations(where: any, options: {limit?: number; offset?: number; onePer?: string; sortBy: string; sortOrder: string}, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
