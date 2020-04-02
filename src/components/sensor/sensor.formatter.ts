@@ -4,53 +4,9 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 
 
-export function formatSensorForApp(fromClient): object {
-  const forApp = cloneDeep(fromClient);
-  if (forApp.initialConfig) {
-    forApp.initialConfig = forApp.initialConfig.map(formatSensorConfigForApp);
-  }
-  if (forApp.currentConfig) {
-    forApp.currentConfig = forApp.currentConfig.map(formatSensorConfigForApp);
-  }
-  return forApp;
-}
-
-export function formatSensorConfigForApp(fromClient): object {
-  const forApp = cloneDeep(fromClient);
-  if (forApp.discipline) {
-    forApp.disciplines = forApp.discipline;
-    delete forApp.discipline;
-  }
-  if (forApp.usedProcedure) {
-    forApp.usedProcedures = forApp.usedProcedure;
-    delete forApp.usedProcedure;
-  }
-  return forApp;
-}
-
-
-export function formatSensorConfigForClient(fromApp): object {
-  const forClient = cloneDeep(fromApp);
-  if (forClient.disciplines) {
-    forClient.discipline = forClient.disciplines;
-    delete forClient.disciplines;
-  }
-  if (forClient.usedProcedures) {
-    forClient.usedProcedure = forClient.usedProcedures;
-    delete forClient.usedProcedures;
-  }
-  return forClient;
-}
-
 
 export function formatSensorForClient(sensor: object): object {
   const forClient = cloneDeep(sensor);
-  if (forClient.initialConfig) {
-    forClient.initialConfig = forClient.initialConfig.map(formatSensorConfigForClient);
-  }
-  if (forClient.currentConfig) {
-    forClient.currentConfig = forClient.currentConfig.map(formatSensorConfigForClient);
-  }
   const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'permanentHost']);
   return ordered;
 }

@@ -27,8 +27,8 @@ const configSchema = joi.object({
   observedProperty: joi.string().required(),
   unit: joi.string(),
   hasFeatureOfInterest: joi.string(),
-  discipline: joi.array().items(joi.string()),
-  usedProcedure: joi.array().items(joi.string())
+  disciplines: joi.array().items(joi.string()),
+  usedProcedures: joi.array().items(joi.string())
 });
 
 const createSensorBodySchema = joi.object({
