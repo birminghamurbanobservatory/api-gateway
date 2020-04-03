@@ -32,7 +32,7 @@ const getObservationsQuerySchema = joi.object({
   unit__in: joi.string().custom(inConditional),
   unit__exists: joi.boolean(),
   hasFeatureOfInterest: joi.string(),
-  discipline__includes: joi.string(),
+  disciplines__includes: joi.string(),
   inDeployment: joi.string(),
   inDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
