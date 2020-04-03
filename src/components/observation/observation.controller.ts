@@ -101,7 +101,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
 
   if (check.object(where.disciplines) && check.nonEmptyString(where.disciplines.includes)) {
     updatedWhere.discipline = where.disciplines.includes;
-    delete where.disciplines;
+    delete updatedWhere.disciplines;
   }
 
   const {observations, meta} = await observationService.getObservations(updatedWhere, options);
