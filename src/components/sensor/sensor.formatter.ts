@@ -12,7 +12,7 @@ export function formatSensorForClient(sensor: object): object {
 }
 
 
-export function formatSensorAsLinkedData(sensor: any): object {
+export function formatSensorAsLinkedData(sensor: any): any {
   const sensorLinked = cloneDeep(sensor);
   sensorLinked['@id'] = sensorLinked.id;
   delete sensorLinked.id;

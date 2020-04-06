@@ -2,7 +2,6 @@ import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import * as logger from 'node-logger';
-import {InvalidPlatform} from './errors/InvalidPlatform';
 import {createPlatform, getPlatforms, getPlatform, updatePlatform, deletePlatform, releasePlatformSensors} from './platform.controller';
 import {validateGeometry} from '../../utils/geojson-validator';
 import {InvalidPlatformUpdates} from './errors/InvalidPlatformUpdates';
@@ -37,11 +36,17 @@ router.post('/platforms', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 // Get platform
 //-------------------------------------------------
+const getPlatformQuerySchema = joi.object({
+  nest: joi.boolean().default(false)
+});
+
 router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any> => {
 
   const platformId = req.params.platformId;
   logger.debug(`Request to get platform ${platformId}`);
-  const jsonResponse = await getPlatform(platformId, req.user);
+  const {error: queryErr, value: query} = getPlatformQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+  const jsonResponse = await getPlatform(platformId, req.user, query);
   res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 

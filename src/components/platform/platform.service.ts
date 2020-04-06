@@ -9,11 +9,12 @@ export async function createPlatform(platform): Promise<any> {
 }
 
 
-export async function getPlatform(id: string): Promise<any> {
+export async function getPlatform(id: string, options: {nest?: boolean} = {}): Promise<any> {
   const platforms = await event.publishExpectingResponse('platform.get.request', {
     where: {
       id
-    }
+    },
+    options
   });
   return platforms;
 }
@@ -80,6 +81,7 @@ export async function releasePlatformSensors(platformId: string): Promise<void> 
   });
   return;
 }
+
 
 
 

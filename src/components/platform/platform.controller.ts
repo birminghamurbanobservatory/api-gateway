@@ -1,5 +1,5 @@
 import * as platformService from './platform.service';
-import {formatPlatformForClient, addContextToPlatform, addContextToPlatforms} from './platform.formatter';
+import {formatPlatformForClient, addContextToPlatform, addContextToPlatforms, formatForClientAndAddContextToPlatformWithHostsArray} from './platform.formatter';
 import {getDeployment, getDeployments} from '../deployment/deployment.service';
 import {deploymentLevelCheck} from '../deployment/deployment-level-check';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
@@ -8,6 +8,8 @@ import {ApiUser} from '../common/api-user.class';
 import * as check from 'check-types';
 import {pick, concat, uniqBy, cloneDeep} from 'lodash';
 import * as Promise from 'bluebird';
+import {recursivelyExtractInDeploymentIds, recursivelyRemoveProtectedHostedPlatforms} from './platform.helpers';
+import * as logger from 'node-logger';
 
 
 export async function createPlatform(platform, user): Promise<any> {
@@ -24,32 +26,52 @@ export async function createPlatform(platform, user): Promise<any> {
 }
 
 
-export async function getPlatform(platformId: string, user): Promise<any> {
+export async function getPlatform(platformId: string, user, options: {nest?: boolean} = {}): Promise<any> {
 
-  const platform = await platformService.getPlatform(platformId);
+  const platform = await platformService.getPlatform(platformId, options);
 
   let hasSufficientRights;
   const hasSuperUserPermission = user.permissions.includes('admin-all:deployments');
-  
+  let platformSafeForUser;
+
   if (hasSuperUserPermission) {
     hasSufficientRights = true;
+    platformSafeForUser = platform;
+
   } else {
 
-    // We need to check that the platform belongs to a deployment that the user has at least basic rights to.
-    let deploymentLevels;
-    if (user.id) {
-      deploymentLevels = await getLevelsForDeployments(platform.inDeployments, user.id);
+    let deploymentsIdsForLevelChecking;
+    if (platform.hosts) {
+      deploymentsIdsForLevelChecking = recursivelyExtractInDeploymentIds(platform);
     } else {
-      deploymentLevels = await getLevelsForDeployments(platform.inDeployments);
+      deploymentsIdsForLevelChecking = platform.inDeployments;
     }
 
-    const hasRightsToAtLeastOneDeployment = deploymentLevels.some((deploymentLevel): boolean => {
-      return Boolean(deploymentLevel.level);
+    let deploymentLevels;
+    if (user.id) {
+      deploymentLevels = await getLevelsForDeployments(deploymentsIdsForLevelChecking, user.id);
+    } else {
+      deploymentLevels = await getLevelsForDeployments(deploymentsIdsForLevelChecking);
+    }
+
+    // We need to check that the (top-level) platform belongs to a deployment that the user has at least basic rights to.
+    const hasRightsToAtLeastOneDeployment = platform.inDeployments.some((deploymentId): boolean => {
+      const matchingDeployment = deploymentLevels.find((deploymentLevel): any => deploymentLevel.deploymentId === deploymentId);
+      return matchingDeployment && Boolean(matchingDeployment.level);
     }); 
 
     if (hasRightsToAtLeastOneDeployment) {
       hasSufficientRights = true;
     }
+
+    // We'll want to remove any hosted platforms that this user doesn't have rights too.
+    const safeDeploymentIds = deploymentLevels
+      .filter((deploymentLevel): boolean => Boolean(deploymentLevel.level))
+      .map((deploymentLevel): string => deploymentLevel.deploymentId);
+    logger.debug(safeDeploymentIds);
+    logger.debug(platform);
+    platformSafeForUser = platform.hosts ? recursivelyRemoveProtectedHostedPlatforms(platform, safeDeploymentIds) : platform;
+    logger.debug(platformSafeForUser);
 
   }
 
@@ -57,8 +79,13 @@ export async function getPlatform(platformId: string, user): Promise<any> {
     throw new Forbidden(`You do not have the rights to access platform '${platformId}'`);
   }
 
-  const platformForClient = formatPlatformForClient(platform);
-  const platformWithContext = addContextToPlatform(platformForClient);
+  let platformWithContext;
+  if (platform.hosts) {
+    platformWithContext = formatForClientAndAddContextToPlatformWithHostsArray(platformSafeForUser);
+  } else {
+    const platformForClient = formatPlatformForClient(platformSafeForUser);
+    platformWithContext = addContextToPlatform(platformForClient);
+  }
   return platformWithContext;
 
 }
@@ -235,6 +262,7 @@ export async function releasePlatformSensors(platformId: string, user: ApiUser):
   return;
 
 }
+
 
 
 

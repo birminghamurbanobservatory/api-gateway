@@ -23,7 +23,7 @@ export async function getDeploymentUser(deploymentId: string, userId: string): P
 
 
 
-export async function getLevelsForDeployments(deploymentIds: string[], userId?: string): Promise<any> {
+export async function getLevelsForDeployments(deploymentIds: string[], userId?: string): Promise<{deploymentId: string; level: string}[]> {
   
   const message: any = {
     where: {

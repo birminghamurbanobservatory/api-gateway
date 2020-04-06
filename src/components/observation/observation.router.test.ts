@@ -76,7 +76,7 @@ describe('', () => {
             'forestdale-primary-school',
             'netatmo-02-00-00-3f-16-4c-r4e'
           ],
-          discipline: [
+          disciplines: [
             'Meteorology'
           ],
           location: {
@@ -96,12 +96,12 @@ describe('', () => {
         }
       ],
       meta: {
-
+        
       }
     });
 
     const response = await request
-    .get('/observations')
+    .get('/observations?resultTime__lte=2020-03-09T10:20:00.000Z')
     .expect(200);
 
     const expectedResponseBody = {
@@ -124,14 +124,14 @@ describe('', () => {
           madeBySensor: `netatmo-02-00-00-3f-16-4c-humidity`,
           observedProperty: 'RelativeHumidity',
           hasFeatureOfInterest: 'EarthAtmosphere',
-          inDeployment: [
+          inDeployments: [
             `netatmo-gatekeepers`
           ],
-          ancestorPlatform: [
+          ancestorPlatforms: [
             'forestdale-primary-school',
             'netatmo-02-00-00-3f-16-4c-r4e'
           ],
-          discipline: [
+          disciplines: [
             'Meteorology'
           ],
           location: {
@@ -150,7 +150,16 @@ describe('', () => {
           ]
         }
       ],
-      meta: {}
+      meta: {
+        current: {
+          '@id': 'http://localhost:8080/observations?resultTime__lte=2020-03-09T10:20:00.000Z&limit=100&offset=0&sortBy=resultTime&sortOrder=desc',
+          limit: 100,
+          offset: 0,
+          resultTime__lte: '2020-03-09T10:20:00.000Z',
+          sortBy: 'resultTime',
+          sortOrder: 'desc',
+        }
+      }
     };
 
     expect(response.body).toEqual(expectedResponseBody);

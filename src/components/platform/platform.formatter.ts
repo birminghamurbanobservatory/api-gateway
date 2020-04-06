@@ -2,6 +2,7 @@ import {cloneDeep} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
+import {formatSensorForClient, formatSensorAsLinkedData} from '../sensor/sensor.formatter';
 
 
 export function formatPlatformForClient(platform: object): object {
@@ -26,7 +27,7 @@ export function formatPlatformForClient(platform: object): object {
 }
 
 
-export function formatPlatformAsLinkedData(platform: any): object {
+export function formatPlatformAsLinkedData(platform: any): any {
   const platformLinked = cloneDeep(platform);
   platformLinked['@id'] = platformLinked.id;
   delete platformLinked.id;
@@ -69,5 +70,48 @@ export function addContextToPlatforms(platforms: any[]): object {
   };
 
   return platformsWithContext;
+
+}
+
+
+
+export function formatForClientAndAddContextToPlatformWithHostsArray(platform): any {
+
+  const platformWithContext = recursivelyFormatPlatformWithHostsArray(platform);
+
+  platformWithContext['@context'] = [
+    contextLinks.platform,
+    contextLinks.sensor // because there could be sensors in the hosts array
+  ];
+
+  const ordered = orderObjectKeys(platformWithContext, ['@context', '@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location', 'hosts']);
+  return ordered;
+
+}
+
+
+export function recursivelyFormatPlatformWithHostsArray(platform): any {
+
+  const platformForClient = formatPlatformForClient(platform);
+  const platformLinked = formatPlatformAsLinkedData(platformForClient);
+  delete platformLinked.type; // because @type should now be present.
+
+  if (platform.hosts) {
+    platformLinked.hosts = platform.hosts.map((hostee): any => {
+      if (hostee.type === 'sensor') {
+        const sensorForClient = formatSensorForClient(hostee);
+        const sensorLinked = formatSensorAsLinkedData(sensorForClient);
+        delete sensorLinked.type; // because @type should now be present.
+        return sensorLinked;
+      } else if (hostee.type === 'platform') {
+        // recursive call
+        return recursivelyFormatPlatformWithHostsArray(hostee);
+      } else {
+        throw new Error('Unknown type in platform hosts array');
+      }
+    });
+  }
+
+  return platformLinked;
 
 }
