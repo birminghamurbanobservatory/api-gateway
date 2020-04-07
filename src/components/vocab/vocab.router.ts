@@ -5,6 +5,7 @@ import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import {getUrbanObsVocabTidied} from './vocab.service';
 import {config} from '../../config';
+import * as path from 'path';
 
 const router = express.Router();
 
@@ -19,6 +20,9 @@ router.get('/vocab/uo', asyncWrapper(async (req, res): Promise<any> => {
   const vocab = await getUrbanObsVocabTidied();
   vocab.source = config.api.uoVocab;
 
-  return res.render(`${__dirname}/pages/uo-vocab.ejs`, vocab);
+  // This is a bit of cheat to save me having to copy over the .ejs file into the dist directory.
+  const pagePath = path.join(__dirname, '../../../src/components/vocab/pages/uo-vocab.ejs');
+
+  return res.render(pagePath, vocab);
 
 }));
