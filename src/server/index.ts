@@ -25,6 +25,7 @@ import {UnknownSensorRouter} from '../components/unknown-sensor/unknown-sensor.r
 import {AccountRouter} from '../components/account/account.router';
 import {ContextRouter} from '../components/context/context.router';
 import {SchemaRouter} from '../components/schemas/schema.router';
+import {config} from '../config';
 
 
 export const app = express();
@@ -76,6 +77,14 @@ app.use(allowCaseInsensitiveQueryParameters);
 
 // Pull out any authentication credentials
 app.use(lookForUserCredentials);
+
+// For simplicity lets add a Link header pointing to the OpenAPI documentation to every endpoint. Further down the line I may want to make this bespoke, e.g. with JSON hyper-schema.
+app.use((req, res, next): any => {
+  if (config.api && config.api.docs) {
+    res.set('Link', `<${config.api.docs}>; rel="documentation"`);
+  }
+  next();
+});
 
 //-------------------------------------------------
 // Routes

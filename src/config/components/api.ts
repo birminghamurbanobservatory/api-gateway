@@ -10,7 +10,9 @@ import * as joi from '@hapi/joi';
 const schema = joi.object({
   API_BASE: joi.string()
     .uri()
-    .required()
+    .required(),
+  API_DOCS: joi.string()
+    .uri()
 }).unknown() // allows for extra fields (i.e that we don't check for) in the object being checked.
   .required();
 
@@ -32,6 +34,7 @@ if (err) {
 //-------------------------------------------------
 // Pull out the properties we need to create this particular config object. 
 export const api = {
-  base: envVars.API_BASE
+  base: envVars.API_BASE,
+  docs: envVars.API_DOCS
 };
 
