@@ -26,6 +26,7 @@ import {AccountRouter} from '../components/account/account.router';
 import {ContextRouter} from '../components/context/context.router';
 import {SchemaRouter} from '../components/schemas/schema.router';
 import {config} from '../config';
+import {VocabRouter} from '../components/vocab/vocab.router';
 
 
 export const app = express();
@@ -86,10 +87,14 @@ app.use((req, res, next): any => {
   next();
 });
 
+// Use ejs for and res.render usage
+app.set('view engine', 'ejs');
+
 //-------------------------------------------------
 // Routes
 //-------------------------------------------------
 app.use(RootRouter);
+app.use(VocabRouter);
 app.use(SchemaRouter);
 app.use(ContextRouter);
 app.use(DeploymentRouter);

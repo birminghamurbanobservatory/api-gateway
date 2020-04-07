@@ -12,6 +12,8 @@ const schema = joi.object({
     .uri()
     .required(),
   API_DOCS: joi.string()
+    .uri(),
+  API_UO_VOCAB: joi.string()
     .uri()
 }).unknown() // allows for extra fields (i.e that we don't check for) in the object being checked.
   .required();
@@ -35,6 +37,7 @@ if (err) {
 // Pull out the properties we need to create this particular config object. 
 export const api = {
   base: envVars.API_BASE,
-  docs: envVars.API_DOCS
+  docs: envVars.API_DOCS,
+  uoVocab: envVars.API_UO_VOCAB
 };
 

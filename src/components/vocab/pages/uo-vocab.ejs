@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UO Vocabulary</title>
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="jumbotron text-white bg-dark">
+      <h1>Urban Observatory Vocabulary</h1>
+      <p class="lead">An effort to ensure all Urban Observatories use a consistent vocabulary.</p>
+
+    </div>
+
+    <div class="mb-5">
+      <p>Jump to:</p>
+
+      <ul>
+        <li><a href="#disciplines">Disciplines</a></li>
+        <li><a href="#observable-properties">Observable Properties</a></li>
+        <li><a href="#units">Units</a></li>
+      </ul>
+    </div>
+
+    <div class="my-5">
+      <p>This documentation has been built from this <a href="<%= source %>">JSON Vocabulary file</a>.</p>
+    </div>
+
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Disciplines -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - -->
+    <section id="disciplines">
+
+      <h1 class="text-white bg-dark p-2">Disciplines</h1>
+
+      <% disciplines.forEach(function(discipline) { %>
+        <div id="<%= discipline.id %>" class="card my-3">
+          <div class="card-body">
+
+            <h2 class="card-title text-primary"><%= discipline.labelCapitalised ||  discipline.id %></h2>
+
+            <p class="card-text"><strong>ID:</strong> <%= discipline.id %></p>
+            <p class="card-text"><strong>Type:</strong> <%= discipline.type %></p>
+
+            <% if (discipline.label) { %>
+              <p class="card-text"><strong>Label:</strong> <%= discipline.label %></p>
+            <% } %>
+            
+
+            <% if (discipline.comment) { %>
+              <p class="card-text"><strong>Description:</strong> <%= discipline.comment %></p>
+            <% } %>
+
+            <% if (discipline.sameAs) { %>
+              <p class="card-text">
+                <strong>Same as: </strong>
+                <% discipline.sameAs.forEach(function(sameAsItem) { %>
+                  <span><%= sameAsItem %> </span>
+                <% }); %>
+              </p>
+            <% } %>
+
+            <% if (discipline.term_status) { %>
+              <p class="card-text"><strong>Term status:</strong> <%= discipline.term_status %></p>
+            <% } %>
+
+          </div>
+        </div>
+      <% }); %>
+
+    </section>
+
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Observable Properties -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - -->
+    <section id="observable-properties">
+
+      <h1 class="text-white bg-dark p-2">Observable Properties</h1>
+
+      <% observableProperties.forEach(function(observableProperty) { %>
+        <div id="<%= observableProperty.id %>" class="card my-3">
+          <div class="card-body">
+
+            <h2 class="card-title text-primary"><%= observableProperty.labelCapitalised ||  observableProperty.id %></h2>
+
+            <p class="card-text"><strong>ID:</strong> <%= observableProperty.id %></p>
+            <p class="card-text"><strong>Type:</strong> <%= observableProperty.type %></p>
+
+            <% if (observableProperty.label) { %>
+              <p class="card-text"><strong>Label:</strong> <%= observableProperty.label %></p>
+            <% } %>
+
+            <% if (observableProperty.comment) { %>
+              <p class="card-text"><strong>Description:</strong> <%= observableProperty.comment %></p>
+            <% } %>
+
+            <% if (observableProperty.recommendedUnits) { %>
+              <p class="card-text">
+                <strong>Same as: </strong>
+                <% observableProperty.recommendedUnits.forEach(function(recommendedUnit) { %>
+                  <span><%= recommendedUnit %> </span>
+                <% }); %>
+              </p>
+            <% } %>
+
+            <% if (observableProperty.sameAs) { %>
+              <p class="card-text">
+                <strong>Same as: </strong>
+                <% observableProperty.sameAs.forEach(function(sameAsItem) { %>
+                  <span><%= sameAsItem %> </span>
+                <% }); %>
+              </p>
+            <% } %>
+
+            <% if (observableProperty.term_status) { %>
+              <p class="card-text"><strong>Term status:</strong> <%= observableProperty.term_status %></p>
+            <% } %>
+
+          </div>
+        </div>
+      <% }); %>
+
+    </section>
+
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Units -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - -->
+    <section id="units">
+
+      <h1 class="text-white bg-dark p-2">Units</h1>
+
+      <% units.forEach(function(unit) { %>
+        <div id="<%= unit.id %>" class="card my-3">
+          <div class="card-body">
+
+            <h2 class="card-title text-primary"><%= unit.labelCapitalised ||  unit.id %></h2>
+
+            <p class="card-text"><strong>ID:</strong> <%= unit.id %></p>
+            <p class="card-text"><strong>Type:</strong> <%= unit.type %></p>
+
+            <% if (unit.label) { %>
+              <p class="card-text"><strong>Label:</strong> <%= unit.label %></p>
+            <% } %>
+
+            <% if (unit.symbol) { %>
+              <p class="card-text"><strong>Symbol:</strong> <%= unit.symbol %></p>
+            <% } %>
+
+            <% if (unit.comment) { %>
+              <p class="card-text"><strong>Description:</strong> <%= unit.comment %></p>
+            <% } %>
+
+            <% if (unit.sameAs) { %>
+              <p class="card-text">
+                <strong>Same as: </strong>
+                <% unit.sameAs.forEach(function(sameAsItem) { %>
+                  <span><%= sameAsItem %> </span>
+                <% }); %>
+              </p>
+            <% } %>
+
+          </div>
+        </div>
+      <% }); %>
+
+    </section>
+
+
+  </div>
+
+
+
+
+</body>
+</html>
