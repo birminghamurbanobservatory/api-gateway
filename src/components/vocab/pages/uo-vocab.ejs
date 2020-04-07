@@ -167,6 +167,10 @@
               </p>
             <% } %>
 
+            <% if (unit.term_status) { %>
+              <p class="card-text"><strong>Term status:</strong> <%= unit.term_status %></p>
+            <% } %>
+
           </div>
         </div>
       <% }); %>
