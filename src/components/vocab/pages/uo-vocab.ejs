@@ -40,12 +40,16 @@
       <h1 class="text-white bg-dark p-2">Disciplines</h1>
 
       <% disciplines.forEach(function(discipline) { %>
-        <div id="<%= discipline.id %>" class="card my-3">
+        <div id="<%= discipline.idNoPrefix %>" class="card my-3">
           <div class="card-body">
 
-            <h2 class="card-title text-primary"><%= discipline.labelCapitalised ||  discipline.id %></h2>
+            <h2 class="card-title text-success"><%= discipline.labelCapitalised ||  discipline.id %></h2>
 
-            <p class="card-text"><strong>ID:</strong> <%= discipline.id %></p>
+            <p class="card-text">
+              <strong>ID:</strong> 
+              <a href="<%= discipline.idExpanded %>"> <%= discipline.idNoPrefix %></a>
+            </p>
+
             <p class="card-text"><strong>Type:</strong> <%= discipline.type %></p>
 
             <% if (discipline.label) { %>
@@ -61,7 +65,7 @@
               <p class="card-text">
                 <strong>Same as: </strong>
                 <% discipline.sameAs.forEach(function(sameAsItem) { %>
-                  <span><%= sameAsItem %> </span>
+                  <a href="<%= sameAsItem.idExpanded %>"><%= sameAsItem.idWithPrefix %></a> &nbsp;
                 <% }); %>
               </p>
             <% } %>
@@ -85,12 +89,16 @@
       <h1 class="text-white bg-dark p-2">Observable Properties</h1>
 
       <% observableProperties.forEach(function(observableProperty) { %>
-        <div id="<%= observableProperty.id %>" class="card my-3">
+        <div id="<%= observableProperty.idNoPrefix %>" class="card my-3">
           <div class="card-body">
 
-            <h2 class="card-title text-primary"><%= observableProperty.labelCapitalised ||  observableProperty.id %></h2>
+            <h2 class="card-title text-success"><%= observableProperty.labelCapitalised ||  observableProperty.id %></h2>
 
-            <p class="card-text"><strong>ID:</strong> <%= observableProperty.id %></p>
+            <p class="card-text">
+              <strong>ID:</strong> 
+              <a href="<%= observableProperty.idExpanded %>"> <%= observableProperty.idNoPrefix %></a>
+            </p>
+
             <p class="card-text"><strong>Type:</strong> <%= observableProperty.type %></p>
 
             <% if (observableProperty.label) { %>
@@ -105,7 +113,7 @@
               <p class="card-text">
                 <strong>Recommended Units: </strong>
                 <% observableProperty.recommendedUnits.forEach(function(recommendedUnit) { %>
-                  <span><%= recommendedUnit %> </span>
+                  <a href="<%= recommendedUnit.idExpanded %>"><%= recommendedUnit.idWithPrefix %></a> &nbsp;
                 <% }); %>
               </p>
             <% } %>
@@ -114,7 +122,7 @@
               <p class="card-text">
                 <strong>Same as: </strong>
                 <% observableProperty.sameAs.forEach(function(sameAsItem) { %>
-                  <span><%= sameAsItem %> </span>
+                  <a href="<%= sameAsItem.idExpanded %>"><%= sameAsItem.idWithPrefix %></a> &nbsp;
                 <% }); %>
               </p>
             <% } %>
@@ -138,12 +146,16 @@
       <h1 class="text-white bg-dark p-2">Units</h1>
 
       <% units.forEach(function(unit) { %>
-        <div id="<%= unit.id %>" class="card my-3">
+        <div id="<%= unit.idNoPrefix %>" class="card my-3">
           <div class="card-body">
 
-            <h2 class="card-title text-primary"><%= unit.labelCapitalised ||  unit.id %></h2>
+            <h2 class="card-title text-success"><%= unit.labelCapitalised ||  unit.id %></h2>
 
-            <p class="card-text"><strong>ID:</strong> <%= unit.id %></p>
+            <p class="card-text">
+              <strong>ID:</strong> 
+              <a href="<%= unit.idExpanded %>"> <%= unit.idNoPrefix %></a>
+            </p>
+
             <p class="card-text"><strong>Type:</strong> <%= unit.type %></p>
 
             <% if (unit.label) { %>
@@ -162,7 +174,7 @@
               <p class="card-text">
                 <strong>Same as: </strong>
                 <% unit.sameAs.forEach(function(sameAsItem) { %>
-                  <span><%= sameAsItem %> </span>
+                  <a href="<%= sameAsItem.idExpanded %>"><%= sameAsItem.idWithPrefix %></a> &nbsp;
                 <% }); %>
               </p>
             <% } %>
