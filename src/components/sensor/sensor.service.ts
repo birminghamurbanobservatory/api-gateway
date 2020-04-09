@@ -1,4 +1,5 @@
 import * as event from 'event-stream';
+import {PaginationOptions} from '../common/pagination-options.class';
 
 
 export async function createSensor(sensor): Promise<any> {
@@ -19,11 +20,16 @@ export async function getSensor(sensorId): Promise<any> {
 }
 
 
-export async function getSensors(where): Promise<any> {
-  const sensors = await event.publishExpectingResponse('sensors.get.request', {
-    where
+export async function getSensors(where, options: PaginationOptions): Promise<any> {
+  const response = await event.publishExpectingResponse('sensors.get.request', {
+    where,
+    options
   }); 
-  return sensors;
+  return {
+    sensors: response.data,
+    count: response.meta.count,
+    total: response.meta.total
+  };
 }
 
 

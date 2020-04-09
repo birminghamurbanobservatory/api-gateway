@@ -3,41 +3,35 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {config} from '../../config';
 import {contextLinks} from '../context/context.service';
 
+const keyOrder = ['@context', '@id', 'nObservations', 'lastObservation', 'createdAt', 'updatedAt'];
 
-export function formatUnknownSensorForClient(unknownSensor: object): object {
-  const forClient = cloneDeep(unknownSensor);
-  const ordered = orderObjectKeys(forClient, ['id', 'nObservations', 'lastObservation']);
+
+export function formatIndividualUnknownSensor(unknownSensor: any): object {
+  const unknownSensorLinked = cloneDeep(unknownSensor);
+  unknownSensorLinked['@id'] = unknownSensorLinked.id;
+  delete unknownSensorLinked.id;
+  const ordered = orderObjectKeys(unknownSensorLinked, keyOrder);
   return ordered;
 }
 
 
-export function formatUnknownSensorAsLinkedData(unknownSensor: any): object {
-  const unknownSensorLinked = cloneDeep(unknownSensor);
-  unknownSensorLinked['@id'] = unknownSensorLinked.id;
-  delete unknownSensorLinked.id;
-  return unknownSensorLinked;
-}
+export function createUnknownSensorResponse(unknownSensor: any): object {
 
-
-
-export function addContextToUnknownSensor(unknownSensor: any): object {
-
-  const unknownSensorWithContext = formatUnknownSensorAsLinkedData(unknownSensor);
+  const unknownSensorWithContext = formatIndividualUnknownSensor(unknownSensor);
 
   unknownSensorWithContext['@context'] = [
     contextLinks.unknownSensor
   ];
 
-  const ordered = orderObjectKeys(unknownSensorWithContext, ['@context', '@id', 'nObservations', 'lastObservation']);
+  const ordered = orderObjectKeys(unknownSensorWithContext, keyOrder);
   return ordered;
 
 }
 
 
+export function createUnknownSensorsResponse(unknownSensors: any[], extraInfo: {total: number; count: number}): object {
 
-export function addContextToUnknownSensors(unknownSensors: any[], extraInfo: {total: number}): object {
-
-  const unknownSensorsLd = unknownSensors.map(formatUnknownSensorAsLinkedData);
+  const unknownSensorsLd = unknownSensors.map(formatIndividualUnknownSensor);
 
   const unknownSensorsWithContext = {
     '@context': [
@@ -51,7 +45,7 @@ export function addContextToUnknownSensors(unknownSensors: any[], extraInfo: {to
     ], 
     member: unknownSensorsLd,
     meta: {
-      count: unknownSensors.length,
+      count: extraInfo.count,
       total: extraInfo.total
     }
   };

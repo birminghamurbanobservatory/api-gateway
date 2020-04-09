@@ -1,13 +1,14 @@
 import {permissionsCheck} from '../common/permissions-check';
 import {ApiUser} from '../common/api-user.class';
 import * as sensorService from './sensor.service';
-import {formatSensorForClient, addContextToSensor, addContextToSensors} from './sensor.formatter';
+import {createSensorsResponse, createSensorResponse} from './sensor.formatter';
 import {getDeployment, getDeployments} from '../deployment/deployment.service';
 import {deploymentLevelCheck} from '../deployment/deployment-level-check';
 import * as check from 'check-types';
 import {concat, uniqBy} from 'lodash';
 import {Forbidden} from '../../errors/Forbidden';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
+import {PaginationOptions} from '../common/pagination-options.class';
 
 
 export async function createSensor(sensor, user: ApiUser): Promise<any> {
@@ -15,8 +16,7 @@ export async function createSensor(sensor, user: ApiUser): Promise<any> {
   permissionsCheck(user, 'create:sensor');
 
   const createdSensor = await sensorService.createSensor(sensor);
-  const sensorForClient = formatSensorForClient(createdSensor);
-  const sensorWithContext = addContextToSensor(sensorForClient);
+  const sensorWithContext = createSensorResponse(createdSensor);
   return sensorWithContext;
 
 }
@@ -34,13 +34,12 @@ export async function getSensor(sensorId: string, user: ApiUser): Promise<any> {
     // TODO: what if the sensor is hosted on a platform that has been shared with another deployment? Should users of this sharee deployment be able to see the sensor's details?
   }
 
-  const sensorForClient = formatSensorForClient(sensor);
-  const sensorWithContext = addContextToSensor(sensorForClient);
+  const sensorWithContext = createSensorResponse(sensor);
   return sensorWithContext;
 }
 
 
-export async function getSensors(where, user: ApiUser): Promise<any> {
+export async function getSensors(where, options: PaginationOptions, user: ApiUser): Promise<any> {
 
   const hasSuperUserPermission = user.permissions.includes('get:sensor') || user.permissions.includes('admin-all:deployments');
 
@@ -80,9 +79,11 @@ export async function getSensors(where, user: ApiUser): Promise<any> {
     let usersDeployments = [];
     let publicDeployments = [];
     if (user.id) {
-      usersDeployments = await getDeployments({user: user.id});
+      const response = await getDeployments({user: user.id});
+      usersDeployments = response.deployments;
     }
-    publicDeployments = await getDeployments({public: true});
+    const response = await getDeployments({public: true});
+    publicDeployments = response.deployments;
     const combindedDeployments = concat(usersDeployments, publicDeployments);
     const uniqueDeployments = uniqBy(combindedDeployments, 'id');
     if (uniqueDeployments.length === 0) {
@@ -99,9 +100,8 @@ export async function getSensors(where, user: ApiUser): Promise<any> {
     // TODO: if the request was for specific deployment(s) then might want to check the deployment(s) actually exist?
   }
 
-  const sensors = await sensorService.getSensors(where);
-  const sensorsForClient = sensors.map(formatSensorForClient);
-  const sensorsWithContext = addContextToSensors(sensorsForClient);
+  const {sensors, count, total} = await sensorService.getSensors(where, options);
+  const sensorsWithContext = createSensorsResponse(sensors, {count, total});
   return sensorsWithContext;
 
 }
@@ -113,8 +113,7 @@ export async function updateSensor(sensorId: string, updates: any, user: ApiUser
   permissionsCheck(user, 'update:sensor');
 
   const updatedSensor = await sensorService.updateSensor(sensorId, updates);
-  const sensorForClient = formatSensorForClient(updatedSensor);
-  const sensorWithContext = addContextToSensor(sensorForClient);
+  const sensorWithContext = createSensorResponse(updatedSensor);
   return sensorWithContext;
 }
 

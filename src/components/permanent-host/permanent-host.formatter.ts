@@ -3,40 +3,37 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 
+const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'registrationKey', 'registeredAs', 'createdAt', 'updatedAt'];
 
-export function formatPermanentHostForClient(permanentHost: object): object {
-  const forClient = cloneDeep(permanentHost);
-  const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'registrationKey']);
+
+export function formatIndividualPermanentHost(permanentHost: any): object {
+  const permanentHostLinked = cloneDeep(permanentHost);
+  permanentHostLinked['@id'] = permanentHostLinked.id;
+  delete permanentHostLinked.id;
+  permanentHostLinked['@type'] = 'PermanentHost';
+  // TODO: is there anything else I need to add, e.g. links to deployments and host platforms, or a @base for these?
+  const ordered = orderObjectKeys(permanentHostLinked, keyOrder);
   return ordered;
 }
 
 
-export function formatPermanentHostAsLinkedData(permanentHost: any): object {
-  const permanentHostLinked = cloneDeep(permanentHost);
-  permanentHostLinked['@id'] = permanentHostLinked.id;
-  delete permanentHostLinked.id;
-  // TODO: is there anything else I need to add, e.g. links to deployments and host platforms, or a @base for these?
-  return permanentHostLinked;
-}
+export function createPermanentHostResponse(permanentHost: any): object {
 
-
-export function addContextToPermanentHost(permanentHost: any): object {
-
-  const permanentHostWithContext = formatPermanentHostAsLinkedData(permanentHost);
+  const permanentHostWithContext = formatIndividualPermanentHost(permanentHost);
 
   permanentHostWithContext['@context'] = [
     contextLinks.permanentHost
   ];
 
-  const ordered = orderObjectKeys(permanentHostWithContext, ['@context', '@id', 'name', 'description', 'registrationKey']);
+  const ordered = orderObjectKeys(permanentHostWithContext, keyOrder);
   return ordered;
 
 }
 
 
-export function addContextToPermanentHosts(permanentHosts: any[]): object {
+export function createPermanentHostsResponse(permanentHosts: any[], extraInfo: {count: number; total: number}): object {
 
-  const permanentHostsLd = permanentHosts.map(formatPermanentHostAsLinkedData);
+  const permanentHostsLd = permanentHosts.map(formatIndividualPermanentHost);
 
   const permanentHostsWithContext = {
     '@context': [
@@ -49,6 +46,7 @@ export function addContextToPermanentHosts(permanentHosts: any[]): object {
       // TODO: Any more types to add in here?
     ], 
     member: permanentHostsLd,
+    meta: extraInfo
   };
 
   return permanentHostsWithContext;

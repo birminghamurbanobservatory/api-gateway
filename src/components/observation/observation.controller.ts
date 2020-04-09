@@ -63,9 +63,11 @@ export async function getObservations(where: any, options: {limit?: number; offs
     let usersDeployments = [];
     let publicDeployments = [];
     if (user.id) {
-      usersDeployments = await getDeployments({user: user.id});
+      const response = await getDeployments({user: user.id});
+      usersDeployments = response.deployments;
     }
-    publicDeployments = await getDeployments({public: true});
+    const response = await getDeployments({public: true});
+    publicDeployments = response.deployments;
     const combindedDeployments = concat(usersDeployments, publicDeployments);
     const uniqueDeployments = uniqBy(combindedDeployments, 'id');
     if (uniqueDeployments.length === 0) {

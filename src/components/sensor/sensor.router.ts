@@ -9,10 +9,11 @@ import {InvalidSensor} from './errors/InvalidSensor';
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {SensorNotFound} from './errors/SensorNotFound';
-import {Forbidden} from '../../errors/Forbidden';
 import {InvalidBody} from '../../errors/InvalidBody';
 import {inConditional} from '../../utils/custom-joi-validations';
+import {config} from '../../config';
+import {pick} from 'lodash';
+import {addMetaLinks} from '../common/add-meta-links';
 
 const router = express.Router();
 
@@ -67,7 +68,6 @@ router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => 
 
   const sensorId = req.params.sensorId;
   const jsonResponse = await getSensor(sensorId, req.user);
-  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -86,7 +86,12 @@ const getSensorsQuerySchema = joi.object({
   permanentHost__exists: joi.boolean(),
   hasFeatureOfInterest: joi.string(),
   observedProperty: joi.string(),
-  id__begins: joi.string
+  id__begins: joi.string,
+  // options
+  limit: joi.number().integer().positive().max(1000).default(100),
+  offset: joi.number().integer().min(0).default(0),
+  sortBy: joi.string().valid('id').default('id'),
+  sortOrder: joi.string().valid('asc', 'desc').default('asc')
 })
 .without('inDeployment__exists', ['inDeployment'])
 .without('inDeployment__exists', ['inDeployment__in'])
@@ -103,11 +108,23 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidQueryString(queryErr.message);  
   logger.debug('Validated query parameters', query);
 
-  const where = convertQueryToWhere(query);
-  // TODO: At some point you may start needing to limit the number of sensors returned, e.g. allowing a user to provide a query parameter: limit=100, when this becomes the case you'll want to create an options argument for the getSensors function and for the event stream call, e.g. {limit: 100}, otherwise this could get messy trying to combine it with the where object.
+  // Pull out the options
+  const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder'];
+  const options = pick(query, optionKeys);
 
-  const jsonResponse = await getSensors(where, req.user);
-  res.set('Content-Type', 'application/ld+json');
+  // Pull out the where conditions (let's assume it's everything except the option parameters)
+  const wherePart = {};
+  Object.keys(query).forEach((key): void => {
+    if (!optionKeys.includes(key)) {
+      wherePart[key] = query[key];
+    }
+  });
+  const where = convertQueryToWhere(wherePart);
+ 
+  let jsonResponse = await getSensors(where, options, req.user);
+
+  jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/sensors`, query);
+
   return res.json(jsonResponse);
 
 }));
@@ -136,7 +153,6 @@ router.patch('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> =
   const sensorId = req.params.sensorId;
 
   const jsonResponse = await updateSensor(sensorId, body, req.user);
-  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));

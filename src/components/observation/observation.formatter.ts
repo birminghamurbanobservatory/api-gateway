@@ -117,8 +117,6 @@ export function addContextToObservations(observations: any[], extraInfo: any): o
     ], 
     member: observationsLd,
     meta: {}
-    // TODO: Should the next property inside this meta object be an object, e.g. with a @id property for the actual link, but also a breakdown of the query string parameters, e.g. offset: 10. This can make it easier for front end applications to build their own links.
-    // TODO: For the next link we may want to incorporate a resultTime
   };
 
   if (extraInfo.total) {

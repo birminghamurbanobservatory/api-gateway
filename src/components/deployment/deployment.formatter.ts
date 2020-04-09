@@ -3,42 +3,38 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 
-
-export function formatDeploymentForClient(deployment: object): object {
-  const forClient = cloneDeep(deployment);
-  delete forClient.users;
-  delete forClient.createdBy;
-  const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'public']);
-  return ordered;
-}
+const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'public'];
 
 
-export function formatDeploymentAsLinkedData(deployment: any): object {
+export function formatIndividualDeployment(deployment: any): object {
   const deploymentLinked = cloneDeep(deployment);
   deploymentLinked['@id'] = deploymentLinked.id;
   delete deploymentLinked.id;
   deploymentLinked['@type'] = 'Deployment';
-  return deploymentLinked;
+  delete deploymentLinked.users;
+  delete deploymentLinked.createdBy;  
+  const ordered = orderObjectKeys(deploymentLinked, keyOrder);
+  return ordered;
 }
 
 
-export function addContextToDeployment(deployment: any): object {
+export function createDeploymentResponse(deployment: any): object {
 
-  const deploymentWithContext = formatDeploymentAsLinkedData(deployment);
+  const deploymentWithContext = formatIndividualDeployment(deployment);
   
   deploymentWithContext['@context'] = [
     contextLinks.deployment
   ];
 
-  const ordered = orderObjectKeys(deploymentWithContext, ['@context', '@id', '@type', 'name', 'description', 'public']);
+  const ordered = orderObjectKeys(deploymentWithContext, keyOrder);
   return ordered;
 
 }
 
 
-export function addContextToDeployments(deployments: any[]): object {
+export function createDeploymentsResponse(deployments: any[], extraInfo: {count: number; total: number}): object {
 
-  const deploymentsLd = deployments.map(formatDeploymentAsLinkedData);
+  const deploymentsLd = deployments.map(formatIndividualDeployment);
 
   const deploymentsWithContext = {
     '@context': [
@@ -51,6 +47,7 @@ export function addContextToDeployments(deployments: any[]): object {
       // TODO: Any more types to add in here?
     ], 
     member: deploymentsLd,
+    meta: extraInfo
   };
 
   return deploymentsWithContext;

@@ -1,5 +1,5 @@
 import * as platformService from './platform.service';
-import {formatPlatformForClient, addContextToPlatform, addContextToPlatforms, formatForClientAndAddContextToPlatformWithHostsArray} from './platform.formatter';
+import {formatForClientAndAddContextToPlatformWithHostsArray, createPlatformsResponse, createPlatformResponse} from './platform.formatter';
 import {getDeployment, getDeployments} from '../deployment/deployment.service';
 import {deploymentLevelCheck} from '../deployment/deployment-level-check';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
@@ -10,6 +10,7 @@ import {pick, concat, uniqBy, cloneDeep} from 'lodash';
 import * as Promise from 'bluebird';
 import {recursivelyExtractInDeploymentIds, recursivelyRemoveProtectedHostedPlatforms} from './platform.helpers';
 import * as logger from 'node-logger';
+import {PaginationOptions} from '../common/pagination-options.class';
 
 
 export async function createPlatform(platform, user): Promise<any> {
@@ -19,8 +20,7 @@ export async function createPlatform(platform, user): Promise<any> {
   deploymentLevelCheck(deployment, user, ['admin', 'engineer']);
 
   const createdPlatform = await platformService.createPlatform(platform);
-  const platformForClient = formatPlatformForClient(createdPlatform);
-  const platformWithContext = addContextToPlatform(platformForClient);
+  const platformWithContext = createPlatformResponse(createdPlatform);
   return platformWithContext;
 
 }
@@ -83,15 +83,14 @@ export async function getPlatform(platformId: string, user, options: {nest?: boo
   if (platform.hosts) {
     platformWithContext = formatForClientAndAddContextToPlatformWithHostsArray(platformSafeForUser);
   } else {
-    const platformForClient = formatPlatformForClient(platformSafeForUser);
-    platformWithContext = addContextToPlatform(platformForClient);
+    platformWithContext = createPlatformResponse(platformSafeForUser);
   }
   return platformWithContext;
 
 }
 
 
-export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatforms: any}, user: ApiUser): Promise<any> {
+export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatforms: any}, options: PaginationOptions, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
@@ -132,9 +131,11 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
     let usersDeployments = [];
     let publicDeployments = [];
     if (user.id) {
-      usersDeployments = await getDeployments({user: user.id});
+      const response = await getDeployments({user: user.id});
+      usersDeployments = response.deployments;
     }
-    publicDeployments = await getDeployments({public: true});
+    const response = await getDeployments({public: true});
+    publicDeployments = response.deployments;
     const combindedDeployments = concat(usersDeployments, publicDeployments);
     const uniqueDeployments = uniqBy(combindedDeployments, 'id');
     if (uniqueDeployments.length === 0) {
@@ -156,9 +157,8 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
   }
   delete updatedWhere.ancestorPlatforms;
 
-  const platforms = await platformService.getPlatforms(updatedWhere);
-  const platformsForClient = platforms.map(formatPlatformForClient);
-  const platformsWithContext = addContextToPlatforms(platformsForClient);
+  const {platforms, count, total} = await platformService.getPlatforms(where, options);
+  const platformsWithContext = createPlatformsResponse(platforms, {count, total});
   return platformsWithContext;
 
 }
@@ -225,8 +225,7 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
     updatedPlatform = await platformService.getPlatform(platformId); 
   }
 
-  const platformForClient = formatPlatformForClient(updatedPlatform);
-  const platformWithContext = addContextToPlatform(platformForClient);
+  const platformWithContext = createPlatformResponse(updatedPlatform);
   return platformWithContext;
 }
 

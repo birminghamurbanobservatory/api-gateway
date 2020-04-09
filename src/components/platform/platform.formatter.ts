@@ -2,21 +2,24 @@ import {cloneDeep} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
-import {formatSensorForClient, formatSensorAsLinkedData} from '../sensor/sensor.formatter';
+import {formatIndividualSensor} from '../sensor/sensor.formatter';
 
 
-export function formatPlatformForClient(platform: object): object {
-  const forClient = cloneDeep(platform);
-  delete forClient.users;
-  delete forClient.createdBy;
-  // Initially I was tempted to have isHostedBy be an array containing the full path of ancestor platform. The issue with this is that it's then confusing for clients who want to rehost/unhost a platform as they should be POSTing us a string value, rather than an array, for the new host.
-  // Therefore I'm going to use a ancestorPlatforms array instead. 
-  // TODO I'll need to define ancestorPlatform in a bhamUrbanObs vocabulary somewhere.
-  if (forClient.hostedByPath) {
-    forClient.ancestorPlatforms = forClient.hostedByPath;
+const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location'];
+
+
+export function formatIndividualPlatform(platform: any): any {
+  const platformLinked = cloneDeep(platform);
+  platformLinked['@id'] = platformLinked.id;
+  delete platformLinked.id;
+  platformLinked['@type'] = 'Platform';
+  delete platformLinked.users;
+  delete platformLinked.createdBy;
+  if (platformLinked.hostedByPath) {
+    platformLinked.ancestorPlatforms = platformLinked.hostedByPath;
   }
-  delete forClient.hostedByPath;
-  const ordered: any = orderObjectKeys(forClient, ['id', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location']);
+  delete platformLinked.hostedByPath;
+  const ordered = orderObjectKeys(platformLinked, keyOrder);
   if (ordered.location) {
     ordered.location = orderObjectKeys(ordered.location, ['id', 'geometry', 'validAt']);
     if (ordered.location.geometry) {
@@ -27,34 +30,23 @@ export function formatPlatformForClient(platform: object): object {
 }
 
 
-export function formatPlatformAsLinkedData(platform: any): any {
-  const platformLinked = cloneDeep(platform);
-  platformLinked['@id'] = platformLinked.id;
-  delete platformLinked.id;
-  platformLinked['@type'] = 'Platform';
-  const ordered = orderObjectKeys(platformLinked, ['@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location']);
-  return ordered;
-}
+export function createPlatformResponse(platform: any): object {
 
-
-export function addContextToPlatform(platform: any): object {
-
-  const platformWithContext = formatPlatformAsLinkedData(platform);
+  const platformWithContext = formatIndividualPlatform(platform);
 
   platformWithContext['@context'] = [
     contextLinks.platform
   ];
 
-  const ordered = orderObjectKeys(platformWithContext, ['@context', '@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location']);
+  const ordered = orderObjectKeys(platformWithContext, keyOrder);
   return ordered;
 
 }
 
 
+export function createPlatformsResponse(platforms: any[], extraInfo: {count: number; total: number}): object {
 
-export function addContextToPlatforms(platforms: any[]): object {
-
-  const platformsLd = platforms.map(formatPlatformAsLinkedData);
+  const platformsLd = platforms.map(formatIndividualPlatform);
 
   const platformsWithContext = {
     '@context': [
@@ -66,7 +58,8 @@ export function addContextToPlatforms(platforms: any[]): object {
       'Collection'
       // TODO: Any more types to add in here?
     ], 
-    member: platformsLd
+    member: platformsLd,
+    meta: extraInfo
   };
 
   return platformsWithContext;
@@ -84,7 +77,7 @@ export function formatForClientAndAddContextToPlatformWithHostsArray(platform): 
     contextLinks.sensor // because there could be sensors in the hosts array
   ];
 
-  const ordered = orderObjectKeys(platformWithContext, ['@context', '@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location', 'hosts']);
+  const ordered = orderObjectKeys(platformWithContext, keyOrder);
   return ordered;
 
 }
@@ -92,15 +85,13 @@ export function formatForClientAndAddContextToPlatformWithHostsArray(platform): 
 
 export function recursivelyFormatPlatformWithHostsArray(platform): any {
 
-  const platformForClient = formatPlatformForClient(platform);
-  const platformLinked = formatPlatformAsLinkedData(platformForClient);
+  const platformLinked = formatIndividualPlatform(platform);
   delete platformLinked.type; // because @type should now be present.
 
   if (platform.hosts) {
     platformLinked.hosts = platform.hosts.map((hostee): any => {
       if (hostee.type === 'sensor') {
-        const sensorForClient = formatSensorForClient(hostee);
-        const sensorLinked = formatSensorAsLinkedData(sensorForClient);
+        const sensorLinked = formatIndividualSensor(hostee);
         delete sensorLinked.type; // because @type should now be present.
         return sensorLinked;
       } else if (hostee.type === 'platform') {

@@ -1,4 +1,5 @@
 import * as event from 'event-stream';
+import {PaginationOptions} from '../common/pagination-options.class';
 
 
 
@@ -9,11 +10,16 @@ export async function createPermanentHost(permanentHost): Promise<any> {
   return createdPermanentHost;
 }
 
-export async function getPermanentHosts(where = {}): Promise<any> {
-  const permanentHost = await event.publishExpectingResponse('permanent-hosts.get.request', {
-    where
+export async function getPermanentHosts(where = {}, options: PaginationOptions): Promise<any> {
+  const response = await event.publishExpectingResponse('permanent-hosts.get.request', {
+    where,
+    options
   });
-  return permanentHost;
+  return {
+    permanentHosts: response.data,
+    count: response.meta.count,
+    total: response.meta.total
+  };
 }
 
 export async function getPermanentHost(permanentHostId: string): Promise<any> {

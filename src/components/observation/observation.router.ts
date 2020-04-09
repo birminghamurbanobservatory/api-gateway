@@ -107,7 +107,6 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
     jsonResponse.meta.previous = Object.assign({}, jsonResponse.meta.previous, previousQuery);
   }
 
-  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -165,7 +164,6 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
 //   const jsonResponse = await getObservations(where, options, req.user);
 
-//   res.set('Content-Type', 'application/ld+json');
 //   return res.json(jsonResponse);
 
 // }));
@@ -231,7 +229,6 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
 //   // TODO: Add a header to indicate that the content-type is JSON-LD?
 //   const jsonResponse = await getObservations(where, options, req.user);
-//   res.set('Content-Type', 'application/ld+json');
 //   return res.json(jsonResponse); 
 
 // }));
@@ -245,7 +242,6 @@ router.get('/observations/:observationId', asyncWrapper(async (req, res): Promis
   const observationId = req.params.observationId;
 
   const jsonResponse = await getObservation(observationId, req.user);
-  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -278,7 +274,6 @@ router.post('/observations', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidObservation(queryErr.message);
 
   const jsonResponse = await createObservation(body, req.user);
-  res.set('Content-Type', 'application/ld+json');
   return res.status(201).json(jsonResponse);
 
 }));

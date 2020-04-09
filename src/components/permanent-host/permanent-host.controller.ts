@@ -2,7 +2,8 @@ import * as event from 'event-stream';
 import {ApiUser} from '../common/api-user.class';
 import {permissionsCheck} from '../common/permissions-check';
 import * as permanentHostService from './permanent-host.service';
-import {formatPermanentHostForClient, addContextToPermanentHost, addContextToPermanentHosts} from './permanent-host.formatter';
+import {PaginationOptions} from '../common/pagination-options.class';
+import {createPermanentHostResponse, createPermanentHostsResponse} from './permanent-host.formatter';
 
 
 export async function createPermanentHost(permanentHost: any, user: ApiUser): Promise<any> {
@@ -10,19 +11,17 @@ export async function createPermanentHost(permanentHost: any, user: ApiUser): Pr
   permissionsCheck(user, 'create:permanent-host');
   
   const createdPermanentHost = await permanentHostService.createPermanentHost(permanentHost);
-  const permanentHostForClient = formatPermanentHostForClient(createdPermanentHost);
-  const permanentHostWithContext = addContextToPermanentHost(permanentHostForClient);
+  const permanentHostWithContext = createPermanentHostResponse(createdPermanentHost);
   return permanentHostWithContext;
 
 }
 
-export async function getPermanentHosts(where = {}, user: ApiUser): Promise<any> {
+export async function getPermanentHosts(where = {}, options: PaginationOptions, user: ApiUser): Promise<any> {
 
   permissionsCheck(user, 'get:permanent-host');
 
-  const permanentHosts = await permanentHostService.getPermanentHosts(where);
-  const permanentHostsForClient = permanentHosts.map(formatPermanentHostForClient);
-  const permanentHostsWithContext = addContextToPermanentHosts(permanentHostsForClient);
+  const {permanentHosts, count, total} = await permanentHostService.getPermanentHosts(where, options);
+  const permanentHostsWithContext = createPermanentHostsResponse(permanentHosts, {count, total});
   return permanentHostsWithContext;
 
 }
@@ -33,8 +32,7 @@ export async function getPermanentHost(permanentHostId: string, user: ApiUser): 
   permissionsCheck(user, 'get:permanent-host');
 
   const permanentHost = await permanentHostService.getPermanentHost(permanentHostId);
-  const permanentHostForClient = formatPermanentHostForClient(permanentHost);
-  const permanentHostWithContext = addContextToPermanentHost(permanentHostForClient);
+  const permanentHostWithContext = createPermanentHostResponse(permanentHost);
   return permanentHostWithContext;
 
 }
@@ -45,8 +43,7 @@ export async function updatePermanentHost(permanentHostId: string, updates: any,
   permissionsCheck(user, 'update:permanent-host');
 
   const updatedPermanentHost = await permanentHostService.updatePermanentHost(permanentHostId, updates);
-  const permanentHostForClient = formatPermanentHostForClient(updatedPermanentHost);
-  const permanentHostWithContext = addContextToPermanentHost(permanentHostForClient);
+  const permanentHostWithContext = createPermanentHostResponse(updatedPermanentHost);
   return permanentHostWithContext;
 
 }

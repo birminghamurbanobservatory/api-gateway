@@ -3,41 +3,36 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 
+const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'permanentHost', 'initialConfig', 'currentConfig', 'createdAt', 'updatedAt'];
 
 
-export function formatSensorForClient(sensor: object): object {
-  const forClient = cloneDeep(sensor);
-  const ordered = orderObjectKeys(forClient, ['id', 'name', 'description', 'permanentHost']);
-  return ordered;
-}
-
-
-export function formatSensorAsLinkedData(sensor: any): any {
+export function formatIndividualSensor(sensor: any): any {
   const sensorLinked = cloneDeep(sensor);
   sensorLinked['@id'] = sensorLinked.id;
   delete sensorLinked.id;
   sensorLinked['@type'] = 'Sensor';
-  return sensorLinked;
+  const ordered = orderObjectKeys(sensorLinked, keyOrder);
+  return ordered;
 }
 
 
-export function addContextToSensor(sensor: any): object {
+export function createSensorResponse(sensor: any): object {
 
-  const sensorWithContext = formatSensorAsLinkedData(sensor);
+  const sensorWithContext = formatIndividualSensor(sensor);
 
   sensorWithContext['@context'] = [
     contextLinks.sensor
   ];
 
-  const ordered = orderObjectKeys(sensorWithContext, ['@context', '@id', 'name', 'description', 'permanentHost']);
+  const ordered = orderObjectKeys(sensorWithContext, keyOrder);
   return ordered;
 
 }
 
 
-export function addContextToSensors(sensors: any[]): object {
+export function createSensorsResponse(sensors: any[], extraInfo: {count: number; total: number}): object {
 
-  const sensorsLd = sensors.map(formatSensorAsLinkedData);
+  const sensorsLd = sensors.map(formatIndividualSensor);
 
   const sensorsWithContext = {
     '@context': [
@@ -50,6 +45,7 @@ export function addContextToSensors(sensors: any[]): object {
       // TODO: Any more types to add in here?
     ], 
     member: sensorsLd,
+    meta: extraInfo
   };
 
   return sensorsWithContext;

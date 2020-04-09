@@ -1,12 +1,18 @@
 import * as event from 'event-stream';
 import {WhereItem} from '../common/where-item.class';
+import {PaginationOptions} from '../common/pagination-options.class';
 
 
-export async function getDeployments(where: {user?: string; public?: boolean; id?: WhereItem}): Promise<any> {
-  const deployments = await event.publishExpectingResponse('deployments.get.request', {
-    where
+export async function getDeployments(where: {user?: string; public?: boolean; id?: WhereItem}, options?: any): Promise<any> {
+  const response = await event.publishExpectingResponse('deployments.get.request', {
+    where,
+    options
   });
-  return deployments;
+  return {
+    deployments: response.data,
+    count: response.meta.count,
+    total: response.meta.total
+  };
 }
 
 

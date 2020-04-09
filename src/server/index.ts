@@ -79,11 +79,16 @@ app.use(allowCaseInsensitiveQueryParameters);
 // Pull out any authentication credentials
 app.use(lookForUserCredentials);
 
-// For simplicity lets add a Link header pointing to the OpenAPI documentation to every endpoint. Further down the line I may want to make this bespoke, e.g. with JSON hyper-schema.
 app.use((req, res, next): any => {
+  
+  // For simplicity lets add a Link header pointing to the OpenAPI documentation to every endpoint. Further down the line I may want to make this bespoke, e.g. with JSON hyper-schema.
   if (config.api && config.api.docs) {
     res.set('Link', `<${config.api.docs}>; rel="documentation"`);
   }
+
+  // Let's also set the default response type as JSON-LD
+  res.set('Content-Type', 'application/ld+json');
+
   next();
 });
 

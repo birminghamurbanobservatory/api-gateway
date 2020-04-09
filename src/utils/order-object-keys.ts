@@ -7,7 +7,7 @@ import * as check from 'check-types';
  * @param obj The object that needs ordering 
  * @param order An array of object keys in the order you want them to appear in the object when it's printed out or converted to JSON. This can be a partial list of keys, whatever keys are left will still be added.
  */
-export default function orderObjectKeys(obj: object, order?: string[]): object {
+export default function orderObjectKeys(obj: object, order?: string[]): any {
 
   // Default to alphabetical
   const alphaOrder = Object.keys(obj).sort();

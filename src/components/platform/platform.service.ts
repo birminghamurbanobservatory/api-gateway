@@ -1,4 +1,5 @@
 import * as event from 'event-stream';
+import {PaginationOptions} from '../common/pagination-options.class';
 
 
 export async function createPlatform(platform): Promise<any> {
@@ -20,11 +21,16 @@ export async function getPlatform(id: string, options: {nest?: boolean} = {}): P
 }
 
 
-export async function getPlatforms(where: {inDeployment?: string; isHostedBy?: any; hostedByPath?: any}): Promise<any> {
-  const platforms = await event.publishExpectingResponse('platforms.get.request', {
-    where
+export async function getPlatforms(where: {inDeployment?: string; isHostedBy?: any; hostedByPath?: any}, options: PaginationOptions): Promise<any> {
+  const response = await event.publishExpectingResponse('platforms.get.request', {
+    where,
+    options
   });
-  return platforms;
+  return {
+    platforms: response.data,
+    count: response.meta.count,
+    total: response.meta.total
+  };
 }
 
 

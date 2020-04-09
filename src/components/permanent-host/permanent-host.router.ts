@@ -7,6 +7,8 @@ import {createPermanentHost, getPermanentHost, getPermanentHosts, deletePermanen
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick} from 'lodash';
+import {addMetaLinks} from '../common/add-meta-links';
+import {config} from '../../config';
 
 const router = express.Router();
 
@@ -40,7 +42,12 @@ router.post('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
 // Get Permanent Hosts
 //-------------------------------------------------
 const getPermanentHostsQuerySchema = joi.object({
-  id__begins: joi.string()
+  id__begins: joi.string(),
+  // options
+  limit: joi.number().integer().positive().max(1000).default(100),
+  offset: joi.number().integer().min(0).default(0),
+  sortBy: joi.string().valid('id').default('id'),
+  sortOrder: joi.string().valid('asc', 'desc').default('asc')
 });
 
 router.get('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
@@ -48,11 +55,21 @@ router.get('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
   const {error: queryErr, value: query} = getPermanentHostsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
 
-  const whereKeys = ['id__begins'];
-  const where = convertQueryToWhere(pick(query, whereKeys));
+  // Pull out the options
+  const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder'];
+  const options = pick(query, optionKeys);
 
-  const jsonResponse = await getPermanentHosts(where, req.user);
-  res.set('Content-Type', 'application/ld+json');
+  // Pull out the where conditions (let's assume it's everything except the option parameters)
+  const wherePart = {};
+  Object.keys(query).forEach((key): void => {
+    if (!optionKeys.includes(key)) {
+      wherePart[key] = query[key];
+    }
+  });
+  const where = convertQueryToWhere(wherePart);
+
+  let jsonResponse = await getPermanentHosts(where, options, req.user);
+  jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/permanent-hosts`, query);
   return res.json(jsonResponse);
 
 }));
@@ -65,7 +82,6 @@ router.get('/permanent-hosts/:permanentHostId', asyncWrapper(async (req, res): P
 
   const permanentHostId = req.params.permanentHostId;
   const jsonResponse = await getPermanentHost(permanentHostId, req.user);
-  res.set('Content-Type', 'application/ld+json');
   return res.status(201).json(jsonResponse);
 
 }));
@@ -90,7 +106,6 @@ router.patch('/permanent-hosts/:permanentHostId', asyncWrapper(async (req, res):
 
   const permanentHostId = req.params.permanentHostId;
   const jsonResponse = await updatePermanentHost(permanentHostId, body, req.user);
-  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));

@@ -10,6 +10,9 @@ import {inConditional} from '../../utils/custom-joi-validations';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
+import {pick} from 'lodash';
+import {addMetaLinks} from '../common/add-meta-links';
+import {config} from '../../config';
 
 const router = express.Router();
 
@@ -47,14 +50,13 @@ router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any>
   const {error: queryErr, value: query} = getPlatformQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
   const jsonResponse = await getPlatform(platformId, req.user, query);
-  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
 
 
 //-------------------------------------------------
-// Get Platforms (bypassing deployment)
+// Get Platforms
 //-------------------------------------------------
 const getPlatformsQuerySchema = joi.object({
   id__begins: joi.string(),
@@ -68,6 +70,11 @@ const getPlatformsQuerySchema = joi.object({
   // 1. ancestorPlatforms__includes__in
   // 2. ancestorPlatforms=west-school.weather-station-1.*, i.e. postgresql lquery format. Would also use this for find an exact match of the whole path. N.b. however my MongoDB array approach doesn't support lquery style queries out of the box, so it would require a bit of code writting to further filter database results.
   // TODO: Add the option to exclude platforms in public deployments that are not the user's deployment.
+  // options
+  limit: joi.number().integer().positive().max(1000).default(100),
+  offset: joi.number().integer().min(0).default(0),
+  sortBy: joi.string().valid('id').default('id'),
+  sortOrder: joi.string().valid('asc', 'desc').default('asc')
 })
 .without('inDeployment', 'inDeployment__in');
 
@@ -77,11 +84,22 @@ router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
   const {error: queryErr, value: query} = getPlatformsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
 
-  const where = convertQueryToWhere(query);
+  // Pull out the options
+  const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder'];
+  const options = pick(query, optionKeys);
 
-  const jsonResponse = await getPlatforms(where, req.user);
+  // Pull out the where conditions (let's assume it's everything except the option parameters)
+  const wherePart = {};
+  Object.keys(query).forEach((key): void => {
+    if (!optionKeys.includes(key)) {
+      wherePart[key] = query[key];
+    }
+  });
+  const where = convertQueryToWhere(wherePart);
+
+  let jsonResponse = await getPlatforms(where, options, req.user);
+  jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/platforms`, query);
   validateAgainstSchema(jsonResponse, 'platforms-get-response-body');
-  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
@@ -122,7 +140,6 @@ router.patch('/platforms/:platformId', asyncWrapper(async (req, res): Promise<an
 
   const platformId = req.params.platformId;
   const jsonResponse = await updatePlatform(platformId, body, req.user);
-  res.set('Content-Type', 'application/ld+json');
   return res.json(jsonResponse);
 
 }));
