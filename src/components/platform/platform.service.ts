@@ -21,7 +21,11 @@ export async function getPlatform(id: string, options: {nest?: boolean} = {}): P
 }
 
 
-export async function getPlatforms(where: {inDeployment?: string; isHostedBy?: any; hostedByPath?: any}, options: PaginationOptions): Promise<any> {
+class GetPlatformsOptions extends PaginationOptions {
+  public nest?: boolean;
+}
+
+export async function getPlatforms(where: {inDeployment?: string; isHostedBy?: any; hostedByPath?: any}, options: GetPlatformsOptions): Promise<any> {
   const response = await event.publishExpectingResponse('platforms.get.request', {
     where,
     options

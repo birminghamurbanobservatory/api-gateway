@@ -83,6 +83,31 @@ export function formatForClientAndAddContextToPlatformWithHostsArray(platform): 
 }
 
 
+export function formatForClientAndAddContextToNestedPlatforms(platforms, extraInfo): any {
+
+  const platformsLd = platforms.map((platform): any => {
+    return recursivelyFormatPlatformWithHostsArray(platform);
+  });
+
+  const platformsWithContext = {
+    '@context': [
+      contextLinks.collection,
+      contextLinks.platform
+    ],
+    '@id': `${config.api.base}/platforms`, // better defining this in the router?
+    '@type': [
+      'Collection'
+      // TODO: Any more types to add in here?
+    ], 
+    member: platformsLd,
+    meta: extraInfo
+  };
+
+  return platformsWithContext;
+
+}
+
+
 export function recursivelyFormatPlatformWithHostsArray(platform): any {
 
   const platformLinked = formatIndividualPlatform(platform);
@@ -106,3 +131,4 @@ export function recursivelyFormatPlatformWithHostsArray(platform): any {
   return platformLinked;
 
 }
+

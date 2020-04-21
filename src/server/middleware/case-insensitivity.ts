@@ -24,6 +24,7 @@ const dictionary: any = {
   permanenthost__exists: 'permanentHost__exists',
   ancestorplatforms: 'ancestorPlatforms',
   ancestorplatforms__includes: 'ancestorPlatforms__includes',
+  indeployments__includes: 'inDeployments__includes',
   flag__exists: 'flag__exists',
   discipline: 'discipline',
   unit: 'unit',

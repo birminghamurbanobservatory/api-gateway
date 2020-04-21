@@ -48,15 +48,21 @@ describe('', () => {
 
     expect.assertions(1); // Supertest's .expect()'s don't count towards the total.
 
-    mockedGetDeployments.mockResolvedValue([{
-      id: 'deployment-1',
-      name: 'Deployment 1',
-      description: 'some info',
-      public: true,
-      users: ['bob'],
-      createdAt: '2020-01-09T14:11:55.263Z',
-      updatedAt: '2020-03-09T14:12:35.265Z'
-    }]);
+    mockedGetDeployments.mockResolvedValue({
+      deployments: [
+        {
+          id: 'deployment-1',
+          name: 'Deployment 1',
+          description: 'some info',
+          public: true,
+          users: ['bob'],
+          createdAt: '2020-01-09T14:11:55.263Z',
+          updatedAt: '2020-03-09T14:12:35.265Z'
+        },
+      ],
+      count: 1,
+      total: 1
+    });
 
     mockedGetObservations.mockResolvedValue({
       observations: [
@@ -96,7 +102,7 @@ describe('', () => {
         }
       ],
       meta: {
-        
+        count: 1
       }
     });
 
@@ -122,7 +128,10 @@ describe('', () => {
             value: 78
           },
           madeBySensor: `netatmo-02-00-00-3f-16-4c-humidity`,
-          observedProperty: 'RelativeHumidity',
+          observedProperty: {
+            '@id': 'RelativeHumidity',
+            label: 'relative humidity'
+          },
           hasFeatureOfInterest: 'EarthAtmosphere',
           inDeployments: [
             `netatmo-gatekeepers`
@@ -132,7 +141,10 @@ describe('', () => {
             'netatmo-02-00-00-3f-16-4c-r4e'
           ],
           disciplines: [
-            'Meteorology'
+            {
+              '@id': 'Meteorology',
+              label: 'meteorology'
+            }
           ],
           location: {
             id: '7164feea-d076-4ffa-8d48-c09643656f43',
@@ -151,6 +163,7 @@ describe('', () => {
         }
       ],
       meta: {
+        count: 1,
         current: {
           '@id': 'http://localhost:8080/observations?resultTime__lte=2020-03-09T10:20:00.000Z&limit=100&offset=0&sortBy=resultTime&sortOrder=desc',
           limit: 100,

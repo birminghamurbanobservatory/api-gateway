@@ -1,5 +1,5 @@
 import * as platformService from './platform.service';
-import {formatForClientAndAddContextToPlatformWithHostsArray, createPlatformsResponse, createPlatformResponse} from './platform.formatter';
+import {formatForClientAndAddContextToPlatformWithHostsArray, createPlatformsResponse, createPlatformResponse, formatForClientAndAddContextToNestedPlatforms} from './platform.formatter';
 import {getDeployment, getDeployments} from '../deployment/deployment.service';
 import {deploymentLevelCheck} from '../deployment/deployment-level-check';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
@@ -90,7 +90,11 @@ export async function getPlatform(platformId: string, user, options: {nest?: boo
 }
 
 
-export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatforms: any}, options: PaginationOptions, user: ApiUser): Promise<any> {
+class GetPlatformsOptions extends PaginationOptions {
+  public nest?: boolean;
+}
+
+export async function getPlatforms(where: {inDeployments?: any; isHostedBy: any; ancestorPlatforms: any}, options: GetPlatformsOptions, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
@@ -101,9 +105,10 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
   // inDeployment specified
   //------------------------
   // If inDeployment has been specified then check that the user has rights to these deployment(s).
-  if (where.inDeployment && !hasSuperUserPermission) {
+  if (where.inDeployments && !hasSuperUserPermission) {
 
-    const deploymentIdsToCheck = check.string(where.inDeployment) ? [where.inDeployment] : where.inDeployment.in;
+    // TODO: You'll need to update this if you allow filtering by more than one deployment
+    const deploymentIdsToCheck = [where.inDeployments.includes];
 
     let deploymentLevels;
     if (user.id) {
@@ -126,7 +131,7 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
   // inDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
-  if (!where.inDeployment && !hasSuperUserPermission) {
+  if (!where.inDeployments && !hasSuperUserPermission) {
 
     let usersDeployments = [];
     let publicDeployments = [];
@@ -158,7 +163,14 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
   delete updatedWhere.ancestorPlatforms;
 
   const {platforms, count, total} = await platformService.getPlatforms(where, options);
-  const platformsWithContext = createPlatformsResponse(platforms, {count, total});
+
+  let platformsWithContext;
+  if (options.nest) {
+    platformsWithContext = formatForClientAndAddContextToNestedPlatforms(platforms, {count, total});
+  } else {
+    platformsWithContext = createPlatformsResponse(platforms, {count, total});
+  }
+
   return platformsWithContext;
 
 }
