@@ -31,7 +31,8 @@ const getDeploymentsQuerySchema = joi.object({
   limit: joi.number().integer().positive().max(1000).default(100),
   offset: joi.number().integer().min(0).default(0),
   sortBy: joi.string().valid('id').default('id'),
-  sortOrder: joi.string().valid('asc', 'desc').default('asc')
+  sortOrder: joi.string().valid('asc', 'desc').default('asc'),
+  search: joi.string()
 });
 
 router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {

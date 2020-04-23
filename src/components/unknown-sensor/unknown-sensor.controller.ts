@@ -5,11 +5,11 @@ import {permissionsCheck} from '../common/permissions-check';
 import {ApiUser} from '../common/api-user.class';
 
 
-export async function getUnknownSensors(options: PaginationOptions, user: ApiUser): Promise<any> {
+export async function getUnknownSensors(where, options: PaginationOptions, user: ApiUser): Promise<any> {
 
   permissionsCheck(user, 'get:unknown-sensor');
 
-  const {unknownSensors, count, total} = await unknownSensorService.getUnknownSensors(options);
+  const {unknownSensors, count, total} = await unknownSensorService.getUnknownSensors(where, options);
   const unknownSensorsWithContext = createUnknownSensorsResponse(unknownSensors, {total, count});
   return unknownSensorsWithContext;
 

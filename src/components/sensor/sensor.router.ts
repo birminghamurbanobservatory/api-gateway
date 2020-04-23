@@ -87,6 +87,7 @@ const getSensorsQuerySchema = joi.object({
   hasFeatureOfInterest: joi.string(),
   observedProperty: joi.string(),
   id__begins: joi.string,
+  search: joi.string(),
   // options
   limit: joi.number().integer().positive().max(1000).default(100),
   offset: joi.number().integer().min(0).default(0),

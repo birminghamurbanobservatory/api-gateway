@@ -68,6 +68,17 @@ describe('convertQueryToWhere function testing', () => {
     expect(convertQueryToWhere(query)).toEqual(expectedWhere);
   });  
 
+
+  test('Can handle a search key', () => {
+    const query = {
+      search: 'rain'
+    };
+    const expectedWhere = {
+      search: 'rain'    
+    };
+    expect(convertQueryToWhere(query)).toEqual(expectedWhere);
+  });  
+
   
 
 

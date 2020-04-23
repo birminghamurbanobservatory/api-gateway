@@ -94,7 +94,7 @@ class GetPlatformsOptions extends PaginationOptions {
   public nest?: boolean;
 }
 
-export async function getPlatforms(where: {inDeployments?: any; isHostedBy: any; ancestorPlatforms: any}, options: GetPlatformsOptions, user: ApiUser): Promise<any> {
+export async function getPlatforms(where: {inDeployments?: any; isHostedBy: any; ancestorPlatforms: any; search?: string}, options: GetPlatformsOptions, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 

@@ -25,7 +25,7 @@ class GetPlatformsOptions extends PaginationOptions {
   public nest?: boolean;
 }
 
-export async function getPlatforms(where: {inDeployment?: string; isHostedBy?: any; hostedByPath?: any}, options: GetPlatformsOptions): Promise<any> {
+export async function getPlatforms(where: {inDeployment?: string; isHostedBy?: any; hostedByPath?: any; search?: string}, options: GetPlatformsOptions): Promise<any> {
   const response = await event.publishExpectingResponse('platforms.get.request', {
     where,
     options

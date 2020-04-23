@@ -3,7 +3,7 @@ import {WhereItem} from '../common/where-item.class';
 import {PaginationOptions} from '../common/pagination-options.class';
 
 
-export async function getDeployments(where: {user?: string; public?: boolean; id?: WhereItem}, options?: any): Promise<any> {
+export async function getDeployments(where: {user?: string; public?: boolean; id?: WhereItem; search?: string}, options?: any): Promise<any> {
   const response = await event.publishExpectingResponse('deployments.get.request', {
     where,
     options

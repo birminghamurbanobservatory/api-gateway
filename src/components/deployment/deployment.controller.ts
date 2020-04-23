@@ -8,7 +8,7 @@ import {createDeploymentsResponse, createDeploymentResponse} from './deployment.
 import {PaginationOptions} from '../common/pagination-options.class';
 
 
-export async function getDeployments(where: {public?: boolean; id?: WhereItem}, user: ApiUser, options: any): Promise<any> {
+export async function getDeployments(where: {public?: boolean; id?: WhereItem; search?: string}, user: ApiUser, options: any): Promise<any> {
 
   const hasSuperUserPermission = user.permissions.includes('get:deployments');
 

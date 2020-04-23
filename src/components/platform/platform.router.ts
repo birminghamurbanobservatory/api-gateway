@@ -69,6 +69,7 @@ const getPlatformsQuerySchema = joi.object({
   // 1. ancestorPlatforms__includes__in
   // 2. ancestorPlatforms=west-school.weather-station-1.*, i.e. postgresql lquery format. Would also use this for find an exact match of the whole path. N.b. however my MongoDB array approach doesn't support lquery style queries out of the box, so it would require a bit of code writting to further filter database results.
   // TODO: Add the option to exclude platforms in public deployments that are not the user's deployment.
+  search: joi.string(),
   // options
   nest: joi.boolean().default(false),
   limit: joi.number().integer().positive().max(1000).default(100),
