@@ -6,6 +6,7 @@ import {permissionsCheck} from '../common/permissions-check';
 import {deploymentLevelCheck} from './deployment-level-check';
 import {createDeploymentsResponse, createDeploymentResponse} from './deployment.formatter';
 import {PaginationOptions} from '../common/pagination-options.class';
+import * as check from 'check-types';
 
 
 export async function getDeployments(where: {public?: boolean; id?: WhereItem; search?: string}, user: ApiUser, options: any): Promise<any> {
@@ -13,28 +14,36 @@ export async function getDeployments(where: {public?: boolean; id?: WhereItem; s
   const hasSuperUserPermission = user.permissions.includes('get:deployments');
 
   let response;
+  const updatedWhere = cloneDeep(where);
 
   //------------------------
   // Superuser
   //------------------------
   if (hasSuperUserPermission) {
-    response = await deploymentService.getDeployments(where, options);
-  }
+    // If they want just their deployments then we'll need to provide their user id and set mineOnly=true
+    if (options.mineOnly) {
+      updatedWhere.user = user.id;
+      options.mineOnly = true;
+    }
+    response = await deploymentService.getDeployments(updatedWhere, options);
 
   //------------------------
   // User with credentials
   //------------------------
-  if (user.id) {
-    const usersWhere = Object.assign({}, where, {user: user.id});
-    response = await deploymentService.getDeployments(usersWhere, options);
-  }
+  } else if (user.id) {
+    // Let's set a default for the mineOnly option
+    if (check.not.assigned(options.mineOnly)) {
+      options.mineOnly = true;
+    }
+    updatedWhere.user = user.id;
+    response = await deploymentService.getDeployments(updatedWhere, options);
 
   //------------------------
   // User without credentials
   //------------------------
-  if (!user.id) {
-    const noCredentialsWhere = Object.assign({}, where, {public: true});
-    response = await deploymentService.getDeployments(noCredentialsWhere, options);
+  } else {
+    updatedWhere.public = true;
+    response = await deploymentService.getDeployments(updatedWhere, options);
   }
 
   const deployments = response.deployments;

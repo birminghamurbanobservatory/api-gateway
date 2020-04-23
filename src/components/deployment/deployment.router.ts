@@ -27,7 +27,7 @@ const getDeploymentsQuerySchema = joi.object({
   public: joi.boolean(), // lets the user filter their own deployments, returning either public OR private.
   id__begins: joi.string(),
   // options
-  includeAllPublic: joi.boolean(), // Returns all public deployments as well as the user's own.
+  mineOnly: joi.boolean(), // Returns all public deployments as well as the user's own.
   limit: joi.number().integer().positive().max(1000).default(100),
   offset: joi.number().integer().min(0).default(0),
   sortBy: joi.string().valid('id').default('id'),
@@ -41,7 +41,7 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidQueryString(queryErr.message);
 
   // Pull out the options
-  const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder', 'includeAllPublic'];
+  const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder', 'mineOnly'];
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
@@ -57,8 +57,8 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
     throw new InvalidQueryString(`Please provide user credentials before using the 'public' query string parameter.`);
   }
 
-  if (!req.user.id && check.assigned(options.includeAllPublic)) {
-    throw new InvalidQueryString(`Please provide user credentials before using the 'includeAllPublic' query string parameter.`);
+  if (!req.user.id && check.assigned(options.mineOnly)) {
+    throw new InvalidQueryString(`Please provide user credentials before using the 'mineOnly' query string parameter.`);
   }
 
   let jsonResponse = await getDeployments(where, req.user, options);

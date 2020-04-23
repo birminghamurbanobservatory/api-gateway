@@ -5,7 +5,7 @@ const dictionary: any = {
   sortby: 'sortBy',
   sortorder: 'sortOrder',
   oneper: 'onePer',
-  includeallpublic: 'includeAllPublic',
+  mineonly: 'mineOnly',
   indeployment: 'inDeployment',
   indeployment__in: 'inDeployment__in',
   ishostedby: 'isHostedBy',
