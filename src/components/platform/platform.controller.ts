@@ -6,7 +6,7 @@ import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {Forbidden} from '../../errors/Forbidden';
 import {ApiUser} from '../common/api-user.class';
 import * as check from 'check-types';
-import {pick, concat, uniqBy, cloneDeep} from 'lodash';
+import {omit, concat, uniqBy, cloneDeep} from 'lodash';
 import * as Promise from 'bluebird';
 import {recursivelyExtractInDeploymentIds, recursivelyRemoveProtectedHostedPlatforms} from './platform.helpers';
 import * as logger from 'node-logger';
@@ -229,7 +229,7 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
     await platformService.unhostPlatform(platformId);
   }
 
-  const basicUpdates = pick(updates, ['name', 'description', 'static']);
+  const basicUpdates = omit(updates, ['isHostedBy']);
   let updatedPlatform;
   if (Object.keys(basicUpdates).length > 0) {
     updatedPlatform = await platformService.updatePlatform(platformId, basicUpdates);
