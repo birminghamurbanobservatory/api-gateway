@@ -10,11 +10,13 @@ import * as deploymentGetResponseBodySchema from './json-schemas/deployment-get-
 import * as platformGetResponseBodySchema from './json-schemas/platform-get-response-body.json';
 import * as platformCreateRequestBodySchema from './json-schemas/platform-create-request-body.json';
 import * as platformsGetResponseBodySchema from './json-schemas/platforms-get-response-body.json';
+import * as sensorCreateRequestBodySchema from './json-schemas/sensor-create-request-body.json';
+import * as sensorGetResponseBodySchema from './json-schemas/sensor-get-response-body.json';
+import * as sensorsGetResponseBodySchema from './json-schemas/sensors-get-response.body.json';
 
 
 // This is the bit that should be at the start of the $id for all your schemas
 const baseSchemaUri = `https://api.birminghamurbanobservatory.com/schemas/`;
-
 
 // The real benefit of loading all my schemas together here is being able to link them to one another, see:
 // https://www.npmjs.com/package/ajv#combining-schemas-with-ref
@@ -28,7 +30,10 @@ const ajv = new Ajv({
     deploymentGetResponseBodySchema,
     platformGetResponseBodySchema,
     platformCreateRequestBodySchema,
-    platformsGetResponseBodySchema
+    platformsGetResponseBodySchema,
+    sensorCreateRequestBodySchema,
+    sensorGetResponseBodySchema,
+    sensorsGetResponseBodySchema
   ]
 });
 

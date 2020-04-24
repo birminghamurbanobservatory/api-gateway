@@ -1,0 +1,134 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/sensor-get-response-body.json",
+  "title": "sensor-get-response-body",
+  "type": "object",
+  "x-tags": [
+    "sensors"
+  ],
+  "description": "Response for a single sensor",
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "@id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 44,
+      "minLength": 1
+    },
+    "@type": {
+      "type": "string",
+      "const": "Sensor"
+    },
+    "name": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "description": {
+      "type": "string"
+    },
+    "permanentHost": {
+      "type": "string"
+    },
+    "isHostedBy": {
+      "type": "string"
+    },
+    "hasDeployment": {
+      "type": "string"
+    },
+    "initialConfig": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "hasPriority": {
+            "type": "boolean"
+          },
+          "observedProperty": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "hasFeatureOfInterest": {
+            "type": "string"
+          },
+          "disciplines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "usedProcedures": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          } 
+        },
+        "required": [
+          "hasPriority",
+          "observedProperty"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "currentConfig": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "hasPriority": {
+            "type": "boolean"
+          },
+          "observedProperty": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "hasFeatureOfInterest": {
+            "type": "string"
+          },
+          "disciplines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "usedProcedures": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          } 
+        },
+        "required": [
+          "hasPriority",
+          "observedProperty"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

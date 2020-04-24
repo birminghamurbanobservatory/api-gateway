@@ -1,1 +1,70 @@
-{}
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/sensor-create-request-body.json",
+  "title": "sensor-create-request-body",
+  "type": "object",
+  "x-tags": [
+    "sensors"
+  ],
+  "description": "Permitted sensor structure during creation.",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 44,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "description": {
+      "type": "string"
+    },
+    "permanentHost": {
+      "type": "string"
+    },
+    "hasDeployment": {
+      "type": "string"
+    },
+    "initialConfig": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hasPriority": {
+            "type": "boolean"
+          },
+          "observedProperty": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "hasFeatureOfInterest": {
+            "type": "string"
+          },
+          "disciplines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "usedProcedures": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          } 
+        },
+        "required": [
+          "hasPriority",
+          "observedProperty"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "minProperties": 1,
+  "additionalProperties": false
+}

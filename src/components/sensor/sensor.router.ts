@@ -5,7 +5,6 @@ import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {createSensor, getSensor, getSensors, deleteSensor, updateSensor} from './sensor.controller';
-import {InvalidSensor} from './errors/InvalidSensor';
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
@@ -14,6 +13,7 @@ import {inConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
+import {validateAgainstSchema} from '../schemas/json-schema-validator';
 
 const router = express.Router();
 
@@ -23,25 +23,10 @@ export {router as SensorRouter};
 //-------------------------------------------------
 // Create Sensor
 //-------------------------------------------------
-const configSchema = joi.object({
-  hasPriority: joi.boolean().required(),
-  observedProperty: joi.string().required(),
-  unit: joi.string(),
-  hasFeatureOfInterest: joi.string(),
-  disciplines: joi.array().items(joi.string()),
-  usedProcedures: joi.array().items(joi.string())
-});
-
 const createSensorBodySchema = joi.object({
-  id: joi.string(), // we'll leave the model schema to check the length
-  name: joi.string(),
-  description: joi.string(),
-  permanentHost: joi.string(),
-  hasDeployment: joi.string(),
-  // N.B. isHostedBy is not allow here. Hosting a sensor on a platform is a separate step and depends on whether the sensor has a permanentHost or not. 
-  initialConfig: joi.array().items(configSchema)
-  // No need to specify the currentConfig, because the sensor-deployment-mananger will handle this.
+  // The JSON schema will check most things, I just need this for the most complicated checks.
 })
+.unknown()
 .or('id', 'hasDeployment')
 // If an ID isn't provided, then hasDeployment must be, as this indicates that a deployment sensor is being created.
 .without('hasDeployment', 'permanentHost')
@@ -50,11 +35,14 @@ const createSensorBodySchema = joi.object({
 
 router.post('/sensors', asyncWrapper(async (req, res): Promise<any> => {
 
-  // Let's catch an invalid sensor early, i.e. before calling the event stream.
-  const {error: bodyErr, value: body} = createSensorBodySchema.validate(req.body);
-  if (bodyErr) throw new InvalidSensor(bodyErr.message);  
+  const body = validateAgainstSchema(req.body, 'sensor-create-request-body');
+
+  // I'm struggling to do some of the most complex checks with the JSON schema, hence also using joi here
+  const {error: bodyErr} = createSensorBodySchema.validate(req.body);
+  if (bodyErr) throw new InvalidBody(bodyErr.message);
 
   const jsonResponse = await createSensor(body, req.user);
+  validateAgainstSchema(jsonResponse, 'sensor-get-response-body');
   return res.status(201).json(jsonResponse);
 
 }));
@@ -68,6 +56,7 @@ router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => 
 
   const sensorId = req.params.sensorId;
   const jsonResponse = await getSensor(sensorId, req.user);
+  validateAgainstSchema(jsonResponse, 'sensor-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -120,7 +109,7 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
   let jsonResponse = await getSensors(where, options, req.user);
 
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/sensors`, query);
-
+  validateAgainstSchema(jsonResponse, 'sensors-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -129,6 +118,15 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 // Update sensor (superusers only)
 //-------------------------------------------------
+const configSchema = joi.object({
+  hasPriority: joi.boolean().required(),
+  observedProperty: joi.string().required(),
+  unit: joi.string(),
+  hasFeatureOfInterest: joi.string(),
+  disciplines: joi.array().items(joi.string()),
+  usedProcedures: joi.array().items(joi.string())
+});
+
 const updateSensorBodySchema = joi.object({
   name: joi.string(),
   description: joi.string(),

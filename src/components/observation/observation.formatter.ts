@@ -13,22 +13,10 @@ const disciplinesObject = getDisciplinesObject();
 const observablePropertiesObject = getObservablePropertiesObject();
 
 
-export function formatObservationForClient(observation: object): object {
-
-  const forClient = cloneDeep(observation);
-
-  if (forClient.hostedByPath) {
-    forClient.ancestorPlatforms = forClient.hostedByPath;
-    delete forClient.hostedByPath;
-  }
-
-  const ordered = orderObjectKeys(forClient, ['id', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployments', 'ancestorPlatforms']);
-  return ordered;
-
-}
+const keyOrder = ['@context', '@id', '@type', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployments', 'ancestorPlatforms', 'location'];
 
 
-export function formatObservationAsLinkedData(observation: any): object {
+export function formatIndividualObservation(observation: any): any {
 
   const observationLinked = cloneDeep(observation);
   observationLinked['@id'] = observationLinked.id;
@@ -79,33 +67,39 @@ export function formatObservationAsLinkedData(observation: any): object {
     });
   }
 
-  const ordered = orderObjectKeys(observationLinked, ['@id', '@type', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'disciplines', 'hasFeatureOfInterest', 'inDeployments', 'ancestorPlatforms']);
-  return ordered;
+  if (observationLinked.location) {
+    observationLinked.location.properties = {
+      validAt: observationLinked.location.validAt
+    };
+    delete observationLinked.location.validAt;
+    observationLinked.location.type = 'Feature';
+    observationLinked.location = orderObjectKeys(observationLinked.location, ['type', 'id', 'geometry', 'properties']);
+  }
 
+  const ordered = orderObjectKeys(observationLinked, keyOrder);
+  return ordered;
 }
 
 
+export function createObservationResponse(sensor: any): object {
 
-export function addContextToObservation(observation: object): object {
-
-  const observationWithContext = formatObservationAsLinkedData(observation);
+  const observationWithContext = formatIndividualObservation(sensor);
 
   observationWithContext['@context'] = [
     contextLinks.observation
   ];
 
-  const ordered = orderObjectKeys(observationWithContext, ['@context', '@id', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployments', 'ancestorPlatforms']);
+  const ordered = orderObjectKeys(observationWithContext, keyOrder);
   return ordered;
-  
+
 }
 
 
+export function createObservationsResponse(observations: any[], extraInfo: {count: number; total?: number}): object {
 
-export function addContextToObservations(observations: any[], extraInfo: any): object {
+  const observationsLd = observations.map(formatIndividualObservation);
 
-  const observationsLd = observations.map(formatObservationAsLinkedData);
-
-  const observationsWithContext: any = {
+  const observationsWithContext = {
     '@context': [
       contextLinks.collection,
       contextLinks.observation
@@ -116,18 +110,17 @@ export function addContextToObservations(observations: any[], extraInfo: any): o
       // TODO: Any more types to add in here?
     ], 
     member: observationsLd,
-    meta: {}
+    meta: extraInfo
   };
-
-  if (extraInfo.total) {
-    observationsWithContext.meta.total = extraInfo.total;
-  }
-  if (extraInfo.count) {
-    observationsWithContext.meta.count = extraInfo.count;
-  }
 
   return observationsWithContext;
 
 }
+
+
+
+
+
+
 
 

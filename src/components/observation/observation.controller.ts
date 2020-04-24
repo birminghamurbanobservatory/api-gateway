@@ -4,7 +4,7 @@ import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {Forbidden} from '../../errors/Forbidden';
 import {getDeployments} from '../deployment/deployment.service';
 import {concat, uniqBy, cloneDeep} from 'lodash';
-import {formatObservationForClient, addContextToObservation, addContextToObservations} from './observation.formatter';
+import {createObservationsResponse, createObservationResponse} from './observation.formatter';
 import {ApiUser} from '../common/api-user.class';
 import {permissionsCheck} from '../common/permissions-check';
 
@@ -107,8 +107,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
   }
 
   const {observations, meta} = await observationService.getObservations(updatedWhere, options);
-  const observationsForClient = observations.map(formatObservationForClient);
-  const observationsWithContext = addContextToObservations(observationsForClient, meta);
+  const observationsWithContext = createObservationsResponse(observations, meta);
   return observationsWithContext;
 
 }
@@ -151,8 +150,7 @@ export async function getObservation(observationId, user: ApiUser): Promise<any>
     throw new Forbidden(`You do not have the deployment access levels required to access observation '${observationId}'`);
   }
 
-  const observationForClient = formatObservationForClient(observation);
-  const observationWithContext = addContextToObservation(observationForClient);
+  const observationWithContext = createObservationResponse(observation);
   return observationWithContext;
 
 }
@@ -166,8 +164,7 @@ export async function createObservation(observation, user: ApiUser): Promise<any
   permissionsCheck(user, 'create:observation');
 
   const createdObservation = await observationService.createObservation(observation);
-  const observationForClient = formatObservationForClient(createdObservation);
-  const observationWithContext = addContextToObservation(observationForClient);
+  const observationWithContext = createObservationResponse(createdObservation);
   return observationWithContext;
 
 }

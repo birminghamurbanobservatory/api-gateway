@@ -1,0 +1,163 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/sensors-get-response-body.json",
+  "title": "sensors-get-response-body",
+  "type": "object",
+  "x-tags": [
+    "sensors"
+  ],
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "@id": {
+      "type": "string",
+      "format": "uri"
+    },
+    "@type": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "member": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "@id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 44
+          },
+          "@type": {
+            "type": "string",
+            "const": "Sensor"
+          },  
+          "name": {
+            "type:": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "description": {
+            "type": "string"
+          },
+          "permanentHost": {
+            "type": "string"
+          },
+          "isHostedBy": {
+            "type": "string"
+          },          
+          "hasDeployment": {
+            "type": "string"
+          },
+          "initialConfig": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "hasPriority": {
+                  "type": "boolean"
+                },
+                "observedProperty": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "hasFeatureOfInterest": {
+                  "type": "string"
+                },
+                "disciplines": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "usedProcedures": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                } 
+              },
+              "required": [
+                "hasPriority",
+                "observedProperty"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "currentConfig": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "hasPriority": {
+                  "type": "boolean"
+                },
+                "observedProperty": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "hasFeatureOfInterest": {
+                  "type": "string"
+                },
+                "disciplines": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "usedProcedures": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                } 
+              },
+              "required": [
+                "hasPriority",
+                "observedProperty"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "@context",
+    "@id",
+    "member"
+  ]
+}

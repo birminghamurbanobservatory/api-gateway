@@ -50,6 +50,7 @@ router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any>
   const {error: queryErr, value: query} = getPlatformQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
   const jsonResponse = await getPlatform(platformId, req.user, query);
+  validateAgainstSchema(jsonResponse, 'platform-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -95,8 +96,7 @@ router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
 
   let jsonResponse = await getPlatforms(where, options, req.user);
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/platforms`, query);
-  // TODO: Add this validation back in once it supports nested platforms
-  // validateAgainstSchema(jsonResponse, 'platforms-get-response-body');
+  validateAgainstSchema(jsonResponse, 'platforms-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -137,6 +137,7 @@ router.patch('/platforms/:platformId', asyncWrapper(async (req, res): Promise<an
 
   const platformId = req.params.platformId;
   const jsonResponse = await updatePlatform(platformId, body, req.user);
+  validateAgainstSchema(jsonResponse, 'platform-get-response-body');
   return res.json(jsonResponse);
 
 }));
