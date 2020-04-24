@@ -3,9 +3,10 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {formatIndividualSensor} from '../sensor/sensor.formatter';
+import {centroidToGeometry} from '../../utils/geojson-helpers';
 
 
-const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location'];
+const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location', 'centroid'];
 
 
 export function formatIndividualPlatform(platform: any): any {
@@ -19,14 +20,43 @@ export function formatIndividualPlatform(platform: any): any {
     platformLinked.ancestorPlatforms = platformLinked.hostedByPath;
   }
   delete platformLinked.hostedByPath;
-  const ordered = orderObjectKeys(platformLinked, keyOrder);
-  if (ordered.location) {
-    ordered.location = orderObjectKeys(ordered.location, ['id', 'geometry', 'validAt']);
-    if (ordered.location.geometry) {
-      ordered.location.geometry = orderObjectKeys(ordered.location.geometry, ['type', 'coordinates']);
-    }
+  // There's some restructuring of the location objects required
+  if (platformLinked.location) {
+    const {shape, centroid} = splitLocationIntoCentroidAndShape(platformLinked.location);
+    delete platformLinked.location;
+    platformLinked.location = shape;
+    platformLinked.centroid = centroid;
   }
+  const ordered = orderObjectKeys(platformLinked, keyOrder);
   return ordered;
+}
+
+
+function splitLocationIntoCentroidAndShape(location: any): {shape: any; centroid: any} {
+
+  const shape = {
+    type: 'Feature',
+    id: location.id,
+    geometry: location.geometry,
+    properties: {
+      validAt: location.validAt
+    }
+  };
+
+  const centroid = {
+    type: 'Feature',
+    id: location.id,
+    geometry: centroidToGeometry(location.centroid),
+    properties: {
+      validAt: location.validAt
+    }
+  };
+
+  return {
+    shape,
+    centroid
+  };
+
 }
 
 
