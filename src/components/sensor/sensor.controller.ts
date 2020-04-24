@@ -29,7 +29,7 @@ export async function getSensor(sensorId: string, user: ApiUser): Promise<any> {
   const sensor = await sensorService.getSensor(sensorId);
 
   if (!hasSuperUserPermission) {
-    const deployment = await getDeployment(sensor.inDeployment);
+    const deployment = await getDeployment(sensor.hasDeployment);
     deploymentLevelCheck(deployment, user);
     // TODO: what if the sensor is hosted on a platform that has been shared with another deployment? Should users of this sharee deployment be able to see the sensor's details?
   }
@@ -43,15 +43,15 @@ export async function getSensors(where, options: PaginationOptions, user: ApiUse
 
   const hasSuperUserPermission = user.permissions.includes('get:sensor') || user.permissions.includes('admin-all:deployments');
 
-  const deploymentDefined = check.nonEmptyString(where.inDeployment) || (check.nonEmptyObject(where.inDeployment) && check.nonEmptyArray(where.inDeployment.in));
+  const deploymentDefined = check.nonEmptyString(where.hasDeployment) || (check.nonEmptyObject(where.hasDeployment) && check.nonEmptyArray(where.hasDeployment.in));
 
   //------------------------
-  // inDeployment specified
+  // hasDeployment specified
   //------------------------
-  // If inDeployment has been specified then check that the user has access.
+  // If hasDeployment has been specified then check that the user has access.
   if (deploymentDefined && !hasSuperUserPermission) {
 
-    const deploymentIdsToCheck = check.string(where.inDeployment) ? [where.inDeployment] : where.inDeployment.in;
+    const deploymentIdsToCheck = check.string(where.hasDeployment) ? [where.hasDeployment] : where.hasDeployment.in;
 
     let deploymentLevels;
     if (user.id) {
@@ -71,7 +71,7 @@ export async function getSensors(where, options: PaginationOptions, user: ApiUse
   }
 
   //------------------------
-  // inDeployment unspecified
+  // hasDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
   if (!deploymentDefined && !hasSuperUserPermission) {
@@ -90,7 +90,7 @@ export async function getSensors(where, options: PaginationOptions, user: ApiUse
       throw new Forbidden('You do not have access to any deployments and therefore its not possible to retrieve any sensors.');
     }
     const deploymentIds = uniqueDeployments.map((deployment): string => deployment.id);
-    where.inDeployment = {
+    where.hasDeployment = {
       in: deploymentIds
     };
 

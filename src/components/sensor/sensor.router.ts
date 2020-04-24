@@ -37,15 +37,15 @@ const createSensorBodySchema = joi.object({
   name: joi.string(),
   description: joi.string(),
   permanentHost: joi.string(),
-  inDeployment: joi.string(),
+  hasDeployment: joi.string(),
   // N.B. isHostedBy is not allow here. Hosting a sensor on a platform is a separate step and depends on whether the sensor has a permanentHost or not. 
   initialConfig: joi.array().items(configSchema)
   // No need to specify the currentConfig, because the sensor-deployment-mananger will handle this.
 })
-.or('id', 'inDeployment')
-// If an ID isn't provided, then inDeployment must be, as this indicates that a deployment sensor is being created.
-.without('inDeployment', 'permanentHost')
-// I don't want inDeployment and permanentHost to be set at the same time. Is the sensor has a permanentHost then the mechanism for adding the sensor to a deployment is via a registration key.
+.or('id', 'hasDeployment')
+// If an ID isn't provided, then hasDeployment must be, as this indicates that a deployment sensor is being created.
+.without('hasDeployment', 'permanentHost')
+// I don't want hasDeployment and permanentHost to be set at the same time. Is the sensor has a permanentHost then the mechanism for adding the sensor to a deployment is via a registration key.
 .required();
 
 router.post('/sensors', asyncWrapper(async (req, res): Promise<any> => {
@@ -77,9 +77,9 @@ router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => 
 // Get Sensors
 //-------------------------------------------------
 const getSensorsQuerySchema = joi.object({
-  inDeployment: joi.string(),
-  inDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
-  inDeployment__exists: joi.boolean(),
+  hasDeployment: joi.string(),
+  hasDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
+  hasDeployment__exists: joi.boolean(),
   isHostedBy: joi.string(),
   isHostedBy__exists: joi.boolean(),
   permanentHost: joi.string(),
@@ -94,9 +94,9 @@ const getSensorsQuerySchema = joi.object({
   sortBy: joi.string().valid('id').default('id'),
   sortOrder: joi.string().valid('asc', 'desc').default('asc')
 })
-.without('inDeployment__exists', ['inDeployment'])
-.without('inDeployment__exists', ['inDeployment__in'])
-.without('inDeployment__in', ['inDeployment'])
+.without('hasDeployment__exists', ['hasDeployment'])
+.without('hasDeployment__exists', ['hasDeployment__in'])
+.without('hasDeployment__in', ['hasDeployment'])
 .without('isHostedBy__exists', ['isHostedBy'])
 .without('permanentHost__exists', ['permanentHost'])
 .required();
@@ -132,7 +132,7 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
 const updateSensorBodySchema = joi.object({
   name: joi.string(),
   description: joi.string(),
-  inDeployment: joi.string().allow(null),
+  hasDeployment: joi.string().allow(null),
   permanentHost: joi.string().allow(null),
   initialConfig: joi.array().items(configSchema),
   currentConfig: joi.array().items(configSchema)
@@ -176,7 +176,7 @@ router.delete('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> 
 // /deployments/:deploymentId/sensors
 // TODO: Do not allow the following properties to be set via this endpoint:
 // 1. id - this will be auto-assigned to ensure it has a "ds-" prefix to avoid clashes with non-deployment-sensor ids.
-// 2. inDeployment - this should come from the url path.
+// 2. hasDeployment - this should come from the url path.
 // 3. permanentHost - deployment-bound sensors should not have a permanentHost.
 // N.B. allow the sensor will be created at /deployments/.../sensors, it's @id will be at /sensors like every other sensor.
 
@@ -202,7 +202,7 @@ router.delete('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> 
 //   const sensor = await getSensor(sensorId);
 
 //   // Check the sensor actually belongs to this deployment
-//   if (sensor.inDeployment !== deploymentId) {
+//   if (sensor.hasDeployment !== deploymentId) {
 //     throw new SensorNotFound(`Sensor '${sensorId}' does not belong to the deployment '${deploymentId}'.`);
 //   }
 
