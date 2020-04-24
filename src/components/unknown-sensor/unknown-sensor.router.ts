@@ -9,7 +9,7 @@ import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {config} from '../../config';
 import {addMetaLinks} from '../common/add-meta-links';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {pick} from 'lodash';
+import {pick, omit} from 'lodash';
 
 const router = express.Router();
 
@@ -40,12 +40,7 @@ router.get('/unknown-sensors', asyncWrapper(async (req, res): Promise<any> => {
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
-  const wherePart = {};
-  Object.keys(query).forEach((key): void => {
-    if (!optionKeys.includes(key)) {
-      wherePart[key] = query[key];
-    }
-  });
+  const wherePart = omit(query, optionKeys);
   const where = convertQueryToWhere(wherePart);
 
   let jsonResponse = await getUnknownSensors(where, options, req.user);

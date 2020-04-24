@@ -9,7 +9,7 @@ import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import * as check from 'check-types';
 import {InvalidDeploymentUpdates} from './errors/InvalidDeploymentUpdates';
 import * as logger from 'node-logger';
-import {pick} from 'lodash';
+import {pick, omit} from 'lodash';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
 import {config} from '../../config';
@@ -45,12 +45,7 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
-  const wherePart = {};
-  Object.keys(query).forEach((key): void => {
-    if (!optionKeys.includes(key)) {
-      wherePart[key] = query[key];
-    }
-  });
+  const wherePart = omit(query, optionKeys);
   const where = convertQueryToWhere(wherePart);
 
   if (!req.user.id && check.assigned(where.public)) {

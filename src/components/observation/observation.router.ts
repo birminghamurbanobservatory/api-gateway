@@ -9,7 +9,7 @@ import * as logger from 'node-logger';
 import {getObservations, getObservation, deleteObservation, createObservation} from './observation.controller';
 import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {pick, cloneDeep} from 'lodash';
+import {pick, cloneDeep, omit} from 'lodash';
 import {Promise} from 'bluebird';
 import {inConditional, ancestorPlatformConditional, kebabCaseValidation} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
@@ -66,12 +66,7 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
-  const wherePart = {};
-  Object.keys(query).forEach((key): void => {
-    if (!optionKeys.includes(key)) {
-      wherePart[key] = query[key];
-    }
-  });
+  const wherePart = omit(query, optionKeys);
   const where = convertQueryToWhere(wherePart);
 
   const jsonResponse = await getObservations(where, options, req.user);

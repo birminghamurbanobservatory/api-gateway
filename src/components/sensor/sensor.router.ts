@@ -12,7 +12,7 @@ import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {InvalidBody} from '../../errors/InvalidBody';
 import {inConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
-import {pick} from 'lodash';
+import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
 
 const router = express.Router();
@@ -114,12 +114,7 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
-  const wherePart = {};
-  Object.keys(query).forEach((key): void => {
-    if (!optionKeys.includes(key)) {
-      wherePart[key] = query[key];
-    }
-  });
+  const wherePart = omit(query, optionKeys);
   const where = convertQueryToWhere(wherePart);
  
   let jsonResponse = await getSensors(where, options, req.user);

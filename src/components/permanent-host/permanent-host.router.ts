@@ -6,7 +6,7 @@ import {InvalidPermanentHostUpdates} from './errors/InvalidPermanentHostUpdates'
 import {createPermanentHost, getPermanentHost, getPermanentHosts, deletePermanentHost, updatePermanentHost} from './permanent-host.controller';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {pick} from 'lodash';
+import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
 import {config} from '../../config';
 
@@ -61,12 +61,7 @@ router.get('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
-  const wherePart = {};
-  Object.keys(query).forEach((key): void => {
-    if (!optionKeys.includes(key)) {
-      wherePart[key] = query[key];
-    }
-  });
+  const wherePart = omit(query, optionKeys);
   const where = convertQueryToWhere(wherePart);
 
   let jsonResponse = await getPermanentHosts(where, options, req.user);
