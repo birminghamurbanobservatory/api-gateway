@@ -1,0 +1,23 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/collection-meta.json",
+  "title": "collection-meta",
+  "type": "object",
+  "description": "The meta object adds addition info to a Collection, e.g. next and previous links for pagination.",
+  "properties": {
+    "count": {
+      "type": "number"
+    },
+    "total": {
+      "type": "number"
+    },
+    "current": {
+      "next": ""
+    },
+    "next": {
+      "type": "object"
+    },
+    "previous": {
+      "type": "object"
+    }
+  }
+}

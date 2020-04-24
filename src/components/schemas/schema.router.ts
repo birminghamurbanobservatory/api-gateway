@@ -32,9 +32,10 @@ router.use(`/schemas`, express.static(schemaDirectory));
   const schemafileNames = await readdirAsync(schemaDirectory);
   const schemaFileNamesSorted = sortBy(schemafileNames);
   const schemaInfoArray = schemaFileNamesSorted.map((filename): any => {
+    const title = filename.replace('.json', '');
     return {
       '@id': `${apiBase}/schemas/${filename}`,
-      title: filename
+      title
     };
   });
 

@@ -13,6 +13,7 @@ import * as platformsGetResponseBodySchema from './json-schemas/platforms-get-re
 import * as sensorCreateRequestBodySchema from './json-schemas/sensor-create-request-body.json';
 import * as sensorGetResponseBodySchema from './json-schemas/sensor-get-response-body.json';
 import * as sensorsGetResponseBodySchema from './json-schemas/sensors-get-response.body.json';
+import * as collectionMetaSchema from './json-schemas/collection-meta.json';
 
 
 // This is the bit that should be at the start of the $id for all your schemas
@@ -33,7 +34,8 @@ const ajv = new Ajv({
     platformsGetResponseBodySchema,
     sensorCreateRequestBodySchema,
     sensorGetResponseBodySchema,
-    sensorsGetResponseBodySchema
+    sensorsGetResponseBodySchema,
+    collectionMetaSchema
   ]
 });
 
