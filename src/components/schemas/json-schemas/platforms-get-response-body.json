@@ -180,7 +180,7 @@
       }
     },
     "meta": {
-      "type": "object"
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/collection-meta.json"
     }
   },
   "additionalProperties": false,
