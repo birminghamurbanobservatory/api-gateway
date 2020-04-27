@@ -75,8 +75,6 @@ const getSensorsQuerySchema = joi.object({
   isHostedBy__exists: joi.boolean(),
   permanentHost: joi.string(),
   permanentHost__exists: joi.boolean(),
-  hasFeatureOfInterest: joi.string(),
-  observedProperty: joi.string(),
   search: joi.string(),
   // options
   limit: joi.number().integer().positive().max(1000).default(100),
