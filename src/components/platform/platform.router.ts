@@ -61,6 +61,7 @@ router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any>
 //-------------------------------------------------
 const getPlatformsQuerySchema = joi.object({
   id__begins: joi.string(),
+  id__in: joi.string().custom(inConditional),
   inDeployments__includes: joi.string(),
   isHostedBy: joi.string(), // For exact match of direct host, e.g. west-school
   isHostedBy__in: joi.string().custom(inConditional), // Find platforms with a direct host in the comma-separated list provided e.g. west-school,east-school

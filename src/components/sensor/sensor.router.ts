@@ -66,6 +66,8 @@ router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => 
 // Get Sensors
 //-------------------------------------------------
 const getSensorsQuerySchema = joi.object({
+  id__begins: joi.string(),
+  id__in: joi.string().custom(inConditional),
   hasDeployment: joi.string(),
   hasDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
   hasDeployment__exists: joi.boolean(),
@@ -75,7 +77,6 @@ const getSensorsQuerySchema = joi.object({
   permanentHost__exists: joi.boolean(),
   hasFeatureOfInterest: joi.string(),
   observedProperty: joi.string(),
-  id__begins: joi.string,
   search: joi.string(),
   // options
   limit: joi.number().integer().positive().max(1000).default(100),

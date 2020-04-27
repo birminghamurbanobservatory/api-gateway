@@ -33,6 +33,8 @@ const dictionary: any = {
   unit: 'unit',
   unit__in: 'unit__in',
   unit__exists: 'unit__exists',
+  id__begins: 'id__begins',
+  id__in: 'id__in',
 };
 
 

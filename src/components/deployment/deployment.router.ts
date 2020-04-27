@@ -14,6 +14,7 @@ import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
 import {config} from '../../config';
 import {addMetaLinks} from '../common/add-meta-links';
+import {inConditional} from '../../utils/custom-joi-validations';
 
 const router = express.Router();
 
@@ -26,6 +27,7 @@ export {router as DeploymentRouter};
 const getDeploymentsQuerySchema = joi.object({
   public: joi.boolean(), // lets the user filter their own deployments, returning either public OR private.
   id__begins: joi.string(),
+  id__in: joi.string().custom(inConditional),
   // options
   mineOnly: joi.boolean(), // Returns all public deployments as well as the user's own.
   limit: joi.number().integer().positive().max(1000).default(100),
