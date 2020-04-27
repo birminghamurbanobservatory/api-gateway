@@ -11,9 +11,10 @@ import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick, cloneDeep, omit} from 'lodash';
 import {Promise} from 'bluebird';
-import {inConditional, ancestorPlatformConditional, kebabCaseValidation} from '../../utils/custom-joi-validations';
+import {inConditional, ancestorPlatformConditional, kebabCaseValidation, proximityCentreConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {queryObjectToQueryString} from '../../utils/query-object-to-querystring';
+import * as check from 'check-types';
 
 const router = express.Router();
 
@@ -43,6 +44,21 @@ const getObservationsQuerySchema = joi.object({
   resultTime__lt: joi.string().isoDate(),
   resultTime__lte: joi.string().isoDate().default((): string => new Date().toISOString()),
   flags__exists: joi.boolean(),
+  // spatial queries
+  latitude__gt: joi.number().min(-90).max(90),
+  latitude__gte: joi.number().min(-90).max(90),
+  latitude__lt: joi.number().min(-90).max(90),
+  latitude__lte: joi.number().min(-90).max(90),
+  longitude__gt: joi.number().min(-180).max(180),
+  longitude__gte: joi.number().min(-180).max(180),
+  longitude__lt: joi.number().min(-180).max(180),
+  longitude__lte: joi.number().min(-180).max(180),
+  height__gt: joi.number().min(-180).max(180),
+  height__gte: joi.number().min(-180).max(180),
+  height__lt: joi.number().min(-180).max(180),
+  height__lte: joi.number().min(-180).max(180),
+  proximityCentre: joi.string().custom(proximityCentreConditional),
+  proximityRadius: joi.number().min(0),
   // options
   limit: joi.number().integer().positive().max(1000).default(100),
   offset: joi.number().integer().min(0).default(0),
@@ -51,6 +67,7 @@ const getObservationsQuerySchema = joi.object({
   sortOrder: joi.string().valid('asc', 'desc').default('desc')
   // TODO: Provide a way of omitting some of the properties to save data, e.g. if they asked for discipline=meteorology then we could exclude the discipline property. Maybe have a query string parameter such as `lean=true`.
 })
+.and('proximityCentre', 'proximityRadius')
 .without('inDeployment', 'inDeployment__in')
 .without('resultTime__gt', 'resultTime__gte')
 .without('resultTime__lt', 'resultTime__lte');
@@ -60,6 +77,15 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: query} = getObservationsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  if (check.assigned(query.proximityCentre)) {
+    query.proximity = {
+      centre: query.proximityCentre,
+      radius: query.proximityRadius
+    };
+    delete query.proximityCentre;
+    delete query.proximityRadius;
+  }
 
   // Pull out the options
   const optionKeys = ['limit', 'offset', 'onePer', 'sortBy', 'sortOrder'];

@@ -43,5 +43,26 @@ export function kebabCaseValidation(value): string[] {
 }
 
 
+export function proximityCentreConditional(value): {latitude: number; longitude: number} {
+
+  const splitUp = value.split(',');
+
+  if (splitUp.length !== 2) {
+    throw new Error(`Expected proximityCentre in the form 'longitude,latitude'`);
+  }
+
+  const [longitudeString, latitudeString] = splitUp;
+  const longitude = Number(longitudeString);
+  const latitude = Number(latitudeString);
+  check.assert.inRange(longitude, -180, 180);
+  check.assert.inRange(latitude, -90, 90);
+
+  return {
+    longitude,
+    latitude
+  };
+
+}
+
 
 
