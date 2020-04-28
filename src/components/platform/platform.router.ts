@@ -6,13 +6,14 @@ import {createPlatform, getPlatforms, getPlatform, updatePlatform, deletePlatfor
 import {validateGeometry} from '../../utils/geojson-validator';
 import {InvalidPlatformUpdates} from './errors/InvalidPlatformUpdates';
 import * as Promise from 'bluebird';
-import {inConditional} from '../../utils/custom-joi-validations';
+import {inConditional, proximityCentreConditional} from '../../utils/custom-joi-validations';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
 import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
 import {config} from '../../config';
+import * as check from 'check-types';
 
 const router = express.Router();
 
@@ -72,6 +73,21 @@ const getPlatformsQuerySchema = joi.object({
   // 2. ancestorPlatforms=west-school.weather-station-1.*, i.e. postgresql lquery format. Would also use this for find an exact match of the whole path. N.b. however my MongoDB array approach doesn't support lquery style queries out of the box, so it would require a bit of code writting to further filter database results.
   // TODO: Add the option to exclude platforms in public deployments that are not the user's deployment.
   search: joi.string(),
+  // spatial queries
+  latitude__gt: joi.number().min(-90).max(90),
+  latitude__gte: joi.number().min(-90).max(90),
+  latitude__lt: joi.number().min(-90).max(90),
+  latitude__lte: joi.number().min(-90).max(90),
+  longitude__gt: joi.number().min(-180).max(180),
+  longitude__gte: joi.number().min(-180).max(180),
+  longitude__lt: joi.number().min(-180).max(180),
+  longitude__lte: joi.number().min(-180).max(180),
+  height__gt: joi.number().min(-180).max(180),
+  height__gte: joi.number().min(-180).max(180),
+  height__lt: joi.number().min(-180).max(180),
+  height__lte: joi.number().min(-180).max(180),
+  proximityCentre: joi.string().custom(proximityCentreConditional),
+  proximityRadius: joi.number().min(0),
   // options
   nest: joi.boolean().default(false),
   limit: joi.number().integer().positive().max(1000).default(100),
@@ -86,6 +102,15 @@ router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: query} = getPlatformsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  if (check.assigned(query.proximityCentre)) {
+    query.proximity = {
+      centre: query.proximityCentre,
+      radius: query.proximityRadius
+    };
+    delete query.proximityCentre;
+    delete query.proximityRadius;
+  }
 
   // Pull out the options
   const optionKeys = ['nest', 'limit', 'offset', 'sortBy', 'sortOrder'];
