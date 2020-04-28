@@ -11,7 +11,7 @@
       "type": "number"
     },
     "current": {
-      "next": ""
+      "type": "object"
     },
     "next": {
       "type": "object"
