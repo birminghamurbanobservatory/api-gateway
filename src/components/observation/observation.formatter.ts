@@ -13,7 +13,7 @@ const disciplinesObject = getDisciplinesObject();
 const observablePropertiesObject = getObservablePropertiesObject();
 
 
-const keyOrder = ['@context', '@id', '@type', 'resultTime', 'hasResult', 'madeBySensor', 'observedProperty', 'hasFeatureOfInterest', 'inDeployments', 'ancestorPlatforms', 'location'];
+const keyOrder = ['@context', '@id', '@type', 'resultTime', 'hasResult', 'madeBySensor', 'inTimeseries', 'observedProperty', 'hasFeatureOfInterest', 'inDeployments', 'ancestorPlatforms', 'location'];
 
 
 export function formatIndividualObservation(observation: any): any {
@@ -27,6 +27,11 @@ export function formatIndividualObservation(observation: any): any {
     observationLinked.ancestorPlatforms = observationLinked.hostedByPath;
   }
   delete observationLinked.hostedByPath;
+
+  if (observationLinked.timeseriesId) {
+    observationLinked.inTimeseries = observationLinked.timeseriesId;
+  }
+  delete observationLinked.timeseriesId;
 
   if (observationLinked.hasResult.unit) {
     const unitId = observationLinked.hasResult.unit;
