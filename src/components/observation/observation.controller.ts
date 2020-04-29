@@ -7,7 +7,7 @@ import {concat, uniqBy, cloneDeep} from 'lodash';
 import {createObservationsResponse, createObservationResponse} from './observation.formatter';
 import {ApiUser} from '../common/api-user.class';
 import {permissionsCheck} from '../common/permissions-check';
-
+import * as logger from 'node-logger';
 
 //-------------------------------------------------
 // Get observations 
@@ -16,24 +16,30 @@ export async function getObservations(where: any, options: {limit?: number; offs
 
   const updatedWhere: any = cloneDeep(where);
 
-  const canAccessAllObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
-  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observation, but not be allowed to see any of the extra data that would accessable if they were an admin to every deployment, e.g. a platform's description.
+  const deploymentDefined = check.nonEmptyString(where.inDeployment) || (check.nonEmptyObject(where.inDeployment) && check.nonEmptyArray(where.inDeployment.in));
+
+  const canAccessAllObservations = user.permissions.includes('get:observation');
+  const canAccessAllDeploymentObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
+  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observation, but not be allowed to see any of the extra data that would accessible if they were an admin to every deployment, e.g. a platform's description. Also it stops user with just the admin-all:deployments permission from getting observations not bound to a deployment
+  logger.debug(`Can access all observations: ${canAccessAllObservations}`);
+  logger.debug(`Can access observations from all deployments: ${canAccessAllDeploymentObservations}`);
+  logger.debug(`Deployment(s) specified: ${deploymentDefined}`);
 
   //------------------------
   // inDeployment specified
   //------------------------
   // If inDeployment has been specified then check that the user has rights to these deployment(s).
-  if (where.inDeployment) {
+  if (deploymentDefined) {
 
     const deploymentIdsToCheck = check.string(where.inDeployment) ? [check.string(where.inDeployment)] : where.inDeployment.in;
 
-    if (canAccessAllObservations) {
+    if (canAccessAllDeploymentObservations) {
       // For users that can access all observations, all we need to check here is that the deployment ID(s) they have provided are for deployments that actually exist.
       // N.b. this should error if any of the deployments don't exist
       await getLevelsForDeployments(deploymentIdsToCheck);
     }
 
-    if (!canAccessAllObservations) {
+    if (!canAccessAllDeploymentObservations) {
       // Decided to add an event-stream that lets us check a user's rights to multiple deployments in a single request. I.e can pass a single userId (or none at all), and an array of deployment IDs, and for each we return the level of access they have. The benefit being that we have a single even stream request, with only the vital data being returned, and the sensor-deployment-manager can be setup so it only makes a single mongodb request to get info on multiple deployments. Therefore should be faster.
       let deploymentLevels;
       if (user.id) {
@@ -58,7 +64,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
   // inDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
-  if (!where.inDeployment && !canAccessAllObservations) {
+  if (!deploymentDefined && !canAccessAllObservations) {
 
     let usersDeployments = [];
     let publicDeployments = [];
@@ -82,8 +88,15 @@ export async function getObservations(where: any, options: {limit?: number; offs
 
   // TODO: If the user doesn't provide specific deploymentIds then we get a list for them. This means that if isHostedBy or madeBySensor parameters are specified then no observations will be returned for these if they don't belong in the user's deployments. The question is whether we should throw an error that lets them know that the platform or sensor isn't in the list of deployments.
 
+  // For users that can access all deployment observations, but not observations unbound to a deployment, we'll need make sure they can't get observations without a deployment
+  if (!deploymentDefined && canAccessAllDeploymentObservations && !canAccessAllObservations) {
+    updatedWhere.inDeployments = {
+      exists: true
+    };
+  }
+
   // Quick safety check to make sure non-super users can't go retrieving observations without their deployments being defined.
-  if (canAccessAllObservations && (!where.inDeployment && !where.inDeployment.in)) {
+  if (!canAccessAllDeploymentObservations && check.not.nonEmptyArray(updatedWhere.inDeployment.in)) {
     throw new Error(' A non-superuser is able to request observations without specifying deployments. Server code needs editing to fix this.');
   }
 
@@ -96,10 +109,6 @@ export async function getObservations(where: any, options: {limit?: number; offs
   }
   delete updatedWhere.ancestorPlatforms;
 
-  if (check.object(where.flag)) {
-    updatedWhere.flags = where.flag;
-  }
-  delete updatedWhere.flag;
 
   if (check.object(where.disciplines) && check.nonEmptyString(where.disciplines.includes)) {
     updatedWhere.discipline = where.disciplines.includes;

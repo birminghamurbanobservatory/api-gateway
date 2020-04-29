@@ -152,3 +152,14 @@ export function getUrbanObservatoryContext(): object {
   };
   return context;
 }
+
+
+//-------------------------------------------------
+// Timeseries
+//-------------------------------------------------
+export function getTimeseriesContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}

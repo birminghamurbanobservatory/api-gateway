@@ -1,5 +1,6 @@
 import {cloneDeep} from 'lodash';
 import {queryObjectToQueryString} from '../../utils/query-object-to-querystring';
+import * as check from 'check-types';
 
 export function addMetaLinks(jsonResponse: any, urlBase: string, query: any): any {
 
@@ -10,7 +11,14 @@ export function addMetaLinks(jsonResponse: any, urlBase: string, query: any): an
   };
   jsonResponse.meta.current = Object.assign({}, jsonResponse.meta.current, query);
 
-  const isNext = jsonResponse.meta.total > (jsonResponse.meta.count + query.offset);
+  let isNext;
+  if (check.assigned(jsonResponse.meta.total)) {
+    isNext = jsonResponse.meta.total > (jsonResponse.meta.count + query.offset);
+  } else {
+    // This is bit of a quick and dirty approach for when we don't know the total. In theory we could add a next link when we shouldn't if the actual total is the same as the limit.
+    isNext = jsonResponse.meta.count === query.limit; 
+  }
+
   const isPrevious = query.offset !== 0;
 
   if (isNext) {

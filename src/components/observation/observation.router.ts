@@ -15,6 +15,7 @@ import {inConditional, ancestorPlatformConditional, kebabCaseValidation, proximi
 import {config} from '../../config';
 import {queryObjectToQueryString} from '../../utils/query-object-to-querystring';
 import * as check from 'check-types';
+import {addMetaLinks} from '../common/add-meta-links';
 
 const router = express.Router();
 
@@ -95,39 +96,8 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   const wherePart = omit(query, optionKeys);
   const where = convertQueryToWhere(wherePart);
 
-  const jsonResponse = await getObservations(where, options, req.user);
-
-  const currentQuerystring = queryObjectToQueryString(query);
-
-  jsonResponse.meta.current = {
-    '@id': `${config.api.base}/observations?${currentQuerystring}`
-  };
-  jsonResponse.meta.current = Object.assign({}, jsonResponse.meta.current, query);
-
-  // Because the observations table could be massive, and it could take some time to count the total number of observation, we take a quick and dirty approach here to working out whether there's likely to be any more observations available
-  const isNext = jsonResponse.member.length === query.limit;
-  const isPrevious = query.offset !== 0;
-
-  if (isNext) {
-    const nextQuery = cloneDeep(query);
-    nextQuery.offset = nextQuery.offset + nextQuery.limit;
-    const nextQuerystring = queryObjectToQueryString(nextQuery);
-    jsonResponse.meta.next = {
-      '@id': `${config.api.base}/observations?${nextQuerystring}`
-    };
-    jsonResponse.meta.next = Object.assign({}, jsonResponse.meta.next, nextQuery);
-  }
-
-  if (isPrevious) {
-    const previousQuery = cloneDeep(query);
-    previousQuery.offset = Math.max(previousQuery.offset - previousQuery.limit, 0);
-    const previousQuerystring = queryObjectToQueryString(previousQuery);
-    jsonResponse.meta.previous = {
-      '@id': `${config.api.base}/observations?${previousQuerystring}`
-    };
-    jsonResponse.meta.previous = Object.assign({}, jsonResponse.meta.previous, previousQuery);
-  }
-
+  let jsonResponse = await getObservations(where, options, req.user);
+  jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/observations`, query);
   return res.json(jsonResponse);
 
 }));

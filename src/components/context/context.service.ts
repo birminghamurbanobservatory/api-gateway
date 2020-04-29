@@ -11,5 +11,6 @@ export const contextLinks = {
   platform: `${apiBase}/context/platform${ext}`,
   sensor: `${apiBase}/context/sensor${ext}`,
   permanentHost: `${apiBase}/context/permanent-host${ext}`,
-  urbanObservatory: `${apiBase}/context/urban-observatory${ext}`
+  urbanObservatory: `${apiBase}/context/urban-observatory${ext}`,
+  timeseries: `${apiBase}/context/timeseries${ext}`
 };

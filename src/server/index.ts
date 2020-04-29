@@ -23,6 +23,7 @@ import {allowCaseInsensitiveQueryParameters} from './middleware/case-insensitivi
 import cors from 'cors';
 import {UnknownSensorRouter} from '../components/unknown-sensor/unknown-sensor.router';
 import {AccountRouter} from '../components/account/account.router';
+import {TimeseriesRouter} from '../components/timeseries/timeseries.router';
 import {ContextRouter} from '../components/context/context.router';
 import {SchemaRouter} from '../components/schemas/schema.router';
 import {config} from '../config';
@@ -110,6 +111,7 @@ app.use(UnknownSensorRouter);
 app.use(PermanentHostRouter);
 app.use(ObservationRouter); // must come after deployment and platform routers
 app.use(RegisterRouter);
+app.use(TimeseriesRouter);
 app.use(AccountRouter);
 
 // Error handling must go last
