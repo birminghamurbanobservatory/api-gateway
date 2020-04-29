@@ -23,7 +23,13 @@ export async function getSingleTimeseries(timeseriesId: string, user: ApiUser): 
     // N.B. If the timeseries doesn't belong to any deployments, then only superusers will be able to access it.
     if (check.nonEmptyArray(timeseries.inDeployments)) {
       const deploymentsIdsForLevelChecking = timeseries.inDeployments;
-      const deploymentLevels = await getLevelsForDeployments(deploymentsIdsForLevelChecking);
+      let deploymentLevels;
+      if (user.id) {
+        // N.b. this should error if any of the deployments don't exist
+        deploymentLevels = await getLevelsForDeployments(deploymentsIdsForLevelChecking, user.id);
+      } else {
+        deploymentLevels = await getLevelsForDeployments(deploymentsIdsForLevelChecking);
+      }
       // We need to check that they have rights to at least one of the deployments
       const hasRightsToAtLeastOneDeployment = deploymentLevels.some(({level}): boolean => {
         return Boolean(level);

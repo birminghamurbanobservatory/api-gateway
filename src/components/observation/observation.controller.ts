@@ -109,10 +109,14 @@ export async function getObservations(where: any, options: {limit?: number; offs
   }
   delete updatedWhere.ancestorPlatforms;
 
-
   if (check.object(where.disciplines) && check.nonEmptyString(where.disciplines.includes)) {
     updatedWhere.discipline = where.disciplines.includes;
     delete updatedWhere.disciplines;
+  }
+
+  if (check.assigned(where.inTimeseries)) {
+    updatedWhere.timeseriesId = where.inTimeseries;
+    delete updatedWhere.inTimeseries;
   }
 
   const {observations, meta} = await observationService.getObservations(updatedWhere, options);

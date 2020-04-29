@@ -29,6 +29,8 @@ const getObservationsQuerySchema = joi.object({
   // filtering
   madeBySensor: joi.string(),
   madeBySensor__in: joi.string().custom(inConditional),
+  inTimeseries: joi.string().alphanum(), // catches any accidental commas that might be present
+  inTimeseries__in: joi.string().custom(inConditional),
   observedProperty: joi.string(),
   unit: joi.string(),
   unit__in: joi.string().custom(inConditional),

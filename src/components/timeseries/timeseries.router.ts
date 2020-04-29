@@ -39,6 +39,7 @@ router.get('/timeseries/:timeseriesId', asyncWrapper(async (req, res): Promise<a
 // Get Multiple Timeseries
 //-------------------------------------------------
 const getTimeseriesQuerySchema = joi.object({
+  id__in: joi.string().custom(inConditional),
   madeBySensor: joi.string(),
   madeBySensor__in: joi.string().custom(inConditional),
   observedProperty: joi.string(),

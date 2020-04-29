@@ -28,6 +28,7 @@ import {ContextRouter} from '../components/context/context.router';
 import {SchemaRouter} from '../components/schemas/schema.router';
 import {config} from '../config';
 import {VocabRouter} from '../components/vocab/vocab.router';
+import {TimeseriesObsRouter} from '../components/timeseries-obs/timeseries-obs.router';
 
 
 export const app = express();
@@ -112,6 +113,7 @@ app.use(PermanentHostRouter);
 app.use(ObservationRouter); // must come after deployment and platform routers
 app.use(RegisterRouter);
 app.use(TimeseriesRouter);
+app.use(TimeseriesObsRouter);
 app.use(AccountRouter);
 
 // Error handling must go last
