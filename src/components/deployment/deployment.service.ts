@@ -1,6 +1,5 @@
 import * as event from 'event-stream';
 import {WhereItem} from '../common/where-item.class';
-import {PaginationOptions} from '../common/pagination-options.class';
 
 
 export async function getDeployments(where: {user?: string; public?: boolean; id?: WhereItem; search?: string}, options?: any): Promise<{deployments: any[]; count: number; total: number}> {

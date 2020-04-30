@@ -6,8 +6,10 @@ import * as check from 'check-types';
 import {concat, uniqBy, cloneDeep} from 'lodash';
 import {Forbidden} from '../../errors/Forbidden';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
-import {PaginationOptions} from '../common/pagination-options.class';
-import {formatIndividualDeployment} from '../deployment/deployment.formatter';
+import {CollectionOptions} from '../common/collection-options.class';
+import {formatIndividualDeploymentCondensed} from '../deployment/deployment.formatter';
+import {formatIndividualSensorCondensed} from '../sensor/sensor.formatter';
+import {getSensor} from '../sensor/sensor.service';
 
 
 
@@ -44,23 +46,60 @@ export async function getSingleTimeseries(timeseriesId: string, user: ApiUser): 
     }
   }
 
-  // Populate the properties. We want this to be well populated.
-  if (check.nonEmptyArray(timeseries.inDeployments)) {
-    const {deployments} = await getDeployments({id: {in: timeseries.inDeployments}});
-    const deploymentsFormatted = deployments.map(formatIndividualDeployment);
-    timeseries.inDeployments = deploymentsFormatted;
-  }
+  // Populate the properties. We want it to be well populated so front-end's don't need to make many follow up requests.
+  const timeseriesPopulated = await populateSingleTimeseries(timeseries);
 
-  // TODO: More to populate
-
-  const timeseriesWithContext = createSingleTimeseriesResponse(timeseries);
+  const timeseriesWithContext = createSingleTimeseriesResponse(timeseriesPopulated);
   return timeseriesWithContext;
 }
 
 
+// A real challenge with this is what if the resource (e.g. a sensor/platform/deployment) we're trying to populate has now been deleted. You have a few options:
+// 1. Return an object with just an @id property.
+// 2. Ask the sensor-deployment-manager to give us the resource even if it has been deleted.
+// 3. Exclude this timeseries from the response, e.g. if the fact the resource can't be found makes the timeseries obsolete.
+async function populateSingleTimeseries(timeseries: any): Promise<any> {
+
+  const populated = cloneDeep(timeseries);
+
+  // Deployments
+  if (check.nonEmptyArray(timeseries.inDeployments)) {
+    const {deployments} = await getDeployments({id: {in: timeseries.inDeployments}});
+    const deploymentsFormatted = deployments.map(formatIndividualDeploymentCondensed);
+    populated.inDeployments = deploymentsFormatted;
+  }
+
+  // Sensor
+  if (check.nonEmptyString(timeseries.madeBySensor)) {
+    let sensor;
+    try {
+      sensor = await getSensor(timeseries.madeBySensor, {includeDeleted: true});
+    } catch (err) {
+      sensor = {id: timeseries.madeBySensor};
+    }
+    const sensorFormatted = formatIndividualSensorCondensed(sensor);
+    populated.madeBySensor = sensorFormatted;
+  }
+
+  // Platforms
+
+  // Observed Properties
+
+  // Unit
+
+  // Feature of Interest
+
+  // Disciplines
+
+  // Used Procedures
+
+  return populated;
+
+}
 
 
-export async function getMultipleTimeseries(where, options: PaginationOptions, user: ApiUser): Promise<any> {
+
+export async function getMultipleTimeseries(where, options: CollectionOptions, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
@@ -153,8 +192,20 @@ export async function getMultipleTimeseries(where, options: PaginationOptions, u
 
   const {timeseries, count, total} = await timeseriesService.getMultipleTimeseries(updatedWhere, options);
 
-  // TODO: Populate the various properties
-  const timeseriesWithContext = createMultipleTimeseriesResponse(timeseries, {count, total});
+  const populatedTimeseries = await populateMultipleTimeseries(timeseries);
+  
+  const timeseriesWithContext = createMultipleTimeseriesResponse(populatedTimeseries, {count, total});
   return timeseriesWithContext;
+
+}
+
+
+async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
+
+  const populated = cloneDeep(timeseries);
+
+  // TODO
+
+  return populated;
 
 }

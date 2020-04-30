@@ -45,7 +45,7 @@ const getObservationsQuerySchema = joi.object({
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
-  resultTime__lte: joi.string().isoDate().default((): string => new Date().toISOString()),
+  resultTime__lte: joi.string().isoDate(),
   flags__exists: joi.boolean(),
   // spatial queries
   latitude__gt: joi.number().min(-90).max(90),
@@ -80,6 +80,11 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
   const {error: queryErr, value: query} = getObservationsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  // To help with pagination let's set a default upper limit for the resultTime to now.
+  if (check.not.assigned(query.resultTime__lt) && check.not.assigned(query.resultTime__lte)) {
+    query.resultTime__lte = new Date().toISOString();
+  }
 
   if (check.assigned(query.proximityCentre)) {
     query.proximity = {

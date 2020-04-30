@@ -62,7 +62,7 @@ const getTimeseriesQuerySchema = joi.object({
   endDate__lt: joi.string().isoDate(),
   endDate__lte: joi.string().isoDate(),
   // options
-  limit: joi.number().integer().positive().max(1000).default(100),
+  limit: joi.number().integer().positive().max(500).default(100),
   offset: joi.number().integer().min(0).default(0),
   // For now at least there's not much point in letting them sort, as it will always default to the id, that is hashed anyway and will therefore the client id will end up out of order anyway.
 })

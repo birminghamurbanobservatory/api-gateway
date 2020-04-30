@@ -1,4 +1,4 @@
-import {cloneDeep} from 'lodash';
+import {cloneDeep, omit} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
@@ -13,6 +13,14 @@ export function formatIndividualSensor(sensor: any): any {
   sensorLinked['@type'] = 'Sensor';
   const ordered = orderObjectKeys(sensorLinked, keyOrder);
   return ordered;
+}
+
+export function formatIndividualSensorCondensed(sensor: any): object {
+  const linked = formatIndividualSensor(sensor);
+  // Pull out the properties we don't need
+  const removableProps = ['description', 'createdAt', 'updatedAt'];
+  const condensed = omit(linked, removableProps);
+  return condensed;
 }
 
 

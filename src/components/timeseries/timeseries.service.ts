@@ -1,5 +1,5 @@
 import * as event from 'event-stream';
-import {PaginationOptions} from '../common/pagination-options.class';
+import {CollectionOptions} from '../common/collection-options.class';
 
 
 
@@ -13,7 +13,7 @@ export async function getSingleTimeseries(timeseriesId): Promise<any> {
 }
 
 
-export async function getMultipleTimeseries(where, options: PaginationOptions): Promise<any> {
+export async function getMultipleTimeseries(where, options: CollectionOptions): Promise<any> {
   const response = await event.publishExpectingResponse('multiple-timeseries.get.request', {
     where,
     options

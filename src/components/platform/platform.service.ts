@@ -1,5 +1,5 @@
 import * as event from 'event-stream';
-import {PaginationOptions} from '../common/pagination-options.class';
+import {CollectionOptions} from '../common/collection-options.class';
 
 
 export async function createPlatform(platform): Promise<any> {
@@ -21,7 +21,7 @@ export async function getPlatform(id: string, options: {nest?: boolean} = {}): P
 }
 
 
-class GetPlatformsOptions extends PaginationOptions {
+class GetPlatformsOptions extends CollectionOptions {
   public nest?: boolean;
 }
 

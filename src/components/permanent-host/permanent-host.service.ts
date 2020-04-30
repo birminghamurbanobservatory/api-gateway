@@ -1,5 +1,5 @@
 import * as event from 'event-stream';
-import {PaginationOptions} from '../common/pagination-options.class';
+import {CollectionOptions} from '../common/collection-options.class';
 
 
 
@@ -10,7 +10,7 @@ export async function createPermanentHost(permanentHost): Promise<any> {
   return createdPermanentHost;
 }
 
-export async function getPermanentHosts(where = {}, options: PaginationOptions): Promise<any> {
+export async function getPermanentHosts(where = {}, options: CollectionOptions): Promise<any> {
   const response = await event.publishExpectingResponse('permanent-hosts.get.request', {
     where,
     options

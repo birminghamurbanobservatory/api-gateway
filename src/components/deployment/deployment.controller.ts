@@ -5,7 +5,6 @@ import {concat, uniqBy, cloneDeep} from 'lodash';
 import {permissionsCheck} from '../common/permissions-check';
 import {deploymentLevelCheck} from './deployment-level-check';
 import {createDeploymentsResponse, createDeploymentResponse} from './deployment.formatter';
-import {PaginationOptions} from '../common/pagination-options.class';
 import * as check from 'check-types';
 
 

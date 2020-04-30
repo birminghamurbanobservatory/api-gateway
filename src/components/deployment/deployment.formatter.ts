@@ -1,4 +1,4 @@
-import {cloneDeep} from 'lodash';
+import {cloneDeep, omit} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
@@ -15,6 +15,15 @@ export function formatIndividualDeployment(deployment: any): object {
   delete deploymentLinked.createdBy;  
   const ordered = orderObjectKeys(deploymentLinked, keyOrder);
   return ordered;
+}
+
+
+export function formatIndividualDeploymentCondensed(deployment: any): object {
+  const linked = formatIndividualDeployment(deployment);
+  // Pull out the properties we don't need
+  const removableProps = ['description', 'createdAt', 'updatedAt'];
+  const condensed = omit(linked, removableProps);
+  return condensed;
 }
 
 

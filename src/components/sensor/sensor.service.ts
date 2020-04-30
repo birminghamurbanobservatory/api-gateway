@@ -1,5 +1,5 @@
 import * as event from 'event-stream';
-import {PaginationOptions} from '../common/pagination-options.class';
+import {CollectionOptions} from '../common/collection-options.class';
 
 
 export async function createSensor(sensor): Promise<any> {
@@ -10,17 +10,18 @@ export async function createSensor(sensor): Promise<any> {
 }
 
 
-export async function getSensor(sensorId): Promise<any> {
+export async function getSensor(sensorId, options: {includeDeleted?: boolean} = {}): Promise<any> {
   const sensor = await event.publishExpectingResponse('sensor.get.request', {
     where: {
       id: sensorId
-    }
+    },
+    options
   }); 
   return sensor;
 }
 
 
-export async function getSensors(where, options: PaginationOptions): Promise<any> {
+export async function getSensors(where, options: CollectionOptions): Promise<any> {
   const response = await event.publishExpectingResponse('sensors.get.request', {
     where,
     options

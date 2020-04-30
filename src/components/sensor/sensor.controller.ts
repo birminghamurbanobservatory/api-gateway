@@ -8,7 +8,7 @@ import * as check from 'check-types';
 import {concat, uniqBy} from 'lodash';
 import {Forbidden} from '../../errors/Forbidden';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
-import {PaginationOptions} from '../common/pagination-options.class';
+import {CollectionOptions} from '../common/collection-options.class';
 
 
 export async function createSensor(sensor, user: ApiUser): Promise<any> {
@@ -39,7 +39,7 @@ export async function getSensor(sensorId: string, user: ApiUser): Promise<any> {
 }
 
 
-export async function getSensors(where, options: PaginationOptions, user: ApiUser): Promise<any> {
+export async function getSensors(where, options: CollectionOptions, user: ApiUser): Promise<any> {
 
   const hasSuperUserPermission = user.permissions.includes('get:sensor') || user.permissions.includes('admin-all:deployments');
 

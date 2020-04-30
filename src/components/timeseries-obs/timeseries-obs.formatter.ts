@@ -25,6 +25,7 @@ export function formatIndividualTimeseriesObservation(observation): any {
     observationLinked.location = orderObjectKeys(observationLinked.location, ['type', 'id', 'geometry', 'properties']);
   }
 
+  // Could potentially remove this bit because the data should already be condenced from the observations-manager.
   const condensed = omit(observationLinked, unnecessaryKeys);
   delete condensed.hasResult.unit;
 

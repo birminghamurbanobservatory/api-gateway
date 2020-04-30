@@ -4,18 +4,19 @@ import * as check from 'check-types';
 import {cloneDeep} from 'lodash';
 import {Forbidden} from '../../errors/Forbidden';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
-import {PaginationOptions} from '../common/pagination-options.class';
+import {CollectionOptions} from '../common/collection-options.class';
 import * as logger from 'node-logger';
 import {getObservations} from '../observation/observation.service';
 import {getSingleTimeseries} from '../timeseries/timeseries.service';
 
 
 
-export async function getTimeseriesObservations(timeseriesId: string, where, options: PaginationOptions, user: ApiUser): Promise<any> {
+export async function getTimeseriesObservations(timeseriesId: string, where, options: CollectionOptions, user: ApiUser): Promise<any> {
 
   logger.debug(`Getting observations for timeseries: ${timeseriesId}`);
 
   const updatedWhere: any = cloneDeep(where);
+  const updatedOptions: any = cloneDeep(options);
 
   const canAccessAllObservations = user.permissions.includes('get:observation');
   const canAccessAllDeploymentObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
@@ -49,8 +50,8 @@ export async function getTimeseriesObservations(timeseriesId: string, where, opt
 
   // We're simply making an observations request, but with a specific timeseries specified.
   updatedWhere.timeseriesId = timeseriesId;
-  // TODO: Might want to make it so that the observations-manager only gets the columns we'll actually use needs from the database, so that we're not only reducing the amount of data sent from the api-gateway to the user, but also from the database to the observations manager and then onto the api-gateway. E.g. add a boolean option called 'condense'.
-  const {observations, meta} = await getObservations(updatedWhere, options);
+  updatedOptions.condense = true; // removes a load of properties from each observation that we don't need.
+  const {observations, meta} = await getObservations(updatedWhere, updatedOptions);
 
   const observationsWithContext = createTimeseriesObservationsResponse(observations, timeseriesId, meta);
   return observationsWithContext;

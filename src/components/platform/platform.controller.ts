@@ -10,7 +10,7 @@ import {omit, concat, uniqBy, cloneDeep} from 'lodash';
 import * as Promise from 'bluebird';
 import {recursivelyExtractInDeploymentIds, recursivelyRemoveProtectedHostedPlatforms} from './platform.helpers';
 import * as logger from 'node-logger';
-import {PaginationOptions} from '../common/pagination-options.class';
+import {CollectionOptions} from '../common/collection-options.class';
 
 
 export async function createPlatform(platform, user): Promise<any> {
@@ -90,7 +90,7 @@ export async function getPlatform(platformId: string, user, options: {nest?: boo
 }
 
 
-class GetPlatformsOptions extends PaginationOptions {
+class GetPlatformsOptions extends CollectionOptions {
   public nest?: boolean;
 }
 

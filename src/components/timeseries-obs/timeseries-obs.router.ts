@@ -13,6 +13,7 @@ import {addMetaLinks} from '../common/add-meta-links';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
 import {getTimeseriesObservations} from './timeseries-obs.controller';
 import {config} from '../../config';
+import * as check from 'check-types';
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ const getTimeseriesObservationsQuerySchema = joi.object({
   resultTime__gt: joi.string().isoDate(),
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
-  resultTime__lte: joi.string().isoDate().default((): string => new Date().toISOString()),
+  resultTime__lte: joi.string().isoDate(),
   flags__exists: joi.boolean(),
   // spatial
   latitude__gt: joi.number().min(-90).max(90),
@@ -49,7 +50,9 @@ const getTimeseriesObservationsQuerySchema = joi.object({
   offset: joi.number().integer().min(0).default(0),
   sortBy: joi.string().valid('resultTime').default('resultTime'),
   sortOrder: joi.string().valid('asc', 'desc').default('desc')
-});
+})
+.without('resultTime__gt', 'resultTime__gte')
+.without('resultTime__lt', 'resultTime__lte');
 
 router.get('/timeseries/:timeseriesId/observations', asyncWrapper(async (req, res): Promise<any> => {
 
@@ -59,6 +62,20 @@ router.get('/timeseries/:timeseriesId/observations', asyncWrapper(async (req, re
   const {error: queryErr, value: query} = getTimeseriesObservationsQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);  
   logger.debug('Validated query parameters', query);
+
+  // To help with pagination let's set a default upper limit for the resultTime to now.
+  if (check.not.assigned(query.resultTime__lt) && check.not.assigned(query.resultTime__lte)) {
+    query.resultTime__lte = new Date().toISOString();
+  }
+
+  if (check.assigned(query.proximityCentre)) {
+    query.proximity = {
+      centre: query.proximityCentre,
+      radius: query.proximityRadius
+    };
+    delete query.proximityCentre;
+    delete query.proximityRadius;
+  }
 
   // Pull out the options
   const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder'];

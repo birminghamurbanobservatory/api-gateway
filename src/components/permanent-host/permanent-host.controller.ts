@@ -2,7 +2,7 @@ import * as event from 'event-stream';
 import {ApiUser} from '../common/api-user.class';
 import {permissionsCheck} from '../common/permissions-check';
 import * as permanentHostService from './permanent-host.service';
-import {PaginationOptions} from '../common/pagination-options.class';
+import {CollectionOptions} from '../common/collection-options.class';
 import {createPermanentHostResponse, createPermanentHostsResponse} from './permanent-host.formatter';
 
 
@@ -16,7 +16,7 @@ export async function createPermanentHost(permanentHost: any, user: ApiUser): Pr
 
 }
 
-export async function getPermanentHosts(where = {}, options: PaginationOptions, user: ApiUser): Promise<any> {
+export async function getPermanentHosts(where = {}, options: CollectionOptions, user: ApiUser): Promise<any> {
 
   permissionsCheck(user, 'get:permanent-host');
 
