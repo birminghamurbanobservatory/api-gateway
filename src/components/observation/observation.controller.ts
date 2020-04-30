@@ -144,9 +144,9 @@ export async function getObservation(observationId, user: ApiUser): Promise<any>
     let deploymentLevels;
     if (user.id) {
       // N.b. this should error if any of the deployments don't exist
-      deploymentLevels = await getLevelsForDeployments(observation.hasDeployment, user.id);
+      deploymentLevels = await getLevelsForDeployments([observation.hasDeployment], user.id);
     } else {
-      deploymentLevels = await getLevelsForDeployments(observation.hasDeployment);
+      deploymentLevels = await getLevelsForDeployments([observation.hasDeployment]);
     }
 
     const hasRightsToAtLeastOneDeployment = deploymentLevels.some((deploymentLevel): boolean => {
