@@ -16,7 +16,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
 
   const updatedWhere: any = cloneDeep(where);
 
-  const deploymentDefined = check.nonEmptyString(where.inDeployment) || (check.nonEmptyObject(where.inDeployment) && check.nonEmptyArray(where.inDeployment.in));
+  const deploymentDefined = check.nonEmptyString(where.hasDeployment) || (check.nonEmptyObject(where.hasDeployment) && check.nonEmptyArray(where.hasDeployment.in));
 
   const canAccessAllObservations = user.permissions.includes('get:observation');
   const canAccessAllDeploymentObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
@@ -26,12 +26,12 @@ export async function getObservations(where: any, options: {limit?: number; offs
   logger.debug(`Deployment(s) specified: ${deploymentDefined}`);
 
   //------------------------
-  // inDeployment specified
+  // hasDeployment specified
   //------------------------
-  // If inDeployment has been specified then check that the user has rights to these deployment(s).
+  // If hasDeployment has been specified then check that the user has rights to these deployment(s).
   if (deploymentDefined) {
 
-    const deploymentIdsToCheck = check.string(where.inDeployment) ? [check.string(where.inDeployment)] : where.inDeployment.in;
+    const deploymentIdsToCheck = check.string(where.hasDeployment) ? [check.string(where.hasDeployment)] : where.hasDeployment.in;
 
     if (canAccessAllDeploymentObservations) {
       // For users that can access all observations, all we need to check here is that the deployment ID(s) they have provided are for deployments that actually exist.
@@ -61,7 +61,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
   }
 
   //------------------------
-  // inDeployment unspecified
+  // hasDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
   if (!deploymentDefined && !canAccessAllObservations) {
@@ -80,7 +80,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
       throw new Forbidden('You do not have access to any deployments and therefore its not possible to retrieve any observations.');
     }
     const deploymentIds = uniqueDeployments.map((deployment): string => deployment.id);
-    updatedWhere.inDeployment = {
+    updatedWhere.hasDeployment = {
       in: deploymentIds
     };
 
@@ -90,13 +90,13 @@ export async function getObservations(where: any, options: {limit?: number; offs
 
   // For users that can access all deployment observations, but not observations unbound to a deployment, we'll need make sure they can't get observations without a deployment
   if (!deploymentDefined && canAccessAllDeploymentObservations && !canAccessAllObservations) {
-    updatedWhere.inDeployments = {
+    updatedWhere.hasDeployment = {
       exists: true
     };
   }
 
   // Quick safety check to make sure non-super users can't go retrieving observations without their deployments being defined.
-  if (!canAccessAllDeploymentObservations && check.not.nonEmptyArray(updatedWhere.inDeployment.in)) {
+  if (!canAccessAllDeploymentObservations && check.not.nonEmptyArray(updatedWhere.hasDeployment.in)) {
     throw new Error(' A non-superuser is able to request observations without specifying deployments. Server code needs editing to fix this.');
   }
 
@@ -144,9 +144,9 @@ export async function getObservation(observationId, user: ApiUser): Promise<any>
     let deploymentLevels;
     if (user.id) {
       // N.b. this should error if any of the deployments don't exist
-      deploymentLevels = await getLevelsForDeployments(observation.inDeployments, user.id);
+      deploymentLevels = await getLevelsForDeployments(observation.hasDeployment, user.id);
     } else {
-      deploymentLevels = await getLevelsForDeployments(observation.inDeployments);
+      deploymentLevels = await getLevelsForDeployments(observation.hasDeployment);
     }
 
     const hasRightsToAtLeastOneDeployment = deploymentLevels.some((deploymentLevel): boolean => {

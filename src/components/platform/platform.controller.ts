@@ -16,7 +16,7 @@ import {CollectionOptions} from '../common/collection-options.class';
 export async function createPlatform(platform, user): Promise<any> {
 
   // Check the have a sufficient access level to the deployment
-  const deployment = await getDeployment(platform.ownerDeployment);
+  const deployment = await getDeployment(platform.inDeployment);
   deploymentLevelCheck(deployment, user, ['admin', 'engineer']);
 
   const createdPlatform = await platformService.createPlatform(platform);
@@ -44,7 +44,7 @@ export async function getPlatform(platformId: string, user, options: {nest?: boo
     if (platform.hosts) {
       deploymentsIdsForLevelChecking = recursivelyExtractInDeploymentIds(platform);
     } else {
-      deploymentsIdsForLevelChecking = platform.inDeployments;
+      deploymentsIdsForLevelChecking = [platform.inDeployment];
     }
 
     let deploymentLevels;
@@ -55,12 +55,15 @@ export async function getPlatform(platformId: string, user, options: {nest?: boo
     }
 
     // We need to check that the (top-level) platform belongs to a deployment that the user has at least basic rights to.
-    const hasRightsToAtLeastOneDeployment = platform.inDeployments.some((deploymentId): boolean => {
-      const matchingDeployment = deploymentLevels.find((deploymentLevel): any => deploymentLevel.deploymentId === deploymentId);
-      return matchingDeployment && Boolean(matchingDeployment.level);
-    }); 
+    let hasRightsToTopLevelPlatformsDeployment;
+    const topLevelPlatformDeploymentLevel = deploymentLevels.find((deploymentLevel): boolean => {
+      return deploymentLevel.deploymentId === platform.inDeployment;
+    });
+    if (topLevelPlatformDeploymentLevel && Boolean(topLevelPlatformDeploymentLevel.level)) {
+      hasRightsToTopLevelPlatformsDeployment = true;
+    }
 
-    if (hasRightsToAtLeastOneDeployment) {
+    if (hasRightsToTopLevelPlatformsDeployment) {
       hasSufficientRights = true;
     }
 
@@ -94,7 +97,7 @@ class GetPlatformsOptions extends CollectionOptions {
   public nest?: boolean;
 }
 
-export async function getPlatforms(where: {inDeployments?: any; isHostedBy: any; ancestorPlatforms: any; search?: string}, options: GetPlatformsOptions, user: ApiUser): Promise<any> {
+export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatforms: any; search?: string}, options: GetPlatformsOptions, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
@@ -105,10 +108,10 @@ export async function getPlatforms(where: {inDeployments?: any; isHostedBy: any;
   // inDeployment specified
   //------------------------
   // If inDeployment has been specified then check that the user has rights to these deployment(s).
-  if (where.inDeployments && !hasSuperUserPermission) {
+  if (where.inDeployment && !hasSuperUserPermission) {
 
     // TODO: You'll need to update this if you allow filtering by more than one deployment
-    const deploymentIdsToCheck = [where.inDeployments.includes];
+    const deploymentIdsToCheck = [where.inDeployment];
 
     let deploymentLevels;
     if (user.id) {
@@ -131,7 +134,7 @@ export async function getPlatforms(where: {inDeployments?: any; isHostedBy: any;
   // inDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
-  if (!where.inDeployments && !hasSuperUserPermission) {
+  if (!where.inDeployment && !hasSuperUserPermission) {
 
     let usersDeployments = [];
     let publicDeployments = [];
@@ -180,9 +183,9 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
 
   const platform = await platformService.getPlatform(platformId);
 
-  const ownerDeployment = await getDeployment(platform.ownerDeployment);
+  const itsDeployment = await getDeployment(platform.inDeployment);
   if (!user.permissions.includes('admin-all:deployments')) {
-    deploymentLevelCheck(ownerDeployment, user, ['admin', 'engineer']);
+    deploymentLevelCheck(itsDeployment, user, ['admin', 'engineer']);
   }
 
   if (updates.isHostedBy) {
@@ -193,25 +196,21 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
     const hostPlatform = await platformService.getPlatform(updates.isHostedBy);
 
     // Chances are the platform will be in this same deployment, so let's quickly check this first.
-    if (hostPlatform.inDeployments.includes(ownerDeployment.id)) {
+    if (hostPlatform.inDeployment === itsDeployment.id) {
       hasRightsToHostPlatform = true;
 
     } else {
 
       // We need to get these deployments to see if they're public or ones that this user has access to.
-      const hostDeployments = await Promise.map(hostPlatform.inDeployments, async (hostDeploymentId): Promise<any> => {
-        return await getDeployment(hostDeploymentId); 
-      });
+      const hostPlatformDeployment = await getDeployment(hostPlatform.id);
 
-      hostDeployments.forEach((hostDeployment): void => {
-        if (hostDeployment.public === true) {
-          hasRightsToHostPlatform = true;
-        }
-        const userIds = hostDeployment.users.map((user): string => user.id);
+      if (hostPlatformDeployment.public === true) {
+        hasRightsToHostPlatform = true;
+        const userIds = hostPlatformDeployment.users.map((user): string => user.id);
         if (userIds.includes(user.id)) {
           hasRightsToHostPlatform = true;
         }
-      });
+      }
 
       if (!hasRightsToHostPlatform) {
         throw new Forbidden(`You do not have sufficient rights to platform '${updates.isHostedBy}' in order to host ${platformId} on it.`);
@@ -246,10 +245,10 @@ export async function deletePlatform(platformId: string, user: ApiUser): Promise
 
   const platform = await platformService.getPlatform(platformId);
 
-  let ownerDeployment;
+  let inDeployment;
   if (!user.permissions || !user.permissions.includes('admin-all:deployments')) {
-    ownerDeployment = await getDeployment(platform.ownerDeployment);
-    deploymentLevelCheck(ownerDeployment, user, ['admin', 'engineer']);
+    inDeployment = await getDeployment(platform.inDeployment);
+    deploymentLevelCheck(inDeployment, user, ['admin', 'engineer']);
   }
 
   await platformService.deletePlatform(platformId);
@@ -263,10 +262,10 @@ export async function releasePlatformSensors(platformId: string, user: ApiUser):
 
   const platform = await platformService.getPlatform(platformId);
 
-  let ownerDeployment;
+  let inDeployment;
   if (!user.permissions || !user.permissions.includes('admin-all:deployments')) {
-    ownerDeployment = await getDeployment(platform.ownerDeployment);
-    deploymentLevelCheck(ownerDeployment, user, ['admin', 'engineer']);
+    inDeployment = await getDeployment(platform.inDeployment);
+    deploymentLevelCheck(inDeployment, user, ['admin', 'engineer']);
   }
 
   await platformService.releasePlatformSensors(platformId);

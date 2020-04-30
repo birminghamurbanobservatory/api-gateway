@@ -75,9 +75,7 @@ describe('', () => {
           madeBySensor: 'netatmo-02-00-00-3f-16-4c-humidity',
           observedProperty: 'RelativeHumidity',
           hasFeatureOfInterest: 'EarthAtmosphere',
-          inDeployments: [
-            'netatmo-gatekeepers'
-          ],
+          hasDeployment: 'netatmo-gatekeepers',
           hostedByPath: [
             'forestdale-primary-school',
             'netatmo-02-00-00-3f-16-4c-r4e'
@@ -133,9 +131,7 @@ describe('', () => {
             label: 'relative humidity'
           },
           hasFeatureOfInterest: 'EarthAtmosphere',
-          inDeployments: [
-            `netatmo-gatekeepers`
-          ],
+          hasDeployment: `netatmo-gatekeepers`,
           ancestorPlatforms: [
             'forestdale-primary-school',
             'netatmo-02-00-00-3f-16-4c-r4e'
@@ -148,6 +144,7 @@ describe('', () => {
           ],
           location: {
             id: '7164feea-d076-4ffa-8d48-c09643656f43',
+            type: 'Feature',
             geometry: {
               type: 'Point',
               coordinates: [
@@ -155,7 +152,9 @@ describe('', () => {
                 52.4073600769043
               ]
             },
-            validAt: '2020-02-13T20:30:32.007Z'
+            properties: {
+              validAt: '2020-02-13T20:30:32.007Z'
+            }
           },
           usedProcedure: [
             'PointSample'

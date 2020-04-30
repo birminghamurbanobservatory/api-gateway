@@ -21,7 +21,7 @@
     "description": {
       "type": "string"
     },
-    "ownerDeployment": {
+    "inDeployment": {
       "type": "string"
     },
     "isHostedBy": {
@@ -62,6 +62,6 @@
   },
   "required": [
     "name",
-    "ownerDeployment"
+    "inDeployment"
   ]
 }

@@ -128,8 +128,8 @@ export function getObservationContext(): object {
         '@base': `${apiBase}/platforms/`
       }
     },
-    inDeployments: {
-      '@id': 'ssn:inDeployment',
+    hasDeployment: {
+      '@id': 'ssn:hasDeployment',
       '@type': '@id',
       '@context': {
         '@base': `${apiBase}/deployments/`

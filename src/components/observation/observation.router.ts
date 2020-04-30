@@ -37,8 +37,8 @@ const getObservationsQuerySchema = joi.object({
   unit__exists: joi.boolean(),
   hasFeatureOfInterest: joi.string(),
   disciplines__includes: joi.string(),
-  inDeployment: joi.string(),
-  inDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
+  hasDeployment: joi.string(),
+  hasDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
   ancestorPlatforms: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
   ancestorPlatforms__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
@@ -71,7 +71,7 @@ const getObservationsQuerySchema = joi.object({
   // TODO: Provide a way of omitting some of the properties to save data, e.g. if they asked for discipline=meteorology then we could exclude the discipline property. Maybe have a query string parameter such as `lean=true`.
 })
 .and('proximityCentre', 'proximityRadius')
-.without('inDeployment', 'inDeployment__in')
+.without('hasDeployment', 'hasDeployment__in')
 .without('resultTime__gt', 'resultTime__gte')
 .without('resultTime__lt', 'resultTime__lte');
 
@@ -129,7 +129,7 @@ router.get('/observations/:observationId', asyncWrapper(async (req, res): Promis
 //-------------------------------------------------
 const createObservationBodySchema = joi.object({
   madeBySensor: joi.string().required(),
-  // Don't want inDeployment or isHostedBy being provided here, as this should be derived from any saved context instead.
+  // Don't want hasDeployment or isHostedBy being provided here, as this should be derived from any saved context instead.
   hasResult: joi.object({
     value: joi.any().required(),
     unit: joi.string()

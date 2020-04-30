@@ -6,11 +6,11 @@ describe('Testing of queryObjectToQueryString function', () => {
 
     const queryObject = {
       resultTime__gte: '2020-04-02T17:55:27.748Z',
-      inDeployments: ['dep-1', 'dep-2'],
+      disciplines: ['meteorology', 'hydrology'],
       ancestorPlatforms: ['a', 'b', 'c']
     };
 
-    const expected = 'resultTime__gte=2020-04-02T17:55:27.748Z&inDeployments=dep-1,dep-2&ancestorPlatforms=a.b.c';
+    const expected = 'resultTime__gte=2020-04-02T17:55:27.748Z&disciplines=meteorology,hydrology&ancestorPlatforms=a.b.c';
 
     const querystring = queryObjectToQueryString(queryObject);
     expect(querystring).toBe(expected);    

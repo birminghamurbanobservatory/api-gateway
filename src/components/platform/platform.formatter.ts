@@ -6,7 +6,7 @@ import {formatIndividualSensor} from '../sensor/sensor.formatter';
 import {centroidToGeometry} from '../../utils/geojson-helpers';
 
 
-const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'ownerDeployment', 'inDeployments', 'isHostedBy', 'ancestorPlatforms', 'location', 'centroid'];
+const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'inDeployment', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'location', 'centroid'];
 
 
 export function formatIndividualPlatform(platform: any): any {

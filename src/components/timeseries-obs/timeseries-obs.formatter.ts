@@ -5,7 +5,7 @@ import {config} from '../../config';
 
 const keyOrder = ['@context', '@id', '@type', 'resultTime', 'hasResult'];
 
-const unnecessaryKeys = ['timeseriesId', 'madeBySensor', 'inDeployments', 'hostedByPath', 'hasFeatureOfInterest', 'observedProperty', 'disciplines', 'usedProcedures'];
+const unnecessaryKeys = ['timeseriesId', 'madeBySensor', 'hasDeployment', 'hostedByPath', 'hasFeatureOfInterest', 'observedProperty', 'disciplines', 'usedProcedures'];
 
 
 export function formatIndividualTimeseriesObservation(observation): any {

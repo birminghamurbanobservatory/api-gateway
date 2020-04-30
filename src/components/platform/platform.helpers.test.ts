@@ -6,17 +6,17 @@ describe('Testing of recursivelyRemoveProtectedHostedPlatforms', () => {
     
     const platform = {
       id: 'p-1',
-      inDeployments: ['d-1', 'd-2'], // won't look at this as it's not the job of this function to check the top level platform
+      inDeployment: 'd-1',
       hosts: [
         {
           id: 'p-2',
           type: 'platform',
-          inDeployments: ['d1'],
+          inDeployment: 'd1',
           hosts: [
             {
               id: 'p-4',
               type: 'platform',
-              inDeployments: ['d1']
+              inDeployment: 'd1'
             },
             {
               id: 's-2',
@@ -26,11 +26,11 @@ describe('Testing of recursivelyRemoveProtectedHostedPlatforms', () => {
         }, {
           id: 'p-3',
           type: 'platform',
-          inDeployments: ['d2'],
+          inDeployment: 'd2',
           hosts: [
             {
               id: 'p-5',
-              inDeployments: ['d3', 'd4'] // although one of these is safe, it's host by a platform that isn't 
+              inDeployment: 'd3',
             }
           ]
         },
@@ -45,17 +45,17 @@ describe('Testing of recursivelyRemoveProtectedHostedPlatforms', () => {
 
     const expected = {
       id: 'p-1',
-      inDeployments: ['d-1', 'd-2'], // won't look at this as it's not the job of this function to check the top level platform
+      inDeployment: 'd-1',
       hosts: [
         {
           id: 'p-2',
           type: 'platform',
-          inDeployments: ['d1'],
+          inDeployment: 'd1',
           hosts: [
             {
               id: 'p-4',
               type: 'platform',
-              inDeployments: ['d1']
+              inDeployment: 'd1'
             },
             {
               id: 's-2',

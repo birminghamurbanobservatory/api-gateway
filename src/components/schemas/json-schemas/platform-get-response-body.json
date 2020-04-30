@@ -34,14 +34,8 @@
     "static": {
       "type": "boolean"
     },
-    "ownerDeployment": {
+    "inDeployment": {
       "type": "string"
-    },
-    "inDeployments": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
     },
     "isHostedBy": {
       "type": "string"

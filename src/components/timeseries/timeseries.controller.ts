@@ -1,7 +1,7 @@
 import {ApiUser} from '../common/api-user.class';
 import * as timeseriesService from './timeseries.service';
 import {createSingleTimeseriesResponse, createMultipleTimeseriesResponse} from './timeseries.formatter';
-import {getDeployments} from '../deployment/deployment.service';
+import {getDeployments, getDeployment} from '../deployment/deployment.service';
 import * as check from 'check-types';
 import {concat, uniqBy, cloneDeep} from 'lodash';
 import {Forbidden} from '../../errors/Forbidden';
@@ -23,8 +23,8 @@ export async function getSingleTimeseries(timeseriesId: string, user: ApiUser): 
     let hasRightsToTimeseries;
 
     // N.B. If the timeseries doesn't belong to any deployments, then only superusers will be able to access it.
-    if (check.nonEmptyArray(timeseries.inDeployments)) {
-      const deploymentsIdsForLevelChecking = timeseries.inDeployments;
+    if (check.assigned(timeseries.hasDeployment)) {
+      const deploymentsIdsForLevelChecking = [timeseries.hasDeployment];
       let deploymentLevels;
       if (user.id) {
         // N.b. this should error if any of the deployments don't exist
@@ -33,6 +33,7 @@ export async function getSingleTimeseries(timeseriesId: string, user: ApiUser): 
         deploymentLevels = await getLevelsForDeployments(deploymentsIdsForLevelChecking);
       }
       // We need to check that they have rights to at least one of the deployments
+      // TODO: Could simplify this, given that we know they'll only be one deployment in the array.
       const hasRightsToAtLeastOneDeployment = deploymentLevels.some(({level}): boolean => {
         return Boolean(level);
       }); 
@@ -62,11 +63,11 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
 
   const populated = cloneDeep(timeseries);
 
-  // Deployments
-  if (check.nonEmptyArray(timeseries.inDeployments)) {
-    const {deployments} = await getDeployments({id: {in: timeseries.inDeployments}});
-    const deploymentsFormatted = deployments.map(formatIndividualDeploymentCondensed);
-    populated.inDeployments = deploymentsFormatted;
+  // Deployment
+  if (check.nonEmptyString(timeseries.hasDeployment)) {
+    const deployment = await getDeployment(timeseries.hasDeployment);
+    const deploymentFormatted = formatIndividualDeploymentCondensed(deployment);
+    populated.hasDeployment = deploymentFormatted;
   }
 
   // Sensor
@@ -106,15 +107,15 @@ export async function getMultipleTimeseries(where, options: CollectionOptions, u
   const canGetAnyTimeseries = user.permissions.includes('get:timeseries');
   const canGetAnyDeploymentTimeseries = user.permissions.includes('get:timeseries') || user.permissions.includes('admin-all:deployments');
 
-  const deploymentDefined = check.nonEmptyString(where.inDeployment) || (check.nonEmptyObject(where.inDeployment) && check.nonEmptyArray(where.inDeployment.in));
+  const deploymentDefined = check.nonEmptyString(where.hasDeployment) || (check.nonEmptyObject(where.hasDeployment) && check.nonEmptyArray(where.hasDeployment.in));
 
   //------------------------
-  // inDeployment specified
+  // hasDeployment specified
   //------------------------
-  // If inDeployment has been specified then check that the user has access to these deployments.
+  // If hasDeployment has been specified then check that the user has access to these deployments.
   if (deploymentDefined && !canGetAnyDeploymentTimeseries) {
 
-    const deploymentIdsToCheck = check.string(where.inDeployment) ? [where.inDeployment] : where.inDeployment.in;
+    const deploymentIdsToCheck = check.string(where.hasDeployment) ? [where.hasDeployment] : where.hasDeployment.in;
 
     let deploymentLevels;
     if (user.id) {
@@ -134,7 +135,7 @@ export async function getMultipleTimeseries(where, options: CollectionOptions, u
   }
 
   //------------------------
-  // inDeployment unspecified
+  // hasDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
   if (!deploymentDefined && !canGetAnyDeploymentTimeseries) {
@@ -153,7 +154,7 @@ export async function getMultipleTimeseries(where, options: CollectionOptions, u
       throw new Forbidden('You do not have access to any deployments and therefore its not possible to retrieve any sensors.');
     }
     const deploymentIds = uniqueDeployments.map((deployment): string => deployment.id);
-    updatedWhere.inDeployment = {
+    updatedWhere.hasDeployment = {
       in: deploymentIds
     };
 
@@ -161,7 +162,7 @@ export async function getMultipleTimeseries(where, options: CollectionOptions, u
 
   // If the user only has admin rights to all deployments, but not to all timeseries (i.e. can't get timeseries without a deployment), then make sure we only return timeseries with specific deployments defined.
   if (!deploymentDefined && canGetAnyDeploymentTimeseries && !canGetAnyTimeseries) {
-    updatedWhere.inDeployment = {
+    updatedWhere.hasDeployment = {
       exists: true
     };
   }

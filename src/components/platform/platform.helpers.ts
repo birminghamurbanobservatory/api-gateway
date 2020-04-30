@@ -3,7 +3,7 @@ import {uniq, concat, cloneDeep, intersection} from 'lodash';
 
 export function recursivelyExtractInDeploymentIds(platform): string[] {
 
-  let inDeploymentIds = platform.inDeployments;
+  let inDeploymentIds = [platform.inDeployment];
   if (platform.hosts) {
     platform.hosts.forEach((hostee): void => {
       if (hostee.type === 'platform') {
@@ -25,7 +25,7 @@ export function recursivelyRemoveProtectedHostedPlatforms(platform, safeDeployme
   if (safePlatform.hosts) {
     safePlatform.hosts = platform.hosts.filter((hostee): boolean => {
       if (hostee.type === 'platform') {
-        const intersectingDeploymentIds = intersection(safeDeploymentIds, hostee.inDeployments);
+        const intersectingDeploymentIds = intersection(safeDeploymentIds, [hostee.inDeployment]);
         return intersectingDeploymentIds.length > 0;
       } else {
         return true;

@@ -25,8 +25,8 @@ export async function getTimeseriesObservations(timeseriesId: string, where, opt
 
     const timeseries = await getSingleTimeseries(timeseriesId);
 
-    if (check.not.nonEmptyArray(timeseries.inDeployments)) {
-      throw new Forbidden('You are not permitted to get a observations from a timeseries that does not have inDeployments specified.');
+    if (check.not.assigned(timeseries.hasDeployment)) {
+      throw new Forbidden('You are not permitted to get a observations from a timeseries that does not have hasDeployment specified.');
     }
 
     if (!canAccessAllDeploymentObservations) {
@@ -34,15 +34,16 @@ export async function getTimeseriesObservations(timeseriesId: string, where, opt
       let deploymentLevels;
       if (user.id) {
         // N.b. this should error if any of the deployments don't exist
-        deploymentLevels = await getLevelsForDeployments(timeseries.inDeployments, user.id);
+        deploymentLevels = await getLevelsForDeployments([timeseries.hasDeployment], user.id);
       } else {
-        deploymentLevels = await getLevelsForDeployments(timeseries.inDeployments);
+        deploymentLevels = await getLevelsForDeployments([timeseries.hasDeployment]);
       }
+      // TODO: Could simplify this given we know it'll only contain one deployment
       const hasRightsToAtLeastOneDeployment = deploymentLevels.some((deploymentLevel): boolean => {
         return Boolean(deploymentLevel.level);
       });
       if (!hasRightsToAtLeastOneDeployment) {
-        throw new Forbidden('You must have rights to at least one of deployments listed for this timeseries');
+        throw new Forbidden('You must have rights to the deployment listed for this timeseries');
       }
     }
 
