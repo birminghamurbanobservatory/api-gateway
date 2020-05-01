@@ -29,6 +29,11 @@ import {SchemaRouter} from '../components/schemas/schema.router';
 import {config} from '../config';
 import {VocabRouter} from '../components/vocab/vocab.router';
 import {TimeseriesObsRouter} from '../components/timeseries-obs/timeseries-obs.router';
+import {DisciplineRouter} from '../components/discipline/discipline.router';
+import {ObservablePropertyRouter} from '../components/observable-property/observable-property.router';
+import {UnitRouter} from '../components/unit/unit.router';
+import {FeatureOfInterestRouter} from '../components/feature-of-interest/feature-of-interest.router';
+import {UsedProcedureRouter} from '../components/used-procedure/used-procedure.router';
 
 
 export const app = express();
@@ -115,6 +120,13 @@ app.use(RegisterRouter);
 app.use(TimeseriesRouter);
 app.use(TimeseriesObsRouter);
 app.use(AccountRouter);
+app.use(DisciplineRouter);
+app.use(ObservablePropertyRouter);
+app.use(UnitRouter);
+app.use(FeatureOfInterestRouter);
+app.use(UsedProcedureRouter);
+
+
 
 // Error handling must go last
 app.use(logRouteErrors);

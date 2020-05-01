@@ -38,6 +38,26 @@ export async function getRoot(): Promise<any> {
         '@id': `${config.api.base}/timeseries`,
         name: 'Timeseries' 
       },
+      {
+        '@id': `${config.api.base}/disciplines`,
+        name: 'Disciplines' 
+      },
+      {
+        '@id': `${config.api.base}/observable-properties`,
+        name: 'Observable Properties' 
+      },
+      {
+        '@id': `${config.api.base}/units`,
+        name: 'Units' 
+      },
+      {
+        '@id': `${config.api.base}/features-of-interest`,
+        name: 'Features of Interest' 
+      },
+      {
+        '@id': `${config.api.base}/used-procedures`,
+        name: 'Used Procedures' 
+      },
     ]
   };
 

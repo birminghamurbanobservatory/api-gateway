@@ -18,7 +18,7 @@ export function formatIndividualSensor(sensor: any): any {
 export function formatIndividualSensorCondensed(sensor: any): object {
   const linked = formatIndividualSensor(sensor);
   // Pull out the properties we don't need
-  const removableProps = ['description', 'permanentHost', 'initialConfig', 'currentConfig', 'hasDeployment', 'isHostedBy', 'createdAt', 'updatedAt'];
+  const removableProps = ['permanentHost', 'initialConfig', 'currentConfig', 'hasDeployment', 'isHostedBy', 'createdAt', 'updatedAt'];
   const condensed = omit(linked, removableProps);
   return condensed;
 }

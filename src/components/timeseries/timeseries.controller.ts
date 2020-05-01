@@ -10,6 +10,19 @@ import {CollectionOptions} from '../common/collection-options.class';
 import {formatIndividualDeploymentCondensed} from '../deployment/deployment.formatter';
 import {formatIndividualSensorCondensed} from '../sensor/sensor.formatter';
 import {getSensor} from '../sensor/sensor.service';
+import {getPlatforms} from '../platform/platform.service';
+import {populateIdArrayWithCollection} from '../../utils/population-helpers';
+import {formatIndividualPlatformCondensed} from '../platform/platform.formatter';
+import {getDisciplines} from '../discipline/discipline.service';
+import {formatIndividualDisciplineCondensed} from '../discipline/discipline.formatter';
+import {getObservableProperty} from '../observable-property/observable-property.service';
+import {formatIndividualObservablePropertyCondensed} from '../observable-property/observable-property.formatter';
+import {getUnit} from '../unit/unit.service';
+import {formatIndividualUnitCondensed} from '../unit/unit.formatter';
+import {getFeatureOfInterest} from '../feature-of-interest/feature-of-interest.service';
+import {formatIndividualFeatureOfInterestCondensed} from '../feature-of-interest/feature-of-interest.formatter';
+import {getUsedProcedures} from '../used-procedure/used-procedure.service';
+import {formatIndividualUsedProcedureCondensed} from '../used-procedure/used-procedure.formatter';
 
 
 
@@ -64,35 +77,97 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
   const populated = cloneDeep(timeseries);
 
   // Deployment
-  if (check.nonEmptyString(timeseries.hasDeployment)) {
+  if (check.assigned(timeseries.hasDeployment)) {
     const deployment = await getDeployment(timeseries.hasDeployment);
     const deploymentFormatted = formatIndividualDeploymentCondensed(deployment);
     populated.hasDeployment = deploymentFormatted;
   }
 
   // Sensor
-  if (check.nonEmptyString(timeseries.madeBySensor)) {
+  if (check.assigned(timeseries.madeBySensor)) {
     let sensor;
     try {
       sensor = await getSensor(timeseries.madeBySensor, {includeDeleted: true});
     } catch (err) {
-      sensor = {id: timeseries.madeBySensor};
+      if (err.statusCode === 404) {
+        // The sensor may still be an "unknown sensor".
+        sensor = {id: timeseries.madeBySensor};
+      } else {
+        throw err;
+      }
     }
     const sensorFormatted = formatIndividualSensorCondensed(sensor);
     populated.madeBySensor = sensorFormatted;
   }
 
   // Platforms
+  if (check.assigned(timeseries.hostedByPath)) {
+    const {platforms} = await getPlatforms({id: {in: timeseries.hostedByPath}}, {includeDeleted: true});
+    const populatedHostedByPath = populateIdArrayWithCollection(timeseries.hostedByPath, platforms);
+    populated.hostedByPath = populatedHostedByPath.map(formatIndividualPlatformCondensed);
+  }
 
-  // Observed Properties
+  // Observed Property
+  if (check.assigned(timeseries.observedProperty)) {
+    let observedProperty;
+    try {
+      observedProperty = await getObservableProperty(timeseries.observedProperty);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        observedProperty = {id: timeseries.observedProperty};
+      } else {
+        throw err;
+      }
+    }
+    const observedPropertyFormatted = formatIndividualObservablePropertyCondensed(observedProperty);
+    populated.observedProperty = observedPropertyFormatted;
+  }
 
   // Unit
+  if (check.assigned(timeseries.unit)) {
+    let unit;
+    try {
+      unit = await getUnit(timeseries.unit);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        unit = {id: timeseries.unit};
+      } else {
+        throw err;
+      }
+    }
+    const unitFormatted = formatIndividualUnitCondensed(unit);
+    populated.unit = unitFormatted;
+  }
 
   // Feature of Interest
+  if (check.assigned(timeseries.hasFeatureOfInterest)) {
+    let featureOfInterest;
+    try {
+      featureOfInterest = await getFeatureOfInterest(timeseries.hasFeatureOfInterest);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        featureOfInterest = {id: timeseries.hasFeatureOfInterest};
+      } else {
+        throw err;
+      }
+    }
+    const featureOfInterestFormatted = formatIndividualFeatureOfInterestCondensed(featureOfInterest);
+    populated.featureOfInterest = featureOfInterestFormatted;
+  }
 
   // Disciplines
+  if (check.assigned(timeseries.disciplines)) {
+    const {disciplines} = await getDisciplines({id: {in: timeseries.disciplines}});
+    const populatedDisciplines = populateIdArrayWithCollection(timeseries.disciplines, disciplines);
+    populated.disciplines = populatedDisciplines.map(formatIndividualDisciplineCondensed);
+  }
 
   // Used Procedures
+  if (check.assigned(timeseries.usedProcedures)) {
+    const {usedProcedures} = await getUsedProcedures({id: {in: timeseries.usedProcedures}});
+    const populatedUsedProcedures = populateIdArrayWithCollection(timeseries.usedProcedures, usedProcedures);
+    populated.usedProcedures = populatedUsedProcedures.map(formatIndividualUsedProcedureCondensed);
+  }
 
   return populated;
 

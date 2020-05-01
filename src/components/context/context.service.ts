@@ -12,5 +12,10 @@ export const contextLinks = {
   sensor: `${apiBase}/context/sensor${ext}`,
   permanentHost: `${apiBase}/context/permanent-host${ext}`,
   urbanObservatory: `${apiBase}/context/urban-observatory${ext}`,
-  timeseries: `${apiBase}/context/timeseries${ext}`
+  timeseries: `${apiBase}/context/timeseries${ext}`,
+  discipline: `${apiBase}/context/discipline${ext}`,
+  unit: `${apiBase}/context/discipline${ext}`,
+  observableProperty: `${apiBase}/context/observable-property${ext}`,
+  usedProcedure: `${apiBase}/context/used-procedure${ext}`,
+  featureOfInterest: `${apiBase}/context/feature-of-interest${ext}`,
 };

@@ -1,4 +1,4 @@
-import {cloneDeep} from 'lodash';
+import {cloneDeep, pick} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
@@ -6,7 +6,7 @@ import {formatIndividualSensor} from '../sensor/sensor.formatter';
 import {centroidToGeometry} from '../../utils/geojson-helpers';
 
 
-const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'inDeployment', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'location', 'centroid'];
+const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'location', 'centroid', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualPlatform(platform: any): any {
@@ -29,6 +29,15 @@ export function formatIndividualPlatform(platform: any): any {
   }
   const ordered = orderObjectKeys(platformLinked, keyOrder);
   return ordered;
+}
+
+
+export function formatIndividualPlatformCondensed(platform: any): any {
+  const linked = formatIndividualSensor(platform);
+  // Pull out the properties we don't need
+  const propsToKeep = ['@id', '@type', 'name', 'description', 'static'];
+  const condensed = pick(linked, propsToKeep);
+  return condensed;
 }
 
 

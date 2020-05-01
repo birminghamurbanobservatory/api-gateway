@@ -2,20 +2,21 @@ import {cloneDeep} from 'lodash';
 import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
+import {renameProperties} from '../../utils/rename';
 
 const keyOrder = ['@context', '@id', '@type', 'startDate', 'endDate'];
 
 
 export function formatIndividualTimeseries(timeseries): any {
   const timeseriesLinked = cloneDeep(timeseries);
-  timeseriesLinked['@id'] = timeseriesLinked.id;
-  delete timeseriesLinked.id;
   timeseriesLinked['@type'] = 'Timeseries';
-  timeseriesLinked.startDate = timeseriesLinked.firstObs;
-  timeseriesLinked.endDate = timeseriesLinked.lastObs;
-  delete timeseriesLinked.firstObs;
-  delete timeseriesLinked.lastObs;
-  const ordered = orderObjectKeys(timeseriesLinked, keyOrder);
+  const renamed = renameProperties(timeseriesLinked, {
+    id: '@id',
+    firstObs: 'startDate',
+    lastObs: 'endDate',
+    hostedByPath: 'ancestorPlatforms'
+  });
+  const ordered = orderObjectKeys(renamed, keyOrder);
   return ordered;
 }
 

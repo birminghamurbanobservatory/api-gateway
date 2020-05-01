@@ -25,16 +25,28 @@ class GetPlatformsOptions extends CollectionOptions {
   public nest?: boolean;
 }
 
-export async function getPlatforms(where: {inDeployment?: string; isHostedBy?: any; hostedByPath?: any; search?: string}, options: GetPlatformsOptions): Promise<any> {
+export async function getPlatforms(
+  where: {
+    id?: any; 
+    inDeployment?: string; 
+    isHostedBy?: any; 
+    hostedByPath?: any; 
+    search?: string;
+  }, 
+  options: GetPlatformsOptions = {}
+): Promise<{platforms: any[]; count: number; total: number}> {
+
   const response = await event.publishExpectingResponse('platforms.get.request', {
     where,
     options
   });
+
   return {
     platforms: response.data,
     count: response.meta.count,
     total: response.meta.total
   };
+
 }
 
 
