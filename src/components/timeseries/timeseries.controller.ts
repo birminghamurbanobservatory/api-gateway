@@ -9,17 +9,17 @@ import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {CollectionOptions} from '../common/collection-options.class';
 import {formatIndividualDeploymentCondensed} from '../deployment/deployment.formatter';
 import {formatIndividualSensorCondensed} from '../sensor/sensor.formatter';
-import {getSensor} from '../sensor/sensor.service';
+import {getSensor, getSensors} from '../sensor/sensor.service';
 import {getPlatforms} from '../platform/platform.service';
-import {populateIdArrayWithCollection} from '../../utils/population-helpers';
+import {populateIdArrayWithCollection, retrieveAllPropertyIdsFromCollection, populateIdFromCollection} from '../../utils/population-helpers';
 import {formatIndividualPlatformCondensed} from '../platform/platform.formatter';
 import {getDisciplines} from '../discipline/discipline.service';
 import {formatIndividualDisciplineCondensed} from '../discipline/discipline.formatter';
-import {getObservableProperty} from '../observable-property/observable-property.service';
+import {getObservableProperty, getObservableProperties} from '../observable-property/observable-property.service';
 import {formatIndividualObservablePropertyCondensed} from '../observable-property/observable-property.formatter';
-import {getUnit} from '../unit/unit.service';
+import {getUnit, getUnits} from '../unit/unit.service';
 import {formatIndividualUnitCondensed} from '../unit/unit.formatter';
-import {getFeatureOfInterest} from '../feature-of-interest/feature-of-interest.service';
+import {getFeatureOfInterest, getFeaturesOfInterest} from '../feature-of-interest/feature-of-interest.service';
 import {formatIndividualFeatureOfInterestCondensed} from '../feature-of-interest/feature-of-interest.formatter';
 import {getUsedProcedures} from '../used-procedure/used-procedure.service';
 import {formatIndividualUsedProcedureCondensed} from '../used-procedure/used-procedure.formatter';
@@ -280,7 +280,101 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   const populated = cloneDeep(timeseries);
 
-  // TODO
+  // Deployment
+  const deploymentIds = retrieveAllPropertyIdsFromCollection(populated, 'hasDeployment');
+  if (deploymentIds.length) {
+    const {deployments} = await getDeployments({id: {in: deploymentIds}}, {includeDeleted: true});
+    populated.forEach((ts): void => {
+      if (ts.hasDeployment) {
+        const populatedDeployment = populateIdFromCollection(ts.hasDeployment, deployments);
+        ts.hasDeployment = formatIndividualDeploymentCondensed(populatedDeployment);
+      }
+    });
+  }
+
+  // Sensor
+  const sensorIds = retrieveAllPropertyIdsFromCollection(populated, 'madeBySensor');
+  if (sensorIds.length) {
+    const {sensors} = await getSensors({id: {in: sensorIds}}, {includeDeleted: true});
+    populated.forEach((ts): void => {
+      if (ts.madeBySensor) {
+        const populatedSensor = populateIdFromCollection(ts.madeBySensor, sensors);
+        ts.madeBySensor = formatIndividualSensorCondensed(populatedSensor);
+      }
+    });
+  }
+
+  // Platforms
+  const platformIds = retrieveAllPropertyIdsFromCollection(populated, 'hostedByPath');
+  if (platformIds.length) {
+    const {platforms} = await getPlatforms({id: {in: platformIds}}, {includeDeleted: true});
+    populated.forEach((ts): void => {
+      if (ts.hostedByPath) {
+        const populatedHostedByPaths = populateIdArrayWithCollection(ts.hostedByPath, platforms);
+        ts.hostedByPath = populatedHostedByPaths.map(formatIndividualPlatformCondensed);
+      }
+    });
+  }
+
+  // Observed Property
+  const observablePropertyIds = retrieveAllPropertyIdsFromCollection(populated, 'observedProperty');
+  if (observablePropertyIds.length) {
+    const {observableProperties} = await getObservableProperties({id: {in: observablePropertyIds}});
+    populated.forEach((ts): void => {
+      if (ts.observedProperty) {
+        const populatedObservableProperty = populateIdFromCollection(ts.observedProperty, observableProperties);
+        ts.observedProperty = formatIndividualObservablePropertyCondensed(populatedObservableProperty);
+      }
+    });
+  }
+
+  // Unit
+  const unitIds = retrieveAllPropertyIdsFromCollection(populated, 'unit');
+  if (unitIds.length) {
+    const {units} = await getUnits({id: {in: unitIds}});
+    populated.forEach((ts): void => {
+      if (ts.unit) {
+        const populatedunit = populateIdFromCollection(ts.unit, units);
+        ts.unit = formatIndividualUnitCondensed(populatedunit);
+      }
+    });
+  }
+
+  // Feature of Interest
+  const featureOfInterestIds = retrieveAllPropertyIdsFromCollection(populated, 'hasFeatureOfInterest');
+  if (featureOfInterestIds.length) {
+    const {featuresOfInterest} = await getFeaturesOfInterest({id: {in: featureOfInterestIds}});
+    populated.forEach((ts): void => {
+      if (ts.hasFeatureOfInterest) {
+        const populatedFeatureOfInterest = populateIdFromCollection(ts.hasFeatureOfInterest, featuresOfInterest);
+        ts.hasFeatureOfInterest = formatIndividualFeatureOfInterestCondensed(populatedFeatureOfInterest);
+      }
+    });
+  }
+
+  // Disciplines
+  const disciplineIds = retrieveAllPropertyIdsFromCollection(populated, 'disciplines');
+  if (disciplineIds.length) {
+    const {disciplines} = await getDisciplines({id: {in: disciplineIds}});
+    populated.forEach((ts): void => {
+      if (ts.disciplines) {
+        const populatedDisciplines = populateIdArrayWithCollection(ts.disciplines, disciplines);
+        ts.disciplines = populatedDisciplines.map(formatIndividualDisciplineCondensed);
+      }
+    });
+  }
+
+  // Used Procedures
+  const usedProcedureIds = retrieveAllPropertyIdsFromCollection(populated, 'usedProcedures');
+  if (usedProcedureIds.length) {
+    const {usedProcedures} = await getUsedProcedures({id: {in: usedProcedureIds}});
+    populated.forEach((ts): void => {
+      if (ts.usedProcedures) {
+        const populatedUsedProcedures = populateIdArrayWithCollection(ts.usedProcedures, usedProcedures);
+        ts.usedProcedures = populatedUsedProcedures.map(formatIndividualUsedProcedureCondensed);
+      }
+    });
+  }
 
   return populated;
 
