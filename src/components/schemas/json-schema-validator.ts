@@ -21,6 +21,7 @@ import * as timeseries from './json-schemas/timeseries.json';
 import * as singleTimeseriesGetResponseBodySchema from './json-schemas/single-timeseries-get-response-body.json';
 // other
 import * as collectionMetaSchema from './json-schemas/collection-meta.json';
+import * as contextArraySchema from './json-schemas/context-array.json';
 
 
 // This is the bit that should be at the start of the $id for all your schemas
@@ -33,37 +34,21 @@ const baseSchemaUri = `https://api.birminghamurbanobservatory.com/schemas/`;
 
 const ajv = new Ajv({
   useDefaults: true, // lets you specify defaults for properties in the schemas
-  // schemas: [
-  //   deploymentCreateRequestBodySchema,
-  //   deploymentGetResponseBodySchema,
-  //   platformGetResponseBodySchema,
-  //   platformCreateRequestBodySchema,
-  //   platformsGetResponseBodySchema,
-  //   sensorCreateRequestBodySchema,
-  //   sensorGetResponseBodySchema,
-  //   sensorsGetResponseBodySchema,
-  //   timeseries,
-  //   singleTimeseriesGetResponseBodySchema,
-  //   collectionMetaSchema
-  // ]
+  schemas: [
+    deploymentCreateRequestBodySchema,
+    deploymentGetResponseBodySchema,
+    platformGetResponseBodySchema,
+    platformCreateRequestBodySchema,
+    platformsGetResponseBodySchema,
+    sensorCreateRequestBodySchema,
+    sensorGetResponseBodySchema,
+    sensorsGetResponseBodySchema,
+    timeseries,
+    singleTimeseriesGetResponseBodySchema,
+    collectionMetaSchema,
+    contextArraySchema
+  ]
 });
-
-require('ajv-merge-patch')(ajv);
-
-ajv.addSchema([
-  deploymentCreateRequestBodySchema,
-  deploymentGetResponseBodySchema,
-  platformGetResponseBodySchema,
-  platformCreateRequestBodySchema,
-  platformsGetResponseBodySchema,
-  sensorCreateRequestBodySchema,
-  sensorGetResponseBodySchema,
-  sensorsGetResponseBodySchema,
-  timeseries,
-  singleTimeseriesGetResponseBodySchema,
-  collectionMetaSchema
-]);
-
 
 
 // I've put a wrapper around ajv's getSchema function so that I don't have to include the long base of the $id, and .json extension, each time I need to get a schema in my controllers/routers.

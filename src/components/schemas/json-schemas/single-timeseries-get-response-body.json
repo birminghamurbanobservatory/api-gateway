@@ -2,20 +2,55 @@
   "$id": "https://api.birminghamurbanobservatory.com/schemas/single-timeseries-get-response-body.json",
   "title": "single-timeseries-get-response-body",
   "type": "object",
-  "$merge": {
-    "source": {
-      "$ref": "https://api.birminghamurbanobservatory.com/schemas/timeseries.json" 
+  "properties": {
+    "@context": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/context-array.json"
     },
-    "with": {
-      "properties": {
-        "@context": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uri"
-          }
-        }
-      }
+    "@id": {
+      "type": "string"
+    },
+    "@type": {
+      "type": "string",
+      "enum": [
+        "Timeseries"
+      ]
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "hasObservations": {
+      "type": "string",
+      "format": "uri"
+    },
+    "observedProperty": {
+      "type": "object"
+    },
+    "unit": {
+      "type": "object"
+    },
+    "madeBySensor": {
+      "type": "object"
+    },
+    "hasDeployment": {
+      "type": "object"
+    },
+    "ancestorPlatforms": {
+      "type": "array"
+    },
+    "hasFeatureOfInterest": {
+      "type": "object"
+    },
+    "disciplines": {
+      "type": "array"
+    },
+    "usedProcedures": {
+      "type": "array"
     }
-  }
+  },
+  "additionalProperties": false
 }

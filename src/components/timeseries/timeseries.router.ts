@@ -20,9 +20,8 @@ export {router as TimeseriesRouter};
 
 
 
-
 //-------------------------------------------------
-// Get Timeseries
+// Get Single Timeseries
 //-------------------------------------------------
 router.get('/timeseries/:timeseriesId', asyncWrapper(async (req, res): Promise<any> => {
 
