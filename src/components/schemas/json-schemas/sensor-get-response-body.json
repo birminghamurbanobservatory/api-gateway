@@ -17,7 +17,7 @@
     "@id": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
-      "maxLength": 44,
+      "maxLength": 48,
       "minLength": 1
     },
     "@type": {
@@ -27,7 +27,7 @@
     "name": {
       "type:": "string",
       "minLength": 1,
-      "maxLength": 40
+      "maxLength": 44
     },
     "description": {
       "type": "string"
