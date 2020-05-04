@@ -10,6 +10,7 @@ export async function getRoot(): Promise<any> {
     '@id': `${config.api.base}`,
     name: 'Birmingham Urban Observatory API',
     description: 'The REST HTTPS API for the Birmingham Urban Observatory. The Birmingham Urban Observatory is a Phase 2 Observatory. This API primarily serves sensor data collected over the Birmingham area (Midlands, England). This sensor data is useful to a variety of disciplines (e.g. Meteorology, Atmospheric Chemistry, Transport, etc). The majority of the data is served in JSON-LD format.',
+    documentation: 'https://stoplight.io/p/docs/gh/birminghamurbanobservatory/docs',
     siblings: [
       {
         '@id': 'https://api.urbanobservatory.ac.uk',
