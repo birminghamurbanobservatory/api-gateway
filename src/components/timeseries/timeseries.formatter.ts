@@ -4,12 +4,13 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {renameProperties} from '../../utils/rename';
 
-const keyOrder = ['@context', '@id', '@type', 'startDate', 'endDate', 'observedProperty', 'unit', 'madeBySensor', 'hasDeployment', 'ancestorPlatforms', 'hasFeatureOfInterest', 'disciplines'];
+const keyOrder = ['@context', '@id', '@type', 'startDate', 'endDate', 'hasObservations', 'observedProperty', 'unit', 'madeBySensor', 'hasDeployment', 'ancestorPlatforms', 'hasFeatureOfInterest', 'disciplines'];
 
 
 export function formatIndividualTimeseries(timeseries): any {
   const timeseriesLinked = cloneDeep(timeseries);
   timeseriesLinked['@type'] = 'Timeseries';
+  timeseriesLinked.hasObservations = `${config.api.base}/timeseries/${timeseries.id}/observations`;
   const renamed = renameProperties(timeseriesLinked, {
     id: '@id',
     firstObs: 'startDate',
