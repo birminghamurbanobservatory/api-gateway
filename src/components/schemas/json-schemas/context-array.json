@@ -2,7 +2,7 @@
   "$id": "https://api.birminghamurbanobservatory.com/schemas/context-array.json",
   "title": "context-array",
   "type": "array",
-  "description": "The context array typically provided in all JSON-LD response",
+  "description": "The @context array typically included in all JSON-LD responses.",
   "items": {
     "type": "string",
     "format": "uri"

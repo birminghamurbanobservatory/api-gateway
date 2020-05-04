@@ -1,0 +1,42 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/multiple-timeseries-get-response-body.json",
+  "title": "multiple-timeseries-get-response-body",
+  "type": "object",
+  "x-tags": [
+    "timeseries"
+  ],
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "@id": {
+      "type": "string",
+      "format": "uri"
+    },
+    "@type": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "member": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "meta": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/collection-meta.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "@context",
+    "@id",
+    "member"
+  ]
+}

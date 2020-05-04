@@ -85,7 +85,7 @@ router.get('/timeseries', asyncWrapper(async (req, res): Promise<any> => {
  
   let jsonResponse = await getMultipleTimeseries(where, options, req.user);
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/timeseries`, query);
-  // validateAgainstSchema(jsonResponse, 'multiple-timeseries-get-response-body');
+  validateAgainstSchema(jsonResponse, 'multiple-timeseries-get-response-body');
   return res.json(jsonResponse);
 
 }));
