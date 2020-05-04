@@ -7,11 +7,7 @@
   ],
   "properties": {
     "@context": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "format": "uri"
-      }
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/context-array.json"
     },
     "@id": {
       "type": "string",
@@ -26,7 +22,7 @@
     "member": {
       "type": "array",
       "items": {
-        "type": "object"
+        "$ref": "https://api.birminghamurbanobservatory.com/schemas/timeseries.json"
       }
     },
     "meta": {
