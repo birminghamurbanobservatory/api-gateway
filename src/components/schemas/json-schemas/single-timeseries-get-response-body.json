@@ -1,0 +1,21 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/single-timeseries-get-response-body.json",
+  "title": "single-timeseries-get-response-body",
+  "type": "object",
+  "$merge": {
+    "source": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/timeseries.json" 
+    },
+    "with": {
+      "properties": {
+        "@context": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    }
+  }
+}

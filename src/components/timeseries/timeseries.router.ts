@@ -28,7 +28,7 @@ router.get('/timeseries/:timeseriesId', asyncWrapper(async (req, res): Promise<a
 
   const timeseriesId = req.params.timeseriesId;
   const jsonResponse = await getSingleTimeseries(timeseriesId, req.user);
-  // validateAgainstSchema(jsonResponse, 'single-timeseries-get-response-body');
+  validateAgainstSchema(jsonResponse, 'single-timeseries-get-response-body');
   return res.json(jsonResponse);
 
 }));

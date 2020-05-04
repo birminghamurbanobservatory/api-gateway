@@ -152,7 +152,7 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
       }
     }
     const featureOfInterestFormatted = formatIndividualFeatureOfInterestCondensed(featureOfInterest);
-    populated.featureOfInterest = featureOfInterestFormatted;
+    populated.hasFeatureOfInterest = featureOfInterestFormatted;
   }
 
   // Disciplines

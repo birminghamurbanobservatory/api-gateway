@@ -5,14 +5,21 @@ import {InvalidBody} from '../../errors/InvalidBody';
 import {InvalidResponseBody} from '../../errors/InvalidResponseBody';
 import * as logger from 'node-logger';
 
+// deployment
 import * as deploymentCreateRequestBodySchema from './json-schemas/deployment-create-request-body.json';
 import * as deploymentGetResponseBodySchema from './json-schemas/deployment-get-response.body.json';
+// platform
 import * as platformGetResponseBodySchema from './json-schemas/platform-get-response-body.json';
 import * as platformCreateRequestBodySchema from './json-schemas/platform-create-request-body.json';
 import * as platformsGetResponseBodySchema from './json-schemas/platforms-get-response-body.json';
+// sensor
 import * as sensorCreateRequestBodySchema from './json-schemas/sensor-create-request-body.json';
 import * as sensorGetResponseBodySchema from './json-schemas/sensor-get-response-body.json';
 import * as sensorsGetResponseBodySchema from './json-schemas/sensors-get-response.body.json';
+// timeseries
+import * as timeseries from './json-schemas/timeseries.json';
+import * as singleTimeseriesGetResponseBodySchema from './json-schemas/single-timeseries-get-response-body.json';
+// other
 import * as collectionMetaSchema from './json-schemas/collection-meta.json';
 
 
@@ -25,19 +32,38 @@ const baseSchemaUri = `https://api.birminghamurbanobservatory.com/schemas/`;
 
 
 const ajv = new Ajv({
-  useDefaults: true,
-  schemas: [
-    deploymentCreateRequestBodySchema,
-    deploymentGetResponseBodySchema,
-    platformGetResponseBodySchema,
-    platformCreateRequestBodySchema,
-    platformsGetResponseBodySchema,
-    sensorCreateRequestBodySchema,
-    sensorGetResponseBodySchema,
-    sensorsGetResponseBodySchema,
-    collectionMetaSchema
-  ]
+  useDefaults: true, // lets you specify defaults for properties in the schemas
+  // schemas: [
+  //   deploymentCreateRequestBodySchema,
+  //   deploymentGetResponseBodySchema,
+  //   platformGetResponseBodySchema,
+  //   platformCreateRequestBodySchema,
+  //   platformsGetResponseBodySchema,
+  //   sensorCreateRequestBodySchema,
+  //   sensorGetResponseBodySchema,
+  //   sensorsGetResponseBodySchema,
+  //   timeseries,
+  //   singleTimeseriesGetResponseBodySchema,
+  //   collectionMetaSchema
+  // ]
 });
+
+require('ajv-merge-patch')(ajv);
+
+ajv.addSchema([
+  deploymentCreateRequestBodySchema,
+  deploymentGetResponseBodySchema,
+  platformGetResponseBodySchema,
+  platformCreateRequestBodySchema,
+  platformsGetResponseBodySchema,
+  sensorCreateRequestBodySchema,
+  sensorGetResponseBodySchema,
+  sensorsGetResponseBodySchema,
+  timeseries,
+  singleTimeseriesGetResponseBodySchema,
+  collectionMetaSchema
+]);
+
 
 
 // I've put a wrapper around ajv's getSchema function so that I don't have to include the long base of the $id, and .json extension, each time I need to get a schema in my controllers/routers.

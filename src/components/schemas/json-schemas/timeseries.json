@@ -1,0 +1,61 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/timeseries.json",
+  "title": "timeseries",
+  "type": "object",
+  "properties": {
+    "@id": {
+      "type": "string"
+    },
+    "@type": {
+      "type": "string",
+      "enum": [
+        "Timeseries"
+      ]
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "hasObservations": {
+      "type": "string",
+      "format": "uri"
+    },
+    "observedProperty": {
+      "type": "object"
+    },
+    "unit": {
+      "type": "object"
+    },
+    "madeBySensor": {
+      "type": "object"
+    },
+    "hasDeployment": {
+      "type": "object"
+    },
+    "ancestorPlatforms": {
+      "type": "array"
+    },
+    "hasFeatureOfInterest": {
+      "type": "object"
+    },
+    "disciplines": {
+      "type": "array"
+    },
+    "usedProcedures": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "@context",
+    "@id",
+    "@type",
+    "startDate",
+    "endDate",
+    "hasObservations"
+  ]
+}
