@@ -135,7 +135,7 @@ router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 const updatePlatformBodySchema = joi.object({
   name: joi.string(),
-  description: joi.string(),
+  description: joi.string().allow(''),
   static: joi.boolean(),
   isHostedBy: joi.string().allow(null),
   location: joi.object({

@@ -21,7 +21,7 @@ export {router as PermanentHostRouter};
 const createPermanentHostBodySchema = joi.object({
   id: joi.string(),
   name: joi.string(),
-  description: joi.string(),
+  description: joi.string().allow(''),
   static: joi.boolean()
 })
 .or('id', 'name')

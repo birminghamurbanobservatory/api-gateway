@@ -128,7 +128,7 @@ const configSchema = joi.object({
 
 const updateSensorBodySchema = joi.object({
   name: joi.string(),
-  description: joi.string(),
+  description: joi.string().allow(''),
   hasDeployment: joi.string().allow(null),
   permanentHost: joi.string().allow(null),
   initialConfig: joi.array().items(configSchema),
