@@ -9,7 +9,7 @@ const unitsObject = getUnitsObject();
 let unitsArray = [];
 Object.keys(unitsObject).forEach((unitId): void => {
   const copy = cloneDeep(unitsObject[unitId]);
-  const unit = pick(copy, ['label', 'comment']);
+  const unit = pick(copy, ['label', 'comment', 'symbol']);
   unit.id = unitId;
   unitsArray.push(unit);
 });
