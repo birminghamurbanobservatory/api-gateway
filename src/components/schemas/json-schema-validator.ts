@@ -20,6 +20,8 @@ import * as sensorsGetResponseBodySchema from './json-schemas/sensors-get-respon
 import * as timeseries from './json-schemas/timeseries.json';
 import * as singleTimeseriesGetResponseBodySchema from './json-schemas/single-timeseries-get-response-body.json';
 import * as multipleTimeseriesGetResponseBodySchema from './json-schemas/multiple-timeseries-get-response-body.json';
+// timeseries observations
+import * as timeseriesObservationsGetResponseBody from './json-schemas/timeseries-observations-get-response-body.json';
 // other
 import * as collectionMetaSchema from './json-schemas/collection-meta.json';
 import * as contextArraySchema from './json-schemas/context-array.json';
@@ -47,6 +49,7 @@ const ajv = new Ajv({
     timeseries,
     singleTimeseriesGetResponseBodySchema,
     multipleTimeseriesGetResponseBodySchema,
+    timeseriesObservationsGetResponseBody,
     collectionMetaSchema,
     contextArraySchema
   ]
