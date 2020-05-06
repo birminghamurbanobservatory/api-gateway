@@ -30,6 +30,9 @@
     "observedProperty": {
       "type": "object"
     },
+    "aggregation": {
+      "type": "object"
+    },
     "unit": {
       "type": "object"
     },
