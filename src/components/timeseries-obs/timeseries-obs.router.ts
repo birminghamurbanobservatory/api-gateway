@@ -29,6 +29,11 @@ const getTimeseriesObservationsQuerySchema = joi.object({
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
   resultTime__lte: joi.string().isoDate(),
+  duration: joi.number().min(0),
+  duration__lt: joi.number().min(0),
+  duration__lte: joi.number().min(0),
+  duration__gt: joi.number().min(0),
+  duration__gte: joi.number().min(0),
   flags__exists: joi.boolean(),
   // spatial
   latitude__gt: joi.number().min(-90).max(90),
@@ -52,7 +57,9 @@ const getTimeseriesObservationsQuerySchema = joi.object({
   sortOrder: joi.string().valid('asc', 'desc').default('desc')
 })
 .without('resultTime__gt', 'resultTime__gte')
-.without('resultTime__lt', 'resultTime__lte');
+.without('resultTime__lt', 'resultTime__lte')
+.without('duration__lt', 'duration__lte')
+.without('duration__gt', 'duration__gte');
 
 router.get('/timeseries/:timeseriesId/observations', asyncWrapper(async (req, res): Promise<any> => {
 

@@ -42,6 +42,8 @@ const getTimeseriesQuerySchema = joi.object({
   madeBySensor: joi.string(),
   madeBySensor__in: joi.string().custom(inConditional),
   observedProperty: joi.string(),
+  aggregation: joi.string(),
+  aggregation__in: joi.string().custom(inConditional),
   unit: joi.string(),
   unit__in: joi.string().custom(inConditional),
   unit__exists: joi.boolean(),

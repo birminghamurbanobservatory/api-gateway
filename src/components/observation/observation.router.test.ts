@@ -74,6 +74,7 @@ describe('', () => {
           },
           madeBySensor: 'netatmo-02-00-00-3f-16-4c-humidity',
           observedProperty: 'RelativeHumidity',
+          aggregation: 'Instant',
           hasFeatureOfInterest: 'EarthAtmosphere',
           hasDeployment: 'netatmo-gatekeepers',
           hostedByPath: [
@@ -130,6 +131,7 @@ describe('', () => {
             '@id': 'RelativeHumidity',
             label: 'relative humidity'
           },
+          aggregation: 'Instant',
           hasFeatureOfInterest: 'EarthAtmosphere',
           hasDeployment: `netatmo-gatekeepers`,
           ancestorPlatforms: [

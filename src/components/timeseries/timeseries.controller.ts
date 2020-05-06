@@ -23,6 +23,7 @@ import {getFeatureOfInterest, getFeaturesOfInterest} from '../feature-of-interes
 import {formatIndividualFeatureOfInterestCondensed} from '../feature-of-interest/feature-of-interest.formatter';
 import {getUsedProcedures} from '../used-procedure/used-procedure.service';
 import {formatIndividualUsedProcedureCondensed} from '../used-procedure/used-procedure.formatter';
+import {renameProperties} from '../../utils/rename';
 
 
 
@@ -121,6 +122,17 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
     }
     const observedPropertyFormatted = formatIndividualObservablePropertyCondensed(observedProperty);
     populated.observedProperty = observedPropertyFormatted;
+  }
+
+  // Aggregation
+  if (check.assigned(timeseries.aggregation)) {
+    // TODO: Do this properly at somepoint. I.e. have an aggregation service.
+    const aggregationFormatted = {
+      '@id': timeseries.aggregation,
+      '@type': 'Aggregation',
+      label: timeseries.aggregation
+    };
+    populated.aggregation = aggregationFormatted;
   }
 
   // Unit
@@ -324,6 +336,25 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
       if (ts.observedProperty) {
         const populatedObservableProperty = populateIdFromCollection(ts.observedProperty, observableProperties);
         ts.observedProperty = formatIndividualObservablePropertyCondensed(populatedObservableProperty);
+      }
+    });
+  }
+
+  // Aggregation
+  // TODO: Do this properly at somepoint. I.e. have an aggregation service and formatter.
+  const aggregationIds = retrieveAllPropertyIdsFromCollection(populated, 'aggregation');
+  if (aggregationIds.length) {
+    const aggregations = aggregationIds.map((aggregationId): any => {
+      return {
+        id: aggregationId, 
+        label: aggregationId
+      }
+    });
+    populated.forEach((ts): void => {
+      if (ts.aggregation) {
+        const populatedAggregation = populateIdFromCollection(ts.aggregation, aggregations);
+        ts.aggregation = renameProperties(populatedAggregation, {id: '@id'});
+        ts.aggregation['@type'] = 'Aggregation';
       }
     });
   }

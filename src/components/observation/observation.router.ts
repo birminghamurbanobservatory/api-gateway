@@ -32,6 +32,8 @@ const getObservationsQuerySchema = joi.object({
   inTimeseries: joi.string().alphanum(), // catches any accidental commas that might be present
   inTimeseries__in: joi.string().custom(inConditional),
   observedProperty: joi.string(),
+  aggregation: joi.string(),
+  aggregation__in: joi.string().custom(inConditional),
   unit: joi.string(),
   unit__in: joi.string().custom(inConditional),
   unit__exists: joi.boolean(),
@@ -46,6 +48,11 @@ const getObservationsQuerySchema = joi.object({
   resultTime__gte: joi.string().isoDate(),
   resultTime__lt: joi.string().isoDate(),
   resultTime__lte: joi.string().isoDate(),
+  duration: joi.number().min(0),
+  duration__lt: joi.number().min(0),
+  duration__lte: joi.number().min(0),
+  duration__gt: joi.number().min(0),
+  duration__gte: joi.number().min(0),
   flags__exists: joi.boolean(),
   // spatial queries
   latitude__gt: joi.number().min(-90).max(90),
@@ -73,7 +80,10 @@ const getObservationsQuerySchema = joi.object({
 .and('proximityCentre', 'proximityRadius')
 .without('hasDeployment', 'hasDeployment__in')
 .without('resultTime__gt', 'resultTime__gte')
-.without('resultTime__lt', 'resultTime__lte');
+.without('resultTime__lt', 'resultTime__lte')
+.without('duration__lt', 'duration__lte')
+.without('duration__gt', 'duration__gte');
+
 
 
 router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
@@ -138,6 +148,7 @@ const createObservationBodySchema = joi.object({
     .isoDate()
     .required(),
   observedProperty: joi.string(),
+  aggregation: joi.string(),
   usedProcedures: joi.array().items(joi.string())
   // for now at least the discipline and hasFeatureOfInterest should come from the saved context.
 })

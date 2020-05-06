@@ -4,7 +4,7 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {renameProperties} from '../../utils/rename';
 
-const keyOrder = ['@context', '@id', '@type', 'startDate', 'endDate', 'hasObservations', 'observedProperty', 'unit', 'madeBySensor', 'hasDeployment', 'ancestorPlatforms', 'hasFeatureOfInterest', 'disciplines'];
+const keyOrder = ['@context', '@id', '@type', 'startDate', 'endDate', 'hasObservations', 'observedProperty', 'aggregation', 'unit', 'madeBySensor', 'hasDeployment', 'ancestorPlatforms', 'hasFeatureOfInterest', 'disciplines'];
 
 
 export function formatIndividualTimeseries(timeseries): any {
