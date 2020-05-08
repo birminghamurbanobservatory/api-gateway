@@ -1,0 +1,35 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/unit-create-request-body.json",
+  "title": "unit-create-request-body",
+  "type": "object",
+  "description": "Permitted unit structure during creation.",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 48
+    },
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "inCommonVocab": {
+      "type": "boolean"
+    },
+    "belongsToDeployment": {
+      "type": "string"
+    }
+  },
+  "minProperties": 1,
+  "additionalProperties": false
+}

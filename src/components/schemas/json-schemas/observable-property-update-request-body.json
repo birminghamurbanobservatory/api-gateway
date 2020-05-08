@@ -1,0 +1,33 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/observable-property-update-request-body.json",
+  "title": "observable-property-update-request-body",
+  "type": "object",
+  "description": "Permitted updates for a observable property.",
+  "properties": {
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "inCommonVocab": {
+      "type": "boolean"
+    },
+    "belongsToDeployment": {
+      "type": ["string", "null"]
+    }
+  },
+  "minProperties": 1,
+  "additionalProperties": false
+}

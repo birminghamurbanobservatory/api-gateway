@@ -23,7 +23,8 @@ import {getFeatureOfInterest, getFeaturesOfInterest} from '../feature-of-interes
 import {formatIndividualFeatureOfInterestCondensed} from '../feature-of-interest/feature-of-interest.formatter';
 import {getProcedures} from '../procedure/procedure.service';
 import {formatIndividualProcedureCondensed} from '../procedure/procedure.formatter';
-import {renameProperties} from '../../utils/rename';
+import {getAggregations, getAggregation} from '../aggregation/aggregation.service';
+import {formatIndividualAggregationCondensed} from '../aggregation/aggregation.formatter';
 
 
 
@@ -126,12 +127,17 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
 
   // Aggregation
   if (check.assigned(timeseries.aggregation)) {
-    // TODO: Do this properly at somepoint. I.e. have an aggregation service.
-    const aggregationFormatted = {
-      '@id': timeseries.aggregation,
-      '@type': 'Aggregation',
-      label: timeseries.aggregation
-    };
+    let aggregation;
+    try {
+      aggregation = await getAggregation(timeseries.aggregation);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        aggregation = {id: timeseries.aggregation};
+      } else {
+        throw err;
+      }
+    }
+    const aggregationFormatted = formatIndividualUnitCondensed(aggregation);
     populated.aggregation = aggregationFormatted;
   }
 
@@ -341,20 +347,13 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
   }
 
   // Aggregation
-  // TODO: Do this properly at somepoint. I.e. have an aggregation service and formatter.
   const aggregationIds = retrieveAllPropertyIdsFromCollection(populated, 'aggregation');
   if (aggregationIds.length) {
-    const aggregations = aggregationIds.map((aggregationId): any => {
-      return {
-        id: aggregationId, 
-        label: aggregationId
-      }
-    });
+    const {aggregations} = await getAggregations({id: {in: aggregationIds}});
     populated.forEach((ts): void => {
       if (ts.aggregation) {
         const populatedAggregation = populateIdFromCollection(ts.aggregation, aggregations);
-        ts.aggregation = renameProperties(populatedAggregation, {id: '@id'});
-        ts.aggregation['@type'] = 'Aggregation';
+        ts.aggregation = formatIndividualAggregationCondensed(populatedAggregation);
       }
     });
   }

@@ -1,0 +1,32 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/discipline-create-request-body.json",
+  "title": "discipline-create-request-body",
+  "type": "object",
+  "description": "Permitted discipline structure during creation.",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 48
+    },
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "inCommonVocab": {
+      "type": "boolean"
+    },
+    "belongsToDeployment": {
+      "type": "string"
+    }
+  },
+  "minProperties": 1,
+  "additionalProperties": false
+}

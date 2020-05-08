@@ -1,0 +1,27 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/discipline-update-request-body.json",
+  "title": "discipline-update-request-body",
+  "type": "object",
+  "description": "Permitted updates for a discipline.",
+  "properties": {
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "inCommonVocab": {
+      "type": "boolean"
+    },
+    "belongsToDeployment": {
+      "type": ["string", "null"]
+    }
+  },
+  "minProperties": 1,
+  "additionalProperties": false
+}

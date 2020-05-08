@@ -1,0 +1,27 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/feature-of-interest-update-request-body.json",
+  "title": "feature-of-interest-update-request-body",
+  "type": "object",
+  "description": "Permitted updates for a feature of interest.",
+  "properties": {
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "inCommonVocab": {
+      "type": "boolean"
+    },
+    "belongsToDeployment": {
+      "type": ["string", "null"]
+    }
+  },
+  "minProperties": 1,
+  "additionalProperties": false
+}

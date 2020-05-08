@@ -26,6 +26,26 @@ import * as timeseriesObservationsGetResponseBody from './json-schemas/timeserie
 import * as procedureCreateRequestBodySchema from './json-schemas/procedure-create-request-body.json';
 import * as procedureUpdateRequestBodySchema from './json-schemas/procedure-update-request-body.json';
 import * as procedureGetResponseBodySchema from './json-schemas/procedure-get-response-body.json';
+// observableProperties
+import * as observablePropertyCreateRequestBodySchema from './json-schemas/observable-property-create-request-body.json';
+import * as observablePropertyUpdateRequestBodySchema from './json-schemas/observable-property-update-request-body.json';
+import * as observablePropertyGetResponseBodySchema from './json-schemas/observable-property-get-response-body.json';
+// aggregations
+import * as aggregationCreateRequestBodySchema from './json-schemas/aggregation-create-request-body.json';
+import * as aggregationUpdateRequestBodySchema from './json-schemas/aggregation-update-request-body.json';
+import * as aggregationGetResponseBodySchema from './json-schemas/aggregation-get-response-body.json';
+// units
+import * as unitCreateRequestBodySchema from './json-schemas/unit-create-request-body.json';
+import * as unitUpdateRequestBodySchema from './json-schemas/unit-update-request-body.json';
+import * as unitGetResponseBodySchema from './json-schemas/unit-get-response-body.json';
+// disciplines
+import * as disciplineCreateRequestBodySchema from './json-schemas/discipline-create-request-body.json';
+import * as disciplineUpdateRequestBodySchema from './json-schemas/discipline-update-request-body.json';
+import * as disciplineGetResponseBodySchema from './json-schemas/discipline-get-response-body.json';
+// features of interest
+import * as featureOfInterestCreateRequestBodySchema from './json-schemas/feature-of-interest-create-request-body.json';
+import * as featureOfInterestUpdateRequestBodySchema from './json-schemas/feature-of-interest-update-request-body.json';
+import * as featureOfInterestGetResponseBodySchema from './json-schemas/feature-of-interest-get-response-body.json';
 // other
 import * as collectionMetaSchema from './json-schemas/collection-meta.json';
 import * as contextArraySchema from './json-schemas/context-array.json';
@@ -43,21 +63,47 @@ const baseSchemaUri = `https://api.birminghamurbanobservatory.com/schemas/`;
 const ajv = new Ajv({
   useDefaults: true, // lets you specify defaults for properties in the schemas
   schemas: [
+    // deployments
     deploymentCreateRequestBodySchema,
     deploymentGetResponseBodySchema,
     platformGetResponseBodySchema,
+    // platforms
     platformCreateRequestBodySchema,
     platformsGetResponseBodySchema,
+    // sensors
     sensorCreateRequestBodySchema,
     sensorGetResponseBodySchema,
     sensorsGetResponseBodySchema,
+    // timeseries
     timeseries,
     singleTimeseriesGetResponseBodySchema,
     multipleTimeseriesGetResponseBodySchema,
     timeseriesObservationsGetResponseBody,
+    // procedure
     procedureCreateRequestBodySchema,
     procedureUpdateRequestBodySchema,
     procedureGetResponseBodySchema,
+    // observableProperties
+    observablePropertyCreateRequestBodySchema,
+    observablePropertyUpdateRequestBodySchema,
+    observablePropertyGetResponseBodySchema,
+    // aggregations
+    aggregationCreateRequestBodySchema,
+    aggregationUpdateRequestBodySchema,
+    aggregationGetResponseBodySchema,
+    // units
+    unitCreateRequestBodySchema,
+    unitUpdateRequestBodySchema,
+    unitGetResponseBodySchema,
+    // disciplines
+    disciplineCreateRequestBodySchema,
+    disciplineUpdateRequestBodySchema,
+    disciplineGetResponseBodySchema,
+    // features of interest
+    featureOfInterestCreateRequestBodySchema,
+    featureOfInterestUpdateRequestBodySchema,
+    featureOfInterestGetResponseBodySchema,
+    // extras
     collectionMetaSchema,
     contextArraySchema
   ]

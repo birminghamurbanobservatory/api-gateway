@@ -1,0 +1,38 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/observable-property-create-request-body.json",
+  "title": "observable-property-create-request-body",
+  "type": "object",
+  "description": "Permitted observable property structure during creation.",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 48
+    },
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "inCommonVocab": {
+      "type": "boolean"
+    },
+    "belongsToDeployment": {
+      "type": "string"
+    }
+  },
+  "minProperties": 1,
+  "additionalProperties": false
+}

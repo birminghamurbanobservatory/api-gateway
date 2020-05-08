@@ -18,6 +18,8 @@ const keyOrder = ['@context', '@id', '@type', 'resultTime', 'hasResult', 'madeBy
 
 export function formatIndividualObservation(observation: any): any {
 
+  // TODO: Update this so that it actually gets values from my database records. Probably want to use caching where I can.
+
   const observationLinked = cloneDeep(observation);
   observationLinked['@id'] = observationLinked.id;
   delete observationLinked.id;

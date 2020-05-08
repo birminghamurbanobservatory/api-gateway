@@ -1,0 +1,50 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/dsicipline-get-response-body.json",
+  "title": "dsicipline-get-response-body",
+  "type": "object",
+  "description": "Response for a single dsicipline",
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "@id": {
+      "type": "string",
+      "maxLength": 48,
+      "minLength": 1
+    },
+    "@type": {
+      "type": "string",
+      "const": "Discipline"
+    },
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "inCommonVocab": {
+      "type": "boolean"
+    },
+    "belongsToDeployment": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

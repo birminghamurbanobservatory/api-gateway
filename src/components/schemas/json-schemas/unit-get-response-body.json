@@ -1,0 +1,53 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/unit-get-response-body.json",
+  "title": "unit-get-response-body",
+  "type": "object",
+  "description": "Response for a single unit",
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "@id": {
+      "type": "string",
+      "maxLength": 48,
+      "minLength": 1
+    },
+    "@type": {
+      "type": "string",
+      "const": "Unit"
+    },
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "inCommonVocab": {
+      "type": "boolean"
+    },
+    "belongsToDeployment": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
