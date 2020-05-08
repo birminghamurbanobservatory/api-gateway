@@ -1,0 +1,50 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/used-procedure-get-response-body.json",
+  "title": "used-procedure-get-response-body",
+  "type": "object",
+  "description": "Response for a single used procedure",
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "@id": {
+      "type": "string",
+      "maxLength": 48,
+      "minLength": 1
+    },
+    "@type": {
+      "type": "string",
+      "const": "UsedProcedure"
+    },
+    "label": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "comment": {
+      "type": "string"
+    },
+    "listed": {
+      "type": "boolean"
+    },
+    "inCommonVocab": {
+      "type": true
+    },
+    "belongsToDeployment": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

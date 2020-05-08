@@ -8,7 +8,7 @@ import {createDeploymentsResponse, createDeploymentResponse} from './deployment.
 import * as check from 'check-types';
 
 
-export async function getDeployments(where: {public?: boolean; id?: WhereItem; search?: string}, user: ApiUser, options: any): Promise<any> {
+export async function getDeployments(where: {public?: boolean; id?: WhereItem; search?: string}, options: any, user: ApiUser): Promise<any> {
 
   const hasSuperUserPermission = user.permissions.includes('get:deployments');
 

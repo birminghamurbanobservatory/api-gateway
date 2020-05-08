@@ -58,7 +58,7 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
     throw new InvalidQueryString(`Please provide user credentials before using the 'mineOnly' query string parameter.`);
   }
 
-  let jsonResponse = await getDeployments(where, req.user, options);
+  let jsonResponse = await getDeployments(where, options, req.user);
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/deployments`, query);
   return res.json(jsonResponse);
 

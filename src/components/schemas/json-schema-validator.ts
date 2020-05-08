@@ -22,9 +22,12 @@ import * as singleTimeseriesGetResponseBodySchema from './json-schemas/single-ti
 import * as multipleTimeseriesGetResponseBodySchema from './json-schemas/multiple-timeseries-get-response-body.json';
 // timeseries observations
 import * as timeseriesObservationsGetResponseBody from './json-schemas/timeseries-observations-get-response-body.json';
+// Used procedures
+import * as usedProcedureCreateRequestBodySchema from './json-schemas/used-procedure-create-request-body.json';
 // other
 import * as collectionMetaSchema from './json-schemas/collection-meta.json';
 import * as contextArraySchema from './json-schemas/context-array.json';
+
 
 
 // This is the bit that should be at the start of the $id for all your schemas
@@ -50,6 +53,7 @@ const ajv = new Ajv({
     singleTimeseriesGetResponseBodySchema,
     multipleTimeseriesGetResponseBodySchema,
     timeseriesObservationsGetResponseBody,
+    usedProcedureCreateRequestBodySchema,
     collectionMetaSchema,
     contextArraySchema
   ]

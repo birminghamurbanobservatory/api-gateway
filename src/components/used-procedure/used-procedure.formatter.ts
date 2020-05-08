@@ -10,6 +10,8 @@ const keyOrder = ['@context', '@id', '@type', 'label', 'comment'];
 export function formatIndividualUsedProcedure(usedProcedure: any): any {
   const usedProcedureLinked = cloneDeep(usedProcedure);
   usedProcedureLinked['@type'] = 'UsedProcedure';
+  // For now at least I don't want the end users seeing who created the procedure
+  delete usedProcedureLinked.createdBy;
   const renamed = renameProperties(usedProcedureLinked, {
     id: '@id'
   });
