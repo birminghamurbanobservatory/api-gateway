@@ -33,7 +33,7 @@ import {DisciplineRouter} from '../components/discipline/discipline.router';
 import {ObservablePropertyRouter} from '../components/observable-property/observable-property.router';
 import {UnitRouter} from '../components/unit/unit.router';
 import {FeatureOfInterestRouter} from '../components/feature-of-interest/feature-of-interest.router';
-import {UsedProcedureRouter} from '../components/used-procedure/used-procedure.router';
+import {ProcedureRouter} from '../components/procedure/procedure.router';
 
 
 export const app = express();
@@ -124,7 +124,7 @@ app.use(DisciplineRouter);
 app.use(ObservablePropertyRouter);
 app.use(UnitRouter);
 app.use(FeatureOfInterestRouter);
-app.use(UsedProcedureRouter);
+app.use(ProcedureRouter);
 
 
 

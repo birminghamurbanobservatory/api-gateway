@@ -172,10 +172,10 @@ router.delete('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> 
 // For non-superusers to create sensors that belong to a deployment
 // /deployments/:deploymentId/sensors
 // TODO: Do not allow the following properties to be set via this endpoint:
-// 1. id - this will be auto-assigned to ensure it has a "ds-" prefix to avoid clashes with non-deployment-sensor ids.
+// 1. id - this will be auto-assigned to ensure it has a special suffix to avoid clashes with non-deployment-sensor ids.
 // 2. hasDeployment - this should come from the url path.
 // 3. permanentHost - deployment-bound sensors should not have a permanentHost.
-// N.B. allow the sensor will be created at /deployments/.../sensors, it's @id will be at /sensors like every other sensor.
+// N.B. althoughß the sensor will be created at /deployments/.../sensors, it's @id will be at /sensors like every other sensor.
 
 
 //-------------------------------------------------

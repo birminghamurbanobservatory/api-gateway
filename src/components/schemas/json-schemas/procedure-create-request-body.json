@@ -1,8 +1,8 @@
 {
-  "$id": "https://api.birminghamurbanobservatory.com/schemas/used-procedure-create-request-body.json",
-  "title": "used-procedure-create-request-body",
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/procedure-create-request-body.json",
+  "title": "procedure-create-request-body",
   "type": "object",
-  "description": "Permitted used procedure structure during creation.",
+  "description": "Permitted procedure structure during creation.",
   "properties": {
     "id": {
       "type": "string",
@@ -21,7 +21,7 @@
       "type": "boolean"
     },
     "inCommonVocab": {
-      "type": true
+      "type": "boolean"
     },
     "belongsToDeployment": {
       "type": "string"

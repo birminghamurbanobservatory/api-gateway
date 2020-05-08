@@ -31,7 +31,6 @@ export async function getSensor(sensorId: string, user: ApiUser): Promise<any> {
   if (!hasSuperUserPermission) {
     const deployment = await getDeployment(sensor.hasDeployment);
     deploymentLevelCheck(deployment, user);
-    // TODO: what if the sensor is hosted on a platform that has been shared with another deployment? Should users of this sharee deployment be able to see the sensor's details?
   }
 
   const sensorWithContext = createSensorResponse(sensor);
@@ -41,7 +40,8 @@ export async function getSensor(sensorId: string, user: ApiUser): Promise<any> {
 
 export async function getSensors(where, options: CollectionOptions, user: ApiUser): Promise<any> {
 
-  const hasSuperUserPermission = user.permissions.includes('get:sensor') || user.permissions.includes('admin-all:deployments');
+  const canAccessAllSensors = user.permissions.includes('get:sensor'); 
+  const canAccessAllDeploymentSensors = user.permissions.includes('get:sensor') || user.permissions.includes('admin-all:deployments');
 
   const deploymentDefined = check.nonEmptyString(where.hasDeployment) || (check.nonEmptyObject(where.hasDeployment) && check.nonEmptyArray(where.hasDeployment.in));
 
@@ -49,7 +49,7 @@ export async function getSensors(where, options: CollectionOptions, user: ApiUse
   // hasDeployment specified
   //------------------------
   // If hasDeployment has been specified then check that the user has access.
-  if (deploymentDefined && !hasSuperUserPermission) {
+  if (deploymentDefined && !canAccessAllSensors && !canAccessAllDeploymentSensors) {
 
     const deploymentIdsToCheck = check.string(where.hasDeployment) ? [where.hasDeployment] : where.hasDeployment.in;
 
@@ -74,7 +74,7 @@ export async function getSensors(where, options: CollectionOptions, user: ApiUse
   // hasDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
-  if (!deploymentDefined && !hasSuperUserPermission) {
+  if (!deploymentDefined && !canAccessAllSensors && ! canAccessAllDeploymentSensors) {
 
     let usersDeployments = [];
     let publicDeployments = [];
@@ -96,8 +96,9 @@ export async function getSensors(where, options: CollectionOptions, user: ApiUse
 
   }
 
-  if (!hasSuperUserPermission) {
-    // TODO: if the request was for specific deployment(s) then might want to check the deployment(s) actually exist?
+  if (!deploymentDefined && !canAccessAllSensors && canAccessAllDeploymentSensors) {
+    // We need to make sure that admin-all:deployment users can only access sensors that currently belong to a deployment.
+    where.hasDeployment = {exists: true};
   }
 
   const {sensors, count, total} = await sensorService.getSensors(where, options);

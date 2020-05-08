@@ -48,6 +48,10 @@ export async function getRoot(): Promise<any> {
         name: 'Observable Properties' 
       },
       {
+        '@id': `${config.api.base}/aggregations`,
+        name: 'Observable Properties' 
+      },
+      {
         '@id': `${config.api.base}/units`,
         name: 'Units' 
       },
@@ -56,8 +60,8 @@ export async function getRoot(): Promise<any> {
         name: 'Features of Interest' 
       },
       {
-        '@id': `${config.api.base}/used-procedures`,
-        name: 'Used Procedures' 
+        '@id': `${config.api.base}/procedures`,
+        name: 'Procedures' 
       },
     ]
   };

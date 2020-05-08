@@ -1,8 +1,8 @@
 {
-  "$id": "https://api.birminghamurbanobservatory.com/schemas/used-procedure-get-response-body.json",
-  "title": "used-procedure-get-response-body",
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/procedure-get-response-body.json",
+  "title": "procedure-get-response-body",
   "type": "object",
-  "description": "Response for a single used procedure",
+  "description": "Response for a single procedure",
   "properties": {
     "@context": {
       "type": "array",
@@ -18,7 +18,7 @@
     },
     "@type": {
       "type": "string",
-      "const": "UsedProcedure"
+      "const": "Procedure"
     },
     "label": {
       "type:": "string",
@@ -32,7 +32,7 @@
       "type": "boolean"
     },
     "inCommonVocab": {
-      "type": true
+      "type": "boolean"
     },
     "belongsToDeployment": {
       "type": "string"

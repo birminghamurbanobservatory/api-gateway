@@ -24,6 +24,10 @@ export async function getDeploymentUser(deploymentId: string, userId: string): P
 
 
 export async function getLevelsForDeployments(deploymentIds: string[], userId?: string): Promise<{deploymentId: string; level: string}[]> {
+
+  if (deploymentIds.length === 0) {
+    return [];
+  }
   
   const message: any = {
     where: {

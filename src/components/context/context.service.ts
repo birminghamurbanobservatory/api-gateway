@@ -14,8 +14,9 @@ export const contextLinks = {
   urbanObservatory: `${apiBase}/context/urban-observatory${ext}`,
   timeseries: `${apiBase}/context/timeseries${ext}`,
   discipline: `${apiBase}/context/discipline${ext}`,
-  unit: `${apiBase}/context/discipline${ext}`,
+  unit: `${apiBase}/context/unit${ext}`,
   observableProperty: `${apiBase}/context/observable-property${ext}`,
-  usedProcedure: `${apiBase}/context/used-procedure${ext}`,
+  procedure: `${apiBase}/context/procedure${ext}`,
   featureOfInterest: `${apiBase}/context/feature-of-interest${ext}`,
+  aggregation: `${apiBase}/context/aggregation${ext}`,
 };

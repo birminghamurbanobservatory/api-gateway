@@ -21,8 +21,8 @@ import {getUnit, getUnits} from '../unit/unit.service';
 import {formatIndividualUnitCondensed} from '../unit/unit.formatter';
 import {getFeatureOfInterest, getFeaturesOfInterest} from '../feature-of-interest/feature-of-interest.service';
 import {formatIndividualFeatureOfInterestCondensed} from '../feature-of-interest/feature-of-interest.formatter';
-import {getUsedProcedures} from '../used-procedure/used-procedure.service';
-import {formatIndividualUsedProcedureCondensed} from '../used-procedure/used-procedure.formatter';
+import {getProcedures} from '../procedure/procedure.service';
+import {formatIndividualProcedureCondensed} from '../procedure/procedure.formatter';
 import {renameProperties} from '../../utils/rename';
 
 
@@ -176,9 +176,9 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
 
   // Used Procedures
   if (check.assigned(timeseries.usedProcedures)) {
-    const {usedProcedures} = await getUsedProcedures({id: {in: timeseries.usedProcedures}});
-    const populatedUsedProcedures = populateIdArrayWithCollection(timeseries.usedProcedures, usedProcedures);
-    populated.usedProcedures = populatedUsedProcedures.map(formatIndividualUsedProcedureCondensed);
+    const {procedures} = await getProcedures({id: {in: timeseries.usedProcedures}});
+    const populatedProcedures = populateIdArrayWithCollection(timeseries.usedProcedures, procedures);
+    populated.usedProcedures = populatedProcedures.map(formatIndividualProcedureCondensed);
   }
 
   return populated;
@@ -398,11 +398,11 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
   // Used Procedures
   const usedProcedureIds = retrieveAllPropertyIdsFromCollection(populated, 'usedProcedures');
   if (usedProcedureIds.length) {
-    const {usedProcedures} = await getUsedProcedures({id: {in: usedProcedureIds}});
+    const {procedures} = await getProcedures({id: {in: usedProcedureIds}});
     populated.forEach((ts): void => {
       if (ts.usedProcedures) {
-        const populatedUsedProcedures = populateIdArrayWithCollection(ts.usedProcedures, usedProcedures);
-        ts.usedProcedures = populatedUsedProcedures.map(formatIndividualUsedProcedureCondensed);
+        const populatedProcedures = populateIdArrayWithCollection(ts.usedProcedures, procedures);
+        ts.usedProcedures = populatedProcedures.map(formatIndividualProcedureCondensed);
       }
     });
   }

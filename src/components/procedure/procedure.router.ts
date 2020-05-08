@@ -12,34 +12,35 @@ import {config} from '../../config';
 import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
-import {getUsedProcedures, getUsedProcedure, createUsedProcedure} from './used-procedure.controller';
+import {getProcedures, getProcedure, createProcedure, deleteProcedure, updateProcedure} from './procedure.controller';
+import {alphanumericPlusHyphenRegex} from '../../utils/regular-expressions';
 
 const router = express.Router();
 
-export {router as UsedProcedureRouter};
+export {router as ProcedureRouter};
 
 
 //-------------------------------------------------
-// Create Used Procedure
+// Create Procedure
 //-------------------------------------------------
-router.post('/used-procedure', asyncWrapper(async (req, res): Promise<any> => {
+router.post('/procedures', asyncWrapper(async (req, res): Promise<any> => {
 
-  const body = validateAgainstSchema(req.body, 'used-procedure-create-request-body');
-  const jsonResponse = await createUsedProcedure(body, req.user);
-  validateAgainstSchema(jsonResponse, 'used-procedure-get-response-body');
+  const body = validateAgainstSchema(req.body, 'procedure-create-request-body');
+  const jsonResponse = await createProcedure(body, req.user);
+  validateAgainstSchema(jsonResponse, 'procedure-get-response-body');
   return res.status(201).json(jsonResponse);
 
 }));
 
 
 //-------------------------------------------------
-// Get UsedProcedure
+// Get Procedure
 //-------------------------------------------------
-router.get('/used-procedures/:usedProcedureId', asyncWrapper(async (req, res): Promise<any> => {
+router.get('/procedures/:procedureId', asyncWrapper(async (req, res): Promise<any> => {
 
-  const usedProcedureId = req.params.usedProcedureId;
-  const jsonResponse = await getUsedProcedure(usedProcedureId, req.user);
-  validateAgainstSchema(jsonResponse, 'used-procedure-get-response-body');
+  const procedureId = req.params.procedureId;
+  const jsonResponse = await getProcedure(procedureId, req.user);
+  validateAgainstSchema(jsonResponse, 'procedure-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -47,14 +48,14 @@ router.get('/used-procedures/:usedProcedureId', asyncWrapper(async (req, res): P
 
 
 //-------------------------------------------------
-// Get UsedProcedures
+// Get Procedures
 //-------------------------------------------------
 const getSensorsQuerySchema = joi.object({
   id__begins: joi.string(),
   id__in: joi.string().custom(inConditional),
   listed: joi.boolean(),
   inCommonVocab: joi.boolean(),
-  belongsToDeployment: joi.string(),
+  belongsToDeployment: joi.string().pattern(alphanumericPlusHyphenRegex),
   belongsToDeployment__in: joi.string().custom(inConditional),
   search: joi.string(),
   // options
@@ -64,7 +65,7 @@ const getSensorsQuerySchema = joi.object({
   sortOrder: joi.string().valid('asc', 'desc').default('asc')
 });
 
-router.get('/used-procedures', asyncWrapper(async (req, res): Promise<any> => {
+router.get('/procedures', asyncWrapper(async (req, res): Promise<any> => {
 
   logger.debug('Raw query parameters', req.query);
   const {error: queryErr, value: query} = getSensorsQuerySchema.validate(req.query);
@@ -79,10 +80,36 @@ router.get('/used-procedures', asyncWrapper(async (req, res): Promise<any> => {
   const wherePart = omit(query, optionKeys);
   const where = convertQueryToWhere(wherePart);
  
-  let jsonResponse = await getUsedProcedures(where, options, req.user);
+  let jsonResponse = await getProcedures(where, options, req.user);
 
-  jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/used-procedures`, query);
-  // validateAgainstSchema(jsonResponse, 'usedProcedures-get-response-body');
+  jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/procedures`, query);
+  // validateAgainstSchema(jsonResponse, 'procedures-get-response-body');
   return res.json(jsonResponse);
+
+}));
+
+
+//-------------------------------------------------
+// Update Procedure
+//-------------------------------------------------
+router.patch('/procedures/:procedureId', asyncWrapper(async (req, res): Promise<any> => {
+
+  const procedureId = req.params.procedureId;
+  const body = validateAgainstSchema(req.body, 'procedure-update-request-body');
+  const jsonResponse = await updateProcedure(procedureId, body, req.user);
+  validateAgainstSchema(jsonResponse, 'procedure-get-response-body');
+  return res.json(jsonResponse);
+
+}));
+
+
+//-------------------------------------------------
+// Delete Procedure
+//-------------------------------------------------
+router.delete('/procedures/:procedureId', asyncWrapper(async (req, res): Promise<any> => {
+
+  const procedureId = req.params.procedureId;
+  await deleteProcedure(procedureId, req.user);
+  return res.status(204).send();
 
 }));

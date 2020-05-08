@@ -101,7 +101,7 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
 
   const updatedWhere: any = cloneDeep(where);
 
-  // N.B. there's no point in having a special 'get:platforms' permission, 'admin-all:deployments' is enough, because I can't see a use case where a specific super user would want to get every platform, but not have access to any other information about the deployment.
+  // N.B. there's no point in having a special 'get:platforms' permission, 'admin-all:deployments' is enough, because I can't see a use case where a specific super user would want to get every platform, but not have access to any other information about the deployment. Also platforms can't exists outside of a deployment.
   const hasSuperUserPermission = user.permissions.includes('admin-all:deployments');
 
   //------------------------
@@ -184,9 +184,8 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
   const platform = await platformService.getPlatform(platformId);
 
   const itsDeployment = await getDeployment(platform.inDeployment);
-  if (!user.permissions.includes('admin-all:deployments')) {
-    deploymentLevelCheck(itsDeployment, user, ['admin', 'engineer']);
-  }
+  deploymentLevelCheck(itsDeployment, user, ['admin', 'engineer']);
+  
 
   if (updates.isHostedBy) {
 

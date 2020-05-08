@@ -163,3 +163,69 @@ export function getTimeseriesContext(): object {
   };
   return context;
 }
+
+
+//-------------------------------------------------
+// Procedure
+//-------------------------------------------------
+export function getProcedureContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
+// Discipline
+//-------------------------------------------------
+export function getDisciplineContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
+// Unit
+//-------------------------------------------------
+export function getUnitContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
+// Observable property
+//-------------------------------------------------
+export function getObservablePropertyContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
+// Aggregation
+//-------------------------------------------------
+export function getAggregationContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
+// Feature of interest
+//-------------------------------------------------
+export function getFeatureOfInterestContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}

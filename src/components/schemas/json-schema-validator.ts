@@ -22,8 +22,10 @@ import * as singleTimeseriesGetResponseBodySchema from './json-schemas/single-ti
 import * as multipleTimeseriesGetResponseBodySchema from './json-schemas/multiple-timeseries-get-response-body.json';
 // timeseries observations
 import * as timeseriesObservationsGetResponseBody from './json-schemas/timeseries-observations-get-response-body.json';
-// Used procedures
-import * as usedProcedureCreateRequestBodySchema from './json-schemas/used-procedure-create-request-body.json';
+// procedures
+import * as procedureCreateRequestBodySchema from './json-schemas/procedure-create-request-body.json';
+import * as procedureUpdateRequestBodySchema from './json-schemas/procedure-update-request-body.json';
+import * as procedureGetResponseBodySchema from './json-schemas/procedure-get-response-body.json';
 // other
 import * as collectionMetaSchema from './json-schemas/collection-meta.json';
 import * as contextArraySchema from './json-schemas/context-array.json';
@@ -53,7 +55,9 @@ const ajv = new Ajv({
     singleTimeseriesGetResponseBodySchema,
     multipleTimeseriesGetResponseBodySchema,
     timeseriesObservationsGetResponseBody,
-    usedProcedureCreateRequestBodySchema,
+    procedureCreateRequestBodySchema,
+    procedureUpdateRequestBodySchema,
+    procedureGetResponseBodySchema,
     collectionMetaSchema,
     contextArraySchema
   ]
@@ -82,12 +86,22 @@ export function validateAgainstSchema(data: any, nameOfSchema: string): any {
   if (isValid) {
     return dataClone; // any defaults will have been applied to this.
   } else {
+
     logger.warn(validate.errors);
-    const errorMessage = ajv.errorsText(validate.errors);
+    let errorMessage = ajv.errorsText(validate.errors);
+
     if (nameOfSchema.includes('request-body')) {
+      // If the request body included a property we weren't expecting, then by default the error text won't include the name of this additional property, however it is available via the validate.errors object, so let's get it.
+      // @ts-ignore
+      if (check.nonEmptyArray(validate.errors) && validate.errors[0].keyword === 'additionalProperties' && validate.errors[0].params && check.nonEmptyString(validate.errors[0].params.additionalProperty)) {
+        // @ts-ignore
+        errorMessage += ` (additional property: '${validate.errors[0].params.additionalProperty}')`;
+      } 
       throw new InvalidBody(errorMessage);
+
     } else if (nameOfSchema.includes('response-body')) {
       throw new InvalidResponseBody(undefined, errorMessage);
+
     } else {
       throw new Error(errorMessage);
     }

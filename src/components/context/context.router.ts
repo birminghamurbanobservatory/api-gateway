@@ -1,6 +1,6 @@
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
-import {getObservationContext, getCollectionContext, getUnknownSensorContext, getDeploymentContext, getPlatformContext, getSensorContext, getUrbanObservatoryContext, getTimeseriesContext} from './context.controller';
+import {getObservationContext, getCollectionContext, getUnknownSensorContext, getDeploymentContext, getPlatformContext, getSensorContext, getUrbanObservatoryContext, getTimeseriesContext, getProcedureContext, getDisciplineContext, getUnitContext, getFeatureOfInterestContext, getAggregationContext, getObservablePropertyContext} from './context.controller';
 
 const router = express.Router();  
 
@@ -51,5 +51,35 @@ router.get('/context/urban-observatory.jsonld', asyncWrapper(async (req, res): P
 
 router.get('/context/timeseries.jsonld', asyncWrapper(async (req, res): Promise<any> => {
   const context = getTimeseriesContext();
+  return res.json(context);
+}));
+
+router.get('/context/procedure.jsonld', asyncWrapper(async (req, res): Promise<any> => {
+  const context = getProcedureContext();
+  return res.json(context);
+}));
+
+router.get('/context/discipline.jsonld', asyncWrapper(async (req, res): Promise<any> => {
+  const context = getDisciplineContext();
+  return res.json(context);
+}));
+
+router.get('/context/unit.jsonld', asyncWrapper(async (req, res): Promise<any> => {
+  const context = getUnitContext();
+  return res.json(context);
+}));
+
+router.get('/context/feature-of-interest.jsonld', asyncWrapper(async (req, res): Promise<any> => {
+  const context = getFeatureOfInterestContext();
+  return res.json(context);
+}));
+
+router.get('/context/observable-property.jsonld', asyncWrapper(async (req, res): Promise<any> => {
+  const context = getObservablePropertyContext();
+  return res.json(context);
+}));
+
+router.get('/context/aggregation.jsonld', asyncWrapper(async (req, res): Promise<any> => {
+  const context = getAggregationContext();
   return res.json(context);
 }));

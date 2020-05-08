@@ -20,7 +20,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
 
   const canAccessAllObservations = user.permissions.includes('get:observation');
   const canAccessAllDeploymentObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
-  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observation, but not be allowed to see any of the extra data that would accessible if they were an admin to every deployment, e.g. a platform's description. Also it stops user with just the admin-all:deployments permission from getting observations not bound to a deployment
+  // It's worth having the get:observations permission in addition to the admin-all:deployments permission as you may have users who should have access to all the observations, but not be allowed to see any of the extra data that would accessible if they were an admin to every deployment, e.g. a platform's description. Also it stops user with just the admin-all:deployments permission from getting observations not bound to a deployment.
   logger.debug(`Can access all observations: ${canAccessAllObservations}`);
   logger.debug(`Can access observations from all deployments: ${canAccessAllDeploymentObservations}`);
   logger.debug(`Deployment(s) specified: ${deploymentDefined}`);
@@ -132,12 +132,18 @@ export async function getObservations(where: any, options: {limit?: number; offs
 export async function getObservation(observationId, user: ApiUser): Promise<any> {
 
   let hasSufficientRights; 
-  const canAccessAllObservations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
+  const canAccessAllObservations = user.permissions.includes('get:observation');
+  const canAccessAllDeploymentObervations = user.permissions.includes('get:observation') || user.permissions.includes('admin-all:deployments');
 
   const observation = await observationService.getObservation(observationId);
 
   if (canAccessAllObservations) {
     hasSufficientRights = true;
+
+  } else if (canAccessAllDeploymentObervations) {
+    if (observation.hasDeployment) {
+      hasSufficientRights = true;
+    }
 
   } else {
     
