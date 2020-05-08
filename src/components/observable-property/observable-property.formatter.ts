@@ -4,12 +4,14 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {renameProperties} from '../../utils/rename';
 
-const keyOrder = ['@context', '@id', '@type', 'label', 'comment'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'comment', 'listed', 'belongsToDeployment', 'inCommonVocab', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualObservableProperty(observableProperty: any): any {
   const observablePropertyLinked = cloneDeep(observableProperty);
   observablePropertyLinked['@type'] = 'ObservableProperty';
+  // For now at least I don't want the end users seeing who created the observableProperty
+  delete observablePropertyLinked.createdBy;
   const renamed = renameProperties(observablePropertyLinked, {
     id: '@id'
   });

@@ -1,49 +1,59 @@
 import {CollectionOptions} from '../common/collection-options.class';
-import {getUnitsObject} from '../vocab/vocab.service';
-import {UnitNotFound} from './errors/UnitNotFound';
-import {cloneDeep, sortBy, pick} from 'lodash';
-import * as check from 'check-types';
-
-// For now at least the units are loaded from a local JSON file at startup. 
-const unitsObject = getUnitsObject();
-let unitsArray = [];
-Object.keys(unitsObject).forEach((unitId): void => {
-  const copy = cloneDeep(unitsObject[unitId]);
-  const unit = pick(copy, ['label', 'comment', 'symbol']);
-  unit.id = unitId;
-  unitsArray.push(unit);
-});
-unitsArray = sortBy(unitsArray, 'id');
+import * as event from 'event-stream';
 
 
-export async function getUnit(unitId): Promise<any> {
+export async function createUnit(unit): Promise<any> {
+  const created = await event.publishExpectingResponse('unit.create.request',  {
+    new: unit
+  });
+  return created;
+}
 
-  const unit = unitsArray.find((unit): any => unit.id === unitId);
 
-  if (!unit) {
-    throw new UnitNotFound(`Failed to find unit with id: ${unitId}`);
-  }
-
+export async function getUnit(id: string, options: {includeDeleted?: boolean} = {}): Promise<any> {
+  const unit = await event.publishExpectingResponse('unit.get.request', {
+    where: {
+      id
+    },
+    options
+  });
   return unit;
 }
 
 
-export async function getUnits(where: {id?: any} = {}, options: CollectionOptions = {}): Promise<any> {
+export async function getUnits(where = {}, options: CollectionOptions = {}): Promise<any> {
 
-  const offset = check.assigned(options.offset) ? options.offset : 0;
-  const limit = check.assigned(options.limit) ? options.limit : 100;
-
-  let units = unitsArray;
-
-  if (where.id && where.id.in) {
-    units = units.filter((unit): boolean => where.id.in.includes(unit.id));
-  }
-
-  units = units.slice(offset, limit + offset);
+  const response = await event.publishExpectingResponse('units.get.request', {
+    where,
+    options
+  });
 
   return {
-    units,
-    count: units.length,
-    total: unitsArray.length
+    units: response.data,
+    count: response.meta.count,
+    total: response.meta.total
   };
+
 }
+
+
+export async function updateUnit(id: string, updates: any): Promise<any> {
+  const updated = await event.publishExpectingResponse('unit.update.request', {
+    where: {
+      id
+    },
+    updates
+  });
+  return updated;
+}
+
+
+export async function deleteUnit(id: string): Promise<void> {
+  await event.publishExpectingResponse('unit.delete.request', {
+    where: {
+      id
+    }
+  });
+  return;
+}
+

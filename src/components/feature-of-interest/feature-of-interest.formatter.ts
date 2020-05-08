@@ -4,12 +4,14 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {renameProperties} from '../../utils/rename';
 
-const keyOrder = ['@context', '@id', '@type', 'label', 'comment'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'comment', 'listed', 'belongsToDeployment', 'inCommonVocab', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualFeatureOfInterest(featureOfInterest: any): any {
   const featureOfInterestLinked = cloneDeep(featureOfInterest);
   featureOfInterestLinked['@type'] = 'FeatureOfInterest';
+  // For now at least I don't want the end users seeing who created the featureOfInterest
+  delete featureOfInterestLinked.createdBy;
   const renamed = renameProperties(featureOfInterestLinked, {
     id: '@id'
   });

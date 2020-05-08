@@ -1,49 +1,59 @@
 import {CollectionOptions} from '../common/collection-options.class';
-import {getDisciplinesObject} from '../vocab/vocab.service';
-import {DisciplineNotFound} from './errors/DisciplineNotFound';
-import {cloneDeep, sortBy, pick} from 'lodash';
-import * as check from 'check-types';
-
-// For now at least the disciplines are loaded from a local JSON file at startup. 
-const disciplinesObject = getDisciplinesObject();
-let disciplinesArray = [];
-Object.keys(disciplinesObject).forEach((disciplineId): void => {
-  const copy = cloneDeep(disciplinesObject[disciplineId]);
-  const discipline = pick(copy, ['label', 'comment']);
-  discipline.id = disciplineId;
-  disciplinesArray.push(discipline);
-});
-disciplinesArray = sortBy(disciplinesArray, 'id');
+import * as event from 'event-stream';
 
 
-export async function getDiscipline(disciplineId): Promise<any> {
+export async function createDiscipline(discipline): Promise<any> {
+  const created = await event.publishExpectingResponse('discipline.create.request',  {
+    new: discipline
+  });
+  return created;
+}
 
-  const discipline = disciplinesArray.find((discipline): any => discipline.id === disciplineId);
 
-  if (!discipline) {
-    throw new DisciplineNotFound(`Failed to find discipline with id: ${disciplineId}`);
-  }
-
+export async function getDiscipline(id: string, options: {includeDeleted?: boolean} = {}): Promise<any> {
+  const discipline = await event.publishExpectingResponse('discipline.get.request', {
+    where: {
+      id
+    },
+    options
+  });
   return discipline;
 }
 
 
-export async function getDisciplines(where: {id?: any} = {}, options: CollectionOptions = {}): Promise<any> {
+export async function getDisciplines(where = {}, options: CollectionOptions = {}): Promise<any> {
 
-  const offset = check.assigned(options.offset) ? options.offset : 0;
-  const limit = check.assigned(options.limit) ? options.limit : 100;
-
-  let disciplines = disciplinesArray;
-
-  if (where.id && where.id.in) {
-    disciplines = disciplines.filter((discipline): boolean => where.id.in.includes(discipline.id));
-  }
-
-  disciplines = disciplines.slice(offset, limit + offset);
+  const response = await event.publishExpectingResponse('disciplines.get.request', {
+    where,
+    options
+  });
 
   return {
-    disciplines,
-    count: disciplines.length,
-    total: disciplinesArray.length
+    disciplines: response.data,
+    count: response.meta.count,
+    total: response.meta.total
   };
+
 }
+
+
+export async function updateDiscipline(id: string, updates: any): Promise<any> {
+  const updated = await event.publishExpectingResponse('discipline.update.request', {
+    where: {
+      id
+    },
+    updates
+  });
+  return updated;
+}
+
+
+export async function deleteDiscipline(id: string): Promise<void> {
+  await event.publishExpectingResponse('discipline.delete.request', {
+    where: {
+      id
+    }
+  });
+  return;
+}
+

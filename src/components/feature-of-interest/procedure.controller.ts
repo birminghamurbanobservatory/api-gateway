@@ -56,7 +56,7 @@ export async function getFeatureOfInterest(featureOfInterestId: string, user: Ap
     }
   }
   if (!hasRights) {
-    throw new Forbidden('You do not have the rights to view this featureOfInterest.');
+    throw new Forbidden('You do not have the rights to view this feature of interest.');
   }
 
   const featureOfInterestWithContext = createFeatureOfInterestResponse(featureOfInterest);
@@ -94,7 +94,7 @@ export async function updateFeatureOfInterest(featureOfInterestId: string, updat
       const deployment = await getDeployment(featureOfInterest.belongsToDeployment);
       deploymentLevelCheck(deployment, user, ['admin', 'engineer']);
     } else {
-      throw new Forbidden('You do not have the rights to update this featureOfInterest.');
+      throw new Forbidden('You do not have the rights to update this feature of interest.');
     }
   }
 
@@ -126,7 +126,7 @@ export async function deleteFeatureOfInterest(featureOfInterestId: string, user:
       const deployment = await getDeployment(featureOfInterest.belongsToDeployment);
       deploymentLevelCheck(deployment, user, ['admin', 'engineer']);
     } else {
-      throw new Forbidden('You do not have the rights to delete this featureOfInterest.');
+      throw new Forbidden('You do not have the rights to delete this feature of interest.');
     }
   }
 

@@ -12,35 +12,35 @@ import {config} from '../../config';
 import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
-import {getUnits, getUnit, createUnit, deleteUnit, updateUnit} from './unit.controller';
+import {getAggregations, getAggregation, createAggregation, deleteAggregation, updateAggregation} from './aggregation.controller';
 import {alphanumericPlusHyphenRegex} from '../../utils/regular-expressions';
 
 const router = express.Router();
 
-export {router as UnitRouter};
+export {router as AggregationRouter};
 
 
 //-------------------------------------------------
-// Create Unit
+// Create Aggregation
 //-------------------------------------------------
-router.post('/units', asyncWrapper(async (req, res): Promise<any> => {
+router.post('/aggregations', asyncWrapper(async (req, res): Promise<any> => {
 
-  const body = validateAgainstSchema(req.body, 'unit-create-request-body');
-  const jsonResponse = await createUnit(body, req.user);
-  validateAgainstSchema(jsonResponse, 'unit-get-response-body');
+  const body = validateAgainstSchema(req.body, 'aggregation-create-request-body');
+  const jsonResponse = await createAggregation(body, req.user);
+  validateAgainstSchema(jsonResponse, 'aggregation-get-response-body');
   return res.status(201).json(jsonResponse);
 
 }));
 
 
 //-------------------------------------------------
-// Get Unit
+// Get Aggregation
 //-------------------------------------------------
-router.get('/units/:unitId', asyncWrapper(async (req, res): Promise<any> => {
+router.get('/aggregations/:aggregationId', asyncWrapper(async (req, res): Promise<any> => {
 
-  const unitId = req.params.unitId;
-  const jsonResponse = await getUnit(unitId, req.user);
-  validateAgainstSchema(jsonResponse, 'unit-get-response-body');
+  const aggregationId = req.params.aggregationId;
+  const jsonResponse = await getAggregation(aggregationId, req.user);
+  validateAgainstSchema(jsonResponse, 'aggregation-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -48,7 +48,7 @@ router.get('/units/:unitId', asyncWrapper(async (req, res): Promise<any> => {
 
 
 //-------------------------------------------------
-// Get Units
+// Get Aggregations
 //-------------------------------------------------
 const getSensorsQuerySchema = joi.object({
   id__begins: joi.string(),
@@ -65,7 +65,7 @@ const getSensorsQuerySchema = joi.object({
   sortOrder: joi.string().valid('asc', 'desc').default('asc')
 });
 
-router.get('/units', asyncWrapper(async (req, res): Promise<any> => {
+router.get('/aggregations', asyncWrapper(async (req, res): Promise<any> => {
 
   logger.debug('Raw query parameters', req.query);
   const {error: queryErr, value: query} = getSensorsQuerySchema.validate(req.query);
@@ -80,36 +80,36 @@ router.get('/units', asyncWrapper(async (req, res): Promise<any> => {
   const wherePart = omit(query, optionKeys);
   const where = convertQueryToWhere(wherePart);
  
-  let jsonResponse = await getUnits(where, options, req.user);
+  let jsonResponse = await getAggregations(where, options, req.user);
 
-  jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/units`, query);
-  // validateAgainstSchema(jsonResponse, 'units-get-response-body');
+  jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/aggregations`, query);
+  // validateAgainstSchema(jsonResponse, 'aggregations-get-response-body');
   return res.json(jsonResponse);
 
 }));
 
 
 //-------------------------------------------------
-// Update Unit
+// Update Aggregation
 //-------------------------------------------------
-router.patch('/units/:unitId', asyncWrapper(async (req, res): Promise<any> => {
+router.patch('/aggregations/:aggregationId', asyncWrapper(async (req, res): Promise<any> => {
 
-  const unitId = req.params.unitId;
-  const body = validateAgainstSchema(req.body, 'unit-update-request-body');
-  const jsonResponse = await updateUnit(unitId, body, req.user);
-  validateAgainstSchema(jsonResponse, 'unit-get-response-body');
+  const aggregationId = req.params.aggregationId;
+  const body = validateAgainstSchema(req.body, 'aggregation-update-request-body');
+  const jsonResponse = await updateAggregation(aggregationId, body, req.user);
+  validateAgainstSchema(jsonResponse, 'aggregation-get-response-body');
   return res.json(jsonResponse);
 
 }));
 
 
 //-------------------------------------------------
-// Delete Unit
+// Delete Aggregation
 //-------------------------------------------------
-router.delete('/units/:unitId', asyncWrapper(async (req, res): Promise<any> => {
+router.delete('/aggregations/:aggregationId', asyncWrapper(async (req, res): Promise<any> => {
 
-  const unitId = req.params.unitId;
-  await deleteUnit(unitId, req.user);
+  const aggregationId = req.params.aggregationId;
+  await deleteAggregation(aggregationId, req.user);
   return res.status(204).send();
 
 }));

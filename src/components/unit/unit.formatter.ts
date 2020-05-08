@@ -4,12 +4,14 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {renameProperties} from '../../utils/rename';
 
-const keyOrder = ['@context', '@id', '@type', 'label', 'comment'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'comment', 'listed', 'belongsToDeployment', 'inCommonVocab', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualUnit(unit: any): any {
   const unitLinked = cloneDeep(unit);
   unitLinked['@type'] = 'Unit';
+  // For now at least I don't want the end users seeing who created the unit
+  delete unitLinked.createdBy;
   const renamed = renameProperties(unitLinked, {
     id: '@id'
   });
