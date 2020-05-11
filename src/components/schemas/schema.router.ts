@@ -29,8 +29,9 @@ router.use(`/schemas`, express.static(schemaDirectory));
 // Let's also get a list of all the json file names so we can serve them all in JSON file at the /schemas endpoint, for the sake of discoverability.
 (async (): Promise<any> => {
 
-  const schemafileNames = await readdirAsync(schemaDirectory);
-  const schemaFileNamesSorted = sortBy(schemafileNames);
+  const schemaFilenames = await readdirAsync(schemaDirectory);
+  const filteredFilenames = schemaFilenames.filter((name): boolean => name.endsWith('.json'));
+  const schemaFileNamesSorted = sortBy(filteredFilenames);
   const schemaInfoArray = schemaFileNamesSorted.map((filename): any => {
     const title = filename.replace('.json', '');
     return {
