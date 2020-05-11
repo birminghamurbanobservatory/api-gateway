@@ -49,7 +49,7 @@ export async function getRoot(): Promise<any> {
       },
       {
         '@id': `${config.api.base}/aggregations`,
-        name: 'Observable Properties' 
+        name: 'Aggregations' 
       },
       {
         '@id': `${config.api.base}/units`,
