@@ -22,7 +22,7 @@ export function formatIndividualUnit(unit: any): any {
 export function formatIndividualUnitCondensed(unit: any): object {
   const linked = formatIndividualUnit(unit);
   // Pull out the properties we don't need
-  const removableProps = [];
+  const removableProps = ['listed', 'inCommonVocab', 'createdAt', 'updatedAt'];
   const condensed = omit(linked, removableProps);
   return condensed;
 }

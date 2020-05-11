@@ -22,7 +22,7 @@ export function formatIndividualObservableProperty(observableProperty: any): any
 export function formatIndividualObservablePropertyCondensed(observableProperty: any): object {
   const linked = formatIndividualObservableProperty(observableProperty);
   // Pull out the properties we don't need
-  const removableProps = [];
+  const removableProps = ['listed', 'inCommonVocab', 'units', 'createdAt', 'updatedAt'];
   const condensed = omit(linked, removableProps);
   return condensed;
 }

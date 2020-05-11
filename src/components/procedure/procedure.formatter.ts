@@ -22,7 +22,7 @@ export function formatIndividualProcedure(procedure: any): any {
 export function formatIndividualProcedureCondensed(procedure: any): object {
   const linked = formatIndividualProcedure(procedure);
   // Pull out the properties we don't need
-  const removableProps = [];
+  const removableProps = ['listed', 'inCommonVocab', 'createdAt', 'updatedAt'];
   const condensed = omit(linked, removableProps);
   return condensed;
 }

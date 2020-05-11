@@ -22,7 +22,7 @@ export function formatIndividualDiscipline(discipline: any): any {
 export function formatIndividualDisciplineCondensed(discipline: any): object {
   const linked = formatIndividualDiscipline(discipline);
   // Pull out the properties we don't need
-  const removableProps = [];
+  const removableProps = ['listed', 'inCommonVocab', 'createdAt', 'updatedAt'];
   const condensed = omit(linked, removableProps);
   return condensed;
 }

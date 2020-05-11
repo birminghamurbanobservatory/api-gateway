@@ -22,7 +22,7 @@ export function formatIndividualFeatureOfInterest(featureOfInterest: any): any {
 export function formatIndividualFeatureOfInterestCondensed(featureOfInterest: any): object {
   const linked = formatIndividualFeatureOfInterest(featureOfInterest);
   // Pull out the properties we don't need
-  const removableProps = [];
+  const removableProps = ['listed', 'inCommonVocab', 'createdAt', 'updatedAt'];
   const condensed = omit(linked, removableProps);
   return condensed;
 }

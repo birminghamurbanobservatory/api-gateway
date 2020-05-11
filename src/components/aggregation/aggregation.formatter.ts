@@ -22,7 +22,7 @@ export function formatIndividualAggregation(aggregation: any): any {
 export function formatIndividualAggregationCondensed(aggregation: any): object {
   const linked = formatIndividualAggregation(aggregation);
   // Pull out the properties we don't need
-  const removableProps = [];
+  const removableProps = ['listed', 'inCommonVocab', 'createdAt', 'updatedAt'];
   const condensed = omit(linked, removableProps);
   return condensed;
 }
