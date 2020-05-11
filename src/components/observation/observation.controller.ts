@@ -3,11 +3,19 @@ import * as check from 'check-types';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {Forbidden} from '../../errors/Forbidden';
 import {getDeployments} from '../deployment/deployment.service';
-import {concat, uniqBy, cloneDeep} from 'lodash';
+import {concat, uniqBy, cloneDeep, uniq} from 'lodash';
 import {createObservationsResponse, createObservationResponse} from './observation.formatter';
 import {ApiUser} from '../common/api-user.class';
 import {permissionsCheck} from '../common/permissions-check';
 import * as logger from 'node-logger';
+import {formatIndividualObservablePropertyCondensed} from '../observable-property/observable-property.formatter';
+import {getObservableProperty, getObservableProperties} from '../observable-property/observable-property.service';
+import {formatIndividualUnitCondensed} from '../unit/unit.formatter';
+import {getDisciplines} from '../discipline/discipline.service';
+import {formatIndividualDisciplineCondensed} from '../discipline/discipline.formatter';
+import {getUnit, getUnits} from '../unit/unit.service';
+import {populateIdArrayWithCollection, retrieveAllPropertyIdsFromCollection, populateIdFromCollection} from '../../utils/population-helpers';
+
 
 //-------------------------------------------------
 // Get observations 
@@ -120,7 +128,8 @@ export async function getObservations(where: any, options: {limit?: number; offs
   }
 
   const {observations, meta} = await observationService.getObservations(updatedWhere, options);
-  const observationsWithContext = createObservationsResponse(observations, meta);
+  const populatedObservations = await populateMultipleObservations(observations);
+  const observationsWithContext = createObservationsResponse(populatedObservations, meta);
   return observationsWithContext;
 
 }
@@ -169,7 +178,8 @@ export async function getObservation(observationId, user: ApiUser): Promise<any>
     throw new Forbidden(`You do not have the deployment access levels required to access observation '${observationId}'`);
   }
 
-  const observationWithContext = createObservationResponse(observation);
+  const populatedObservation = await populateSingleObservation(observation);
+  const observationWithContext = createObservationResponse(populatedObservation);
   return observationWithContext;
 
 }
@@ -197,5 +207,107 @@ export async function deleteObservation(observationId: string, user: ApiUser): P
   permissionsCheck(user, 'delete:observation');
   await observationService.deleteObservation(observationId);
   return;
+
+}
+
+
+//-------------------------------------------------
+// Populate single observation
+//-------------------------------------------------
+async function populateSingleObservation(observation: any): Promise<any> {
+
+  const populated = cloneDeep(observation);
+
+  // Observed Property
+  if (check.assigned(observation.observedProperty)) {
+    let observedProperty;
+    try {
+      observedProperty = await getObservableProperty(observation.observedProperty);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        observedProperty = {id: observation.observedProperty};
+      } else {
+        throw err;
+      }
+    }
+    const observedPropertyFormatted = formatIndividualObservablePropertyCondensed(observedProperty);
+    populated.observedProperty = observedPropertyFormatted;
+  }
+
+  // Unit
+  if (check.assigned(observation.hasResult.unit)) {
+    let unit;
+    try {
+      unit = await getUnit(observation.hasResult.unit);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        unit = {id: observation.unit};
+      } else {
+        throw err;
+      }
+    }
+    const unitFormatted = formatIndividualUnitCondensed(unit);
+    populated.hasResult.unit = unitFormatted;
+  }
+
+  // Discipline
+  if (check.assigned(observation.disciplines)) {
+    const {disciplines} = await getDisciplines({id: {in: observation.disciplines}});
+    const populatedDisciplines = populateIdArrayWithCollection(observation.disciplines, disciplines);
+    populated.disciplines = populatedDisciplines.map(formatIndividualDisciplineCondensed);
+  }
+
+  return populated;
+
+}
+
+
+//-------------------------------------------------
+// Populate multiple observations
+//-------------------------------------------------
+async function populateMultipleObservations(observations: any[]): Promise<any[]> {
+
+  const populated = cloneDeep(observations);
+
+  // TODO: Populate all these properties simultaneously.
+
+  // Observed Property
+  const observablePropertyIds = retrieveAllPropertyIdsFromCollection(populated, 'observedProperty');
+  if (observablePropertyIds.length) {
+    const {observableProperties} = await getObservableProperties({id: {in: observablePropertyIds}});
+    populated.forEach((obs): void => {
+      if (obs.observedProperty) {
+        const populatedObservableProperty = populateIdFromCollection(obs.observedProperty, observableProperties);
+        obs.observedProperty = formatIndividualObservablePropertyCondensed(populatedObservableProperty);
+      }
+    });
+  }
+
+  // Unit
+  let unitIds = populated.map((obs): string => obs.hasResult.unit).filter((id): boolean => id !== undefined);
+  unitIds = uniq(unitIds);
+  if (unitIds.length) {
+    const {units} = await getUnits({id: {in: unitIds}});
+    populated.forEach((obs): void => {
+      if (obs.hasResult.unit) {
+        const populatedunit = populateIdFromCollection(obs.hasResult.unit, units);
+        obs.hasResult.unit = formatIndividualUnitCondensed(populatedunit);
+      }
+    });
+  }
+
+  // Disciplines
+  const disciplineIds = retrieveAllPropertyIdsFromCollection(populated, 'disciplines');
+  if (disciplineIds.length) {
+    const {disciplines} = await getDisciplines({id: {in: disciplineIds}});
+    populated.forEach((obs): void => {
+      if (obs.disciplines) {
+        const populatedDisciplines = populateIdArrayWithCollection(obs.disciplines, disciplines);
+        obs.disciplines = populatedDisciplines.map(formatIndividualDisciplineCondensed);
+      }
+    });
+  }
+
+  return populated;
 
 }
