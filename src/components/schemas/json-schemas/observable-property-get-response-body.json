@@ -31,7 +31,7 @@
     "listed": {
       "type": "boolean"
     },
-    "units": {
+    "recommendedUnits": {
       "type": "array",
       "items": {
         "type": "string"
