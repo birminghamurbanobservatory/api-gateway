@@ -83,7 +83,7 @@ router.get('/features-of-interest', asyncWrapper(async (req, res): Promise<any> 
   let jsonResponse = await getFeaturesOfInterest(where, options, req.user);
 
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/features-of-interest`, query);
-  // validateAgainstSchema(jsonResponse, 'features-of-interest-get-response-body');
+  validateAgainstSchema(jsonResponse, 'features-of-interest-get-response-body');
   return res.json(jsonResponse);
 
 }));

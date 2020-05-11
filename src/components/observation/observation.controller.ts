@@ -270,6 +270,7 @@ async function populateMultipleObservations(observations: any[]): Promise<any[]>
   const populated = cloneDeep(observations);
 
   // TODO: Populate all these properties simultaneously.
+  // TODO: Add the option to only populate certain properties.
 
   // Observed Property
   const observablePropertyIds = retrieveAllPropertyIdsFromCollection(populated, 'observedProperty');

@@ -1,12 +1,8 @@
 {
-  "$id": "https://api.birminghamurbanobservatory.com/schemas/aggregation-get-response-body.json",
-  "title": "aggregation-get-response-body",
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/discipline.json",
+  "title": "discipline",
   "type": "object",
-  "description": "Response for a single aggregation",
   "properties": {
-    "@context": {
-      "$ref": "https://api.birminghamurbanobservatory.com/schemas/context-array.json"
-    },
     "@id": {
       "type": "string",
       "maxLength": 48,
@@ -14,7 +10,7 @@
     },
     "@type": {
       "type": "string",
-      "const": "Aggregation"
+      "const": "Discipline"
     },
     "label": {
       "type:": "string",

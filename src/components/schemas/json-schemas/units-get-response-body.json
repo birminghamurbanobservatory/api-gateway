@@ -1,0 +1,35 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/units-get-response-body.json",
+  "title": "units-get-response-body",
+  "type": "object",
+  "properties": {
+    "@context": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/context-array.json"
+    },
+    "@id": {
+      "type": "string",
+      "format": "uri"
+    },
+    "@type": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "member": {
+      "type": "array",
+      "items": {
+        "$ref": "https://api.birminghamurbanobservatory.com/schemas/unit.json"
+      }
+    },
+    "meta": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/collection-meta.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "@context",
+    "@id",
+    "member"
+  ]
+}

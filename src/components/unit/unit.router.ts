@@ -83,7 +83,7 @@ router.get('/units', asyncWrapper(async (req, res): Promise<any> => {
   let jsonResponse = await getUnits(where, options, req.user);
 
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/units`, query);
-  // validateAgainstSchema(jsonResponse, 'units-get-response-body');
+  validateAgainstSchema(jsonResponse, 'units-get-response-body');
   return res.json(jsonResponse);
 
 }));

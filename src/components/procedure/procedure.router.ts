@@ -83,7 +83,7 @@ router.get('/procedures', asyncWrapper(async (req, res): Promise<any> => {
   let jsonResponse = await getProcedures(where, options, req.user);
 
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/procedures`, query);
-  // validateAgainstSchema(jsonResponse, 'procedures-get-response-body');
+  validateAgainstSchema(jsonResponse, 'procedures-get-response-body');
   return res.json(jsonResponse);
 
 }));

@@ -1,0 +1,91 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/observation-get-response-body.json",
+  "title": "observation-get-response-body",
+  "type": "object",
+  "properties": {
+    "@context": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/context-array.json"
+    },
+    "@id": {
+      "type": "string"
+    },
+    "@type": {
+      "type": "string",
+      "const": "Observation"
+    },
+    "madeBySensor": {
+      "type": ["string", "object"]
+    },
+    "hasResult": {
+      "type": "object",
+      "required": [
+        "value"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "object",
+            "boolean"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unit": {
+          "type": ["string", "object"]
+        }
+      }
+    },
+    "inDeployments": {
+      "type": "array",
+      "items": {
+        "type": ["string", "object"]
+      }
+    },
+    "resultTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "hasFeatureOfInterest": {
+      "type": ["string", "object"]
+    },
+    "observedProperty": {
+      "type": ["string", "object"]
+    },
+    "disciplines": {
+      "type": "array",
+      "items": {
+        "type": ["string", "object"]
+      }
+    },
+    "usedProcedures": {
+      "type": "array",
+      "items": {
+        "type": ["string", "object"]
+      }
+    },
+    "location": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/location.json"
+    },
+    "ancestorPlatforms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "inTimeseries": {
+      "type": "string",
+      "description": "The id of the timeseries this observation belongs to."
+    }
+  },
+  "required": [
+    "@id",
+    "hasResult",
+    "resultTime"
+  ]
+}

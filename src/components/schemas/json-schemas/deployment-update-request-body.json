@@ -1,0 +1,21 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/deployment-update-request-body.json",
+  "title": "deployment-update-request-body",
+  "type": "object",
+  "description": "Permitted updates for a deployment.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "description": {
+      "type": "string"
+    },
+    "public": {
+      "type": "boolean"
+    }
+  },
+  "minProperties": 1,
+  "additionalProperties": false
+}

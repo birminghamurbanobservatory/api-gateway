@@ -83,7 +83,7 @@ router.get('/aggregations', asyncWrapper(async (req, res): Promise<any> => {
   let jsonResponse = await getAggregations(where, options, req.user);
 
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/aggregations`, query);
-  // validateAgainstSchema(jsonResponse, 'aggregations-get-response-body');
+  validateAgainstSchema(jsonResponse, 'aggregations-get-response-body');
   return res.json(jsonResponse);
 
 }));

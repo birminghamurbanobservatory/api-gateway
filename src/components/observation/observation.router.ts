@@ -16,6 +16,7 @@ import {config} from '../../config';
 import {queryObjectToQueryString} from '../../utils/query-object-to-querystring';
 import * as check from 'check-types';
 import {addMetaLinks} from '../common/add-meta-links';
+import {validateAgainstSchema} from '../schemas/json-schema-validator';
 
 const router = express.Router();
 
@@ -115,6 +116,7 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
   let jsonResponse = await getObservations(where, options, req.user);
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/observations`, query);
+  validateAgainstSchema(jsonResponse, 'observations-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -127,8 +129,8 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 router.get('/observations/:observationId', asyncWrapper(async (req, res): Promise<any> => {
 
   const observationId = req.params.observationId;
-
   const jsonResponse = await getObservation(observationId, req.user);
+  validateAgainstSchema(jsonResponse, 'observation-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -162,6 +164,7 @@ router.post('/observations', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidObservation(queryErr.message);
 
   const jsonResponse = await createObservation(body, req.user);
+  validateAgainstSchema(jsonResponse, 'observation-get-response-body');
   return res.status(201).json(jsonResponse);
 
 }));

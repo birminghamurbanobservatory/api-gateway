@@ -83,7 +83,7 @@ router.get('/disciplines', asyncWrapper(async (req, res): Promise<any> => {
   let jsonResponse = await getDisciplines(where, options, req.user);
 
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/disciplines`, query);
-  // validateAgainstSchema(jsonResponse, 'disciplines-get-response-body');
+  validateAgainstSchema(jsonResponse, 'disciplines-get-response-body');
   return res.json(jsonResponse);
 
 }));

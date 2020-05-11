@@ -82,7 +82,7 @@ router.get('/observable-properties', asyncWrapper(async (req, res): Promise<any>
   let jsonResponse = await getObservableProperties(where, options, req.user);
 
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/observable-properties`, query);
-  // validateAgainstSchema(jsonResponse, 'observable-properties-get-response-body');
+  validateAgainstSchema(jsonResponse, 'observable-properties-get-response-body');
   return res.json(jsonResponse);
 
 }));

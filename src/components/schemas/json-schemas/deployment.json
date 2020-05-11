@@ -1,0 +1,36 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/deployment.json",
+  "title": "deployment",
+  "type": "object",
+  "properties": {
+    "@id": {
+      "type": "string"
+    },
+    "@type": {
+      "type": "string",
+      "const": "Deployment"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "public": {
+      "type": "boolean"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "@id",
+    "name",
+    "public"
+  ]
+}

@@ -13,7 +13,8 @@ export function formatIndividualObservableProperty(observableProperty: any): any
   // For now at least I don't want the end users seeing who created the observableProperty
   delete observablePropertyLinked.createdBy;
   const renamed = renameProperties(observablePropertyLinked, {
-    id: '@id'
+    id: '@id',
+    units: 'recommendedUnits'
   });
   const ordered = orderObjectKeys(renamed, keyOrder);
   return ordered;

@@ -60,6 +60,7 @@ router.get('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 
   let jsonResponse = await getDeployments(where, options, req.user);
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/deployments`, query);
+  validateAgainstSchema(jsonResponse, 'deployments-get-response-body');
   return res.json(jsonResponse);
 
 }));
@@ -104,12 +105,11 @@ const updateDeploymentBodySchema = joi.object({
 
 router.patch('/deployments/:deploymentId', asyncWrapper(async (req, res): Promise<any> => {
 
-  const {error: queryErr, value: body} = updateDeploymentBodySchema.validate(req.body);
-  if (queryErr) throw new InvalidDeploymentUpdates(queryErr.message);
-
   const deploymentId = req.params.deploymentId;
-
+  const body = validateAgainstSchema(req.body, 'deployment-update-request-body');
+  
   const jsonResponse = await updateDeployment(deploymentId, body, req.user);
+  validateAgainstSchema(jsonResponse, 'deployment-get-response-body');
   return res.json(jsonResponse);
 
 }));

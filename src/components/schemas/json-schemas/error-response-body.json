@@ -1,0 +1,25 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/error-response-body.json",
+  "title": "error-response-body",
+  "type": "object",
+  "properties": {
+    "statusCode": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string"
+    },
+    "errorCode": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "statusCode",
+    "status",
+    "errorCode",
+    "message"
+  ]
+}

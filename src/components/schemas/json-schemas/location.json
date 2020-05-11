@@ -1,0 +1,45 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/location.json",
+  "title": "location",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "geometry": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Point",
+            "LineString",
+            "Polygon"
+          ]
+        },
+        "coordinates": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "coordinates"
+      ]
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "validAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "id",
+    "type",
+    "geometry",
+    "properties"
+  ]
+}

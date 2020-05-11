@@ -62,86 +62,10 @@
       "type": "string"
     },
     "centroid": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "geometry": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Point"
-              ]
-            },
-            "coordinates": {
-              "type": "array"
-            }
-          },
-          "required": [
-            "type",
-            "coordinates"
-          ]
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "validAt": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        }
-      },
-      "required": [
-        "id",
-        "geometry",
-        "properties"
-      ]
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/centroid.json"
     },
     "location": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "geometry": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Point",
-                "LineString",
-                "Polygon"
-              ]
-            },
-            "coordinates": {
-              "type": "array"
-            }
-          },
-          "required": [
-            "type",
-            "coordinates"
-          ]
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "validAt": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        }
-      },
-      "required": [
-        "id",
-        "geometry",
-        "properties"
-      ]
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/location.json"
     },
     "createdAt": {
       "type": "string",
