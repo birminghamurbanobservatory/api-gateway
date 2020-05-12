@@ -17,6 +17,26 @@ export function inConditional(value): string[] {
 }
 
 
+export function populateObservationConditional(value): string[] {
+
+  const items = value.split(',');
+
+  const validKeys = ['unit', 'observedProperty', 'disciplines'];
+
+  // Check each is a non-empty string
+  items.forEach((item): void => {
+    if (check.not.nonEmptyString(item)) {
+      throw new Error('each comma separated value should be non-empty string');
+    }
+    if (!validKeys.includes(item)) {
+      throw new Error(`property '${item}' is not a property that can be populated.`);
+    }
+  });
+
+  return items;
+}
+
+
 export function ancestorPlatformConditional(value): string[] {
 
   const items = value.split('.');

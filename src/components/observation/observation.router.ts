@@ -11,7 +11,7 @@ import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick, cloneDeep, omit} from 'lodash';
 import {Promise} from 'bluebird';
-import {inConditional, ancestorPlatformConditional, kebabCaseValidation, proximityCentreConditional} from '../../utils/custom-joi-validations';
+import {inConditional, ancestorPlatformConditional, kebabCaseValidation, proximityCentreConditional, populateObservationConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {queryObjectToQueryString} from '../../utils/query-object-to-querystring';
 import * as check from 'check-types';
@@ -71,6 +71,7 @@ const getObservationsQuerySchema = joi.object({
   proximityCentre: joi.string().custom(proximityCentreConditional),
   proximityRadius: joi.number().min(0),
   // options
+  populate: joi.string().custom(populateObservationConditional),
   limit: joi.number().integer().positive().max(1000).default(100),
   offset: joi.number().integer().min(0).default(0),
   onePer: joi.string().valid('sensor', 'timeseries'),
@@ -84,7 +85,6 @@ const getObservationsQuerySchema = joi.object({
 .without('resultTime__lt', 'resultTime__lte')
 .without('duration__lt', 'duration__lte')
 .without('duration__gt', 'duration__gte');
-
 
 
 router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
@@ -107,7 +107,7 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
   }
 
   // Pull out the options
-  const optionKeys = ['limit', 'offset', 'onePer', 'sortBy', 'sortOrder'];
+  const optionKeys = ['limit', 'offset', 'onePer', 'sortBy', 'sortOrder', 'populate'];
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
@@ -126,10 +126,17 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 // Get observation
 //-------------------------------------------------
+const getObservationQuerySchema = joi.object({
+  populate: joi.string().custom(populateObservationConditional)
+});
+
 router.get('/observations/:observationId', asyncWrapper(async (req, res): Promise<any> => {
 
+  const {error: queryErr, value: options} = getObservationQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+
   const observationId = req.params.observationId;
-  const jsonResponse = await getObservation(observationId, req.user);
+  const jsonResponse = await getObservation(observationId, options, req.user);
   validateAgainstSchema(jsonResponse, 'observation-get-response-body');
   return res.json(jsonResponse);
 

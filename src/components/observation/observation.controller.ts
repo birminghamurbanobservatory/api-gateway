@@ -20,7 +20,7 @@ import {populateIdArrayWithCollection, retrieveAllPropertyIdsFromCollection, pop
 //-------------------------------------------------
 // Get observations 
 //-------------------------------------------------
-export async function getObservations(where: any, options: {limit?: number; offset?: number; onePer?: string; sortBy: string; sortOrder: string}, user: ApiUser): Promise<any> {
+export async function getObservations(where: any, options: {limit?: number; offset?: number; onePer?: string; sortBy: string; sortOrder: string; populate?: string[]}, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
@@ -127,8 +127,11 @@ export async function getObservations(where: any, options: {limit?: number; offs
     delete updatedWhere.inTimeseries;
   }
 
+  const populateKeys = options.populate || [];
+  delete options.populate;
+
   const {observations, meta} = await observationService.getObservations(updatedWhere, options);
-  const populatedObservations = await populateMultipleObservations(observations);
+  const populatedObservations = await populateObservations(observations, populateKeys);
   const observationsWithContext = createObservationsResponse(populatedObservations, meta);
   return observationsWithContext;
 
@@ -138,7 +141,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
 //-------------------------------------------------
 // Get Observation
 //-------------------------------------------------
-export async function getObservation(observationId, user: ApiUser): Promise<any> {
+export async function getObservation(observationId, options: {populate?: string[]} = {}, user: ApiUser): Promise<any> {
 
   let hasSufficientRights; 
   const canAccessAllObservations = user.permissions.includes('get:observation');
@@ -178,7 +181,9 @@ export async function getObservation(observationId, user: ApiUser): Promise<any>
     throw new Forbidden(`You do not have the deployment access levels required to access observation '${observationId}'`);
   }
 
-  const populatedObservation = await populateSingleObservation(observation);
+  const populateKeys = options.populate || [];
+
+  const populatedObservation = await populateObservation(observation, populateKeys);
   const observationWithContext = createObservationResponse(populatedObservation);
   return observationWithContext;
 
@@ -214,12 +219,32 @@ export async function deleteObservation(observationId: string, user: ApiUser): P
 //-------------------------------------------------
 // Populate single observation
 //-------------------------------------------------
-async function populateSingleObservation(observation: any): Promise<any> {
+/**
+ * Populates properties of the observation. I.e. converting them from having a value that is a string (the id), and converting them to objects.
+ * @param observation - the observation to be populted
+ * @param populateKeys - An array with the keys of the properties to be populated. When this argument is not provided it will populate everything, when it's an empty array it won't populate anything.
+ */
+async function populateObservation(observation: any, populateKeys?: string[]): Promise<any> {
+
+  let keys;
+  let populateEverything = false;
+  if (!populateKeys) {
+    populateEverything = true;
+    keys = [];
+    logger.debug('Populating everything');
+  } else {
+    keys = cloneDeep(populateKeys);
+    if (keys.length === 0) {
+      logger.debug('Populating no observation properties');
+    } else {
+      logger.debug(`Populating the following properties of the observation: ${keys.join(',')}`);
+    }
+  }
 
   const populated = cloneDeep(observation);
 
   // Observed Property
-  if (check.assigned(observation.observedProperty)) {
+  if ((populateEverything || keys.includes('observedProperty')) && check.assigned(observation.observedProperty)) {
     let observedProperty;
     try {
       observedProperty = await getObservableProperty(observation.observedProperty);
@@ -235,7 +260,7 @@ async function populateSingleObservation(observation: any): Promise<any> {
   }
 
   // Unit
-  if (check.assigned(observation.hasResult.unit)) {
+  if ((populateEverything || keys.includes('unit')) && check.assigned(observation.hasResult.unit)) {
     let unit;
     try {
       unit = await getUnit(observation.hasResult.unit);
@@ -250,8 +275,8 @@ async function populateSingleObservation(observation: any): Promise<any> {
     populated.hasResult.unit = unitFormatted;
   }
 
-  // Discipline
-  if (check.assigned(observation.disciplines)) {
+  // Disciplines
+  if ((populateEverything || keys.includes('disciplines')) && check.assigned(observation.disciplines)) {
     const {disciplines} = await getDisciplines({id: {in: observation.disciplines}});
     const populatedDisciplines = populateIdArrayWithCollection(observation.disciplines, disciplines);
     populated.disciplines = populatedDisciplines.map(formatIndividualDisciplineCondensed);
@@ -265,16 +290,35 @@ async function populateSingleObservation(observation: any): Promise<any> {
 //-------------------------------------------------
 // Populate multiple observations
 //-------------------------------------------------
-async function populateMultipleObservations(observations: any[]): Promise<any[]> {
+/**
+ * Populates properties of the observations. I.e. converting them from having a value that is a string (the id), and converting them to objects.
+ * @param observations - the observations to be populted
+ * @param populateKeys - An array with the keys of the properties to be populated. When this argument is not provided it will populate everything, when it's an empty array it won't populate anything.
+ */
+async function populateObservations(observations: any[], populateKeys?: string[]): Promise<any[]> {
+
+  let keys;
+  let populateEverything = false;
+  if (!populateKeys) {
+    populateEverything = true;
+    keys = [];
+    logger.debug('Populating everything');
+  } else {
+    keys = cloneDeep(populateKeys);
+    if (keys.length === 0) {
+      logger.debug('Populating no properties of the observations');
+    } else {
+      logger.debug(`Populating the following properties of the observations: ${keys.join(',')}`);
+    }
+  }
 
   const populated = cloneDeep(observations);
 
   // TODO: Populate all these properties simultaneously.
-  // TODO: Add the option to only populate certain properties.
 
   // Observed Property
   const observablePropertyIds = retrieveAllPropertyIdsFromCollection(populated, 'observedProperty');
-  if (observablePropertyIds.length) {
+  if ((populateEverything || keys.includes('observedProperty')) && observablePropertyIds.length) {
     const {observableProperties} = await getObservableProperties({id: {in: observablePropertyIds}});
     populated.forEach((obs): void => {
       if (obs.observedProperty) {
@@ -287,7 +331,7 @@ async function populateMultipleObservations(observations: any[]): Promise<any[]>
   // Unit
   let unitIds = populated.map((obs): string => obs.hasResult.unit).filter((id): boolean => id !== undefined);
   unitIds = uniq(unitIds);
-  if (unitIds.length) {
+  if ((populateEverything || keys.includes('unit')) && unitIds.length) {
     const {units} = await getUnits({id: {in: unitIds}});
     populated.forEach((obs): void => {
       if (obs.hasResult.unit) {
@@ -299,7 +343,7 @@ async function populateMultipleObservations(observations: any[]): Promise<any[]>
 
   // Disciplines
   const disciplineIds = retrieveAllPropertyIdsFromCollection(populated, 'disciplines');
-  if (disciplineIds.length) {
+  if ((populateEverything || keys.includes('disciplines')) && disciplineIds.length) {
     const {disciplines} = await getDisciplines({id: {in: disciplineIds}});
     populated.forEach((obs): void => {
       if (obs.disciplines) {
