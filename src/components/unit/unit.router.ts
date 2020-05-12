@@ -57,6 +57,7 @@ const getSensorsQuerySchema = joi.object({
   inCommonVocab: joi.boolean(),
   belongsToDeployment: joi.string().pattern(alphanumericPlusHyphenRegex),
   belongsToDeployment__in: joi.string().custom(inConditional),
+  belongsToDeployment__exists: joi.boolean(),
   search: joi.string(),
   // options
   limit: joi.number().integer().positive().max(1000).default(100),

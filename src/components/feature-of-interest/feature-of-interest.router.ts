@@ -21,13 +21,13 @@ export {router as FeatureOfInterestRouter};
 
 
 //-------------------------------------------------
-// Create FeatureOfInterest
+// Create Feature Of Interest
 //-------------------------------------------------
 router.post('/features-of-interest', asyncWrapper(async (req, res): Promise<any> => {
 
   const body = validateAgainstSchema(req.body, 'feature-of-interest-create-request-body');
   const jsonResponse = await createFeatureOfInterest(body, req.user);
-  validateAgainstSchema(jsonResponse, 'featureOfInterest-get-response-body');
+  validateAgainstSchema(jsonResponse, 'feature-of-interest-get-response-body');
   return res.status(201).json(jsonResponse);
 
 }));
@@ -57,6 +57,7 @@ const getSensorsQuerySchema = joi.object({
   inCommonVocab: joi.boolean(),
   belongsToDeployment: joi.string().pattern(alphanumericPlusHyphenRegex),
   belongsToDeployment__in: joi.string().custom(inConditional),
+  belongsToDeployment__exists: joi.boolean(),
   search: joi.string(),
   // options
   limit: joi.number().integer().positive().max(1000).default(100),
@@ -95,7 +96,7 @@ router.get('/features-of-interest', asyncWrapper(async (req, res): Promise<any> 
 router.patch('/features-of-interest/:featureOfInterestId', asyncWrapper(async (req, res): Promise<any> => {
 
   const featureOfInterestId = req.params.featureOfInterestId;
-  const body = validateAgainstSchema(req.body, 'featureOfInterest-update-request-body');
+  const body = validateAgainstSchema(req.body, 'feature-of-interest-update-request-body');
   const jsonResponse = await updateFeatureOfInterest(featureOfInterestId, body, req.user);
   validateAgainstSchema(jsonResponse, 'feature-of-interest-get-response-body');
   return res.json(jsonResponse);

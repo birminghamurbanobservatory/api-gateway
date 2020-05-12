@@ -10,7 +10,7 @@
     },
     "@type": {
       "type": "string",
-      "const": "Aggregation"
+      "const": "FeatureOfInterest"
     },
     "label": {
       "type:": "string",
