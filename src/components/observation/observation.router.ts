@@ -55,6 +55,7 @@ const getObservationsQuerySchema = joi.object({
   duration__gt: joi.number().min(0),
   duration__gte: joi.number().min(0),
   flags__exists: joi.boolean(),
+  location__exists: joi.boolean(),
   // spatial queries
   latitude__gt: joi.number().min(-90).max(90),
   latitude__gte: joi.number().min(-90).max(90),
