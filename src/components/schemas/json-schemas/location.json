@@ -6,6 +6,10 @@
     "id": {
       "type": "string"
     },
+    "type": {
+      "type": "string",
+      "const": "Feature"
+    },
     "geometry": {
       "type": "object",
       "properties": {

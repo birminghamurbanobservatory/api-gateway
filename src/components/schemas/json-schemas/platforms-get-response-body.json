@@ -75,9 +75,6 @@
           "updateLocationWithSensor": {
             "type": "string"
           },
-          "centroid": {
-            "$ref": "https://api.birminghamurbanobservatory.com/schemas/centroid.json"
-          },
           "location": {
             "$ref": "https://api.birminghamurbanobservatory.com/schemas/location.json"
           },

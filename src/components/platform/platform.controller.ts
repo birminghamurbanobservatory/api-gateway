@@ -19,6 +19,11 @@ export async function createPlatform(platform, user): Promise<any> {
   const deployment = await getDeployment(platform.inDeployment);
   deploymentLevelCheck(deployment, user, ['admin', 'engineer']);
 
+  if (platform.location && platform.location.geometry.coordinates.length === 3) {
+    // the sensor-deployment-manager handles the height separately to the lat and lon.
+    platform.location.height = platform.location.geometry.coordinates.pop();
+  }
+
   const createdPlatform = await platformService.createPlatform(platform);
   const platformWithContext = createPlatformResponse(createdPlatform);
   return platformWithContext;
@@ -97,7 +102,7 @@ class GetPlatformsOptions extends CollectionOptions {
   public nest?: boolean;
 }
 
-export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatforms: any; search?: string}, options: GetPlatformsOptions, user: ApiUser): Promise<any> {
+export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; ancestorPlatforms: any; search?: string; latitude?: any; longitude?: any}, options: GetPlatformsOptions, user: ApiUser): Promise<any> {
 
   const updatedWhere: any = cloneDeep(where);
 
@@ -165,7 +170,19 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
   }
   delete updatedWhere.ancestorPlatforms;
 
-  const {platforms, count, total} = await platformService.getPlatforms(where, options);
+  // Make a bounding box out of the latitude and longitude (if available)
+  if (check.nonEmptyObject(where.latitude) && check.nonEmptyObject(where.longitude)) {
+    updatedWhere.boundingBox = {
+      left: where.longitude.gte,
+      right: where.longitude.lte,
+      top: where.latitude.lte,
+      bottom: where.latitude.gte
+    };
+    delete updatedWhere.latitude;
+    delete updatedWhere.longitude;
+  }
+
+  const {platforms, count, total} = await platformService.getPlatforms(updatedWhere, options);
 
   let platformsWithContext;
   if (options.nest) {
@@ -191,7 +208,7 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
 
     let hasRightsToHostPlatform;
 
-    // Get the new host platform so we can check the user has rights to a deployment its in
+    // Get the new host platform so we can check the user has rights to a deployment it's in
     const hostPlatform = await platformService.getPlatform(updates.isHostedBy);
 
     // Chances are the platform will be in this same deployment, so let's quickly check this first.
@@ -228,6 +245,12 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
   }
 
   const basicUpdates = omit(updates, ['isHostedBy']);
+
+  if (basicUpdates.location && basicUpdates.location.geometry.coordinates.length === 3) {
+    // the sensor-deployment-manager handles the height separately to the lat and lon.
+    basicUpdates.location.height = basicUpdates.location.geometry.coordinates.pop();
+  }
+
   let updatedPlatform;
   if (Object.keys(basicUpdates).length > 0) {
     updatedPlatform = await platformService.updatePlatform(platformId, basicUpdates);

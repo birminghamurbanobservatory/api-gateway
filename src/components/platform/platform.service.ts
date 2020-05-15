@@ -32,6 +32,8 @@ export async function getPlatforms(
     isHostedBy?: any; 
     hostedByPath?: any; 
     search?: string;
+    boundingBox?: any;
+    proximity?: any
   }, 
   options: GetPlatformsOptions = {}
 ): Promise<{platforms: any[]; count: number; total: number}> {

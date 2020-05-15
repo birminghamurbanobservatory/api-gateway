@@ -127,10 +127,7 @@ describe('', () => {
             value: 78
           },
           madeBySensor: `netatmo-02-00-00-3f-16-4c-humidity`,
-          observedProperty: {
-            '@id': 'RelativeHumidity',
-            label: 'relative humidity'
-          },
+          observedProperty: 'RelativeHumidity',
           aggregation: 'Instant',
           hasFeatureOfInterest: 'EarthAtmosphere',
           hasDeployment: `netatmo-gatekeepers`,
@@ -138,12 +135,7 @@ describe('', () => {
             'forestdale-primary-school',
             'netatmo-02-00-00-3f-16-4c-r4e'
           ],
-          disciplines: [
-            {
-              '@id': 'Meteorology',
-              label: 'meteorology'
-            }
-          ],
+          disciplines: ['Meteorology'],
           location: {
             id: '7164feea-d076-4ffa-8d48-c09643656f43',
             type: 'Feature',

@@ -74,13 +74,9 @@ const getPlatformsQuerySchema = joi.object({
   // TODO: Add the option to exclude platforms in public deployments that are not the user's deployment.
   search: joi.string(),
   // spatial queries
-  latitude__gt: joi.number().min(-90).max(90),
   latitude__gte: joi.number().min(-90).max(90),
-  latitude__lt: joi.number().min(-90).max(90),
   latitude__lte: joi.number().min(-90).max(90),
-  longitude__gt: joi.number().min(-180).max(180),
   longitude__gte: joi.number().min(-180).max(180),
-  longitude__lt: joi.number().min(-180).max(180),
   longitude__lte: joi.number().min(-180).max(180),
   height__gt: joi.number(),
   height__gte: joi.number(),
@@ -95,8 +91,8 @@ const getPlatformsQuerySchema = joi.object({
   sortBy: joi.string().valid('id').default('id'),
   sortOrder: joi.string().valid('asc', 'desc').default('asc')
 })
+.and('latitude__gte', 'latitude__lte', 'longitude__gte', 'longitude__lte')
 .without('inDeployment', 'inDeployment__in');
-
 
 router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
 

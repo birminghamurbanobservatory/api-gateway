@@ -22,10 +22,16 @@ export function formatIndividualPlatform(platform: any): any {
   delete platformLinked.hostedByPath;
   // There's some restructuring of the location objects required
   if (platformLinked.location) {
-    const {shape, centroid} = splitLocationIntoCentroidAndShape(platformLinked.location);
-    delete platformLinked.location;
-    platformLinked.location = shape;
-    platformLinked.centroid = centroid;
+    platformLinked.location.type = 'Feature';
+    if (platformLinked.location.height) {
+      platformLinked.location.geometry.coordinates[2] = platformLinked.location.height;
+    }
+    platformLinked.location.properties = {
+      validAt: platformLinked.location.validAt
+    };
+    delete platformLinked.location.height;
+    delete platformLinked.location.validAt;
+    platformLinked.location = orderObjectKeys(platformLinked.location, ['id', 'type', 'geometry', 'properties']);
   }
   const ordered = orderObjectKeys(platformLinked, keyOrder);
   return ordered;
@@ -38,34 +44,6 @@ export function formatIndividualPlatformCondensed(platform: any): any {
   const propsToKeep = ['@id', '@type', 'name', 'description', 'static'];
   const condensed = pick(linked, propsToKeep);
   return condensed;
-}
-
-
-function splitLocationIntoCentroidAndShape(location: any): {shape: any; centroid: any} {
-
-  const shape = {
-    type: 'Feature',
-    id: location.id,
-    geometry: location.geometry,
-    properties: {
-      validAt: location.validAt
-    }
-  };
-
-  const centroid = {
-    type: 'Feature',
-    id: location.id,
-    geometry: centroidToGeometry(location.centroid),
-    properties: {
-      validAt: location.validAt
-    }
-  };
-
-  return {
-    shape,
-    centroid
-  };
-
 }
 
 
