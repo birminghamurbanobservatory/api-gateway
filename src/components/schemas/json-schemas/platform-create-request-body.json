@@ -40,9 +40,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "Point",
-                "LineString",
-                "Polygon"
+                "Point"
               ]
             },
             "coordinates": {

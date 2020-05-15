@@ -140,7 +140,8 @@ const updatePlatformBodySchema = joi.object({
   isHostedBy: joi.string().allow(null),
   location: joi.object({
     geometry: joi.object({
-      type: joi.string().required(),
+      // Decide I only ever want platforms to be Points
+      type: joi.string().valid('Point').required(),
       coordinates: joi.array().required()
     })
     .custom((value): any => {
