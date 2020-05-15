@@ -197,6 +197,11 @@ export async function createObservation(observation, user: ApiUser): Promise<any
 
   permissionsCheck(user, 'create:observation');
 
+  // Pull the height out from the coordinates array
+  if (observation.location && observation.location.geometry.coordinates.length === 3) {
+    observation.location.height = observation.location.geometry.coordinates.pop();
+  }
+
   const createdObservation = await observationService.createObservation(observation);
   const observationWithContext = createObservationResponse(createdObservation);
   return observationWithContext;

@@ -17,6 +17,7 @@ import {queryObjectToQueryString} from '../../utils/query-object-to-querystring'
 import * as check from 'check-types';
 import {addMetaLinks} from '../common/add-meta-links';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
+import {validateGeometry} from '../../utils/geojson-validator';
 
 const router = express.Router();
 
@@ -159,8 +160,22 @@ const createObservationBodySchema = joi.object({
     .required(),
   observedProperty: joi.string(),
   aggregation: joi.string(),
-  usedProcedures: joi.array().items(joi.string())
+  usedProcedures: joi.array().items(joi.string()),
   // for now at least the discipline and hasFeatureOfInterest should come from the saved context.
+  location: joi.object({
+    id: joi.string(),
+    height: joi.number(),
+    geometry: joi.object({
+      // Decide I only ever want platforms to be Points
+      type: joi.string().valid('Point').required(),
+      coordinates: joi.array().min(2).max(3).required()
+    })
+    .custom((value): any => {
+      validateGeometry(value); // throws an error if invalid
+      return value;
+    })
+    .required()
+  })
 })
 .required();
 

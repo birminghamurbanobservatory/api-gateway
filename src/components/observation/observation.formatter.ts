@@ -32,6 +32,11 @@ export function formatIndividualObservation(observation: any): any {
       validAt: observationLinked.location.validAt
     };
     delete observationLinked.location.validAt;
+    // If there's a height property, add it as the 3rd element in the observation
+    if (observationLinked.location.height) {
+      observationLinked.location.geometry.coordinates[2] = observationLinked.location.height;
+    }
+    delete observationLinked.location.height;
     observationLinked.location.type = 'Feature';
     observationLinked.location = orderObjectKeys(observationLinked.location, ['type', 'id', 'geometry', 'properties']);
   }
