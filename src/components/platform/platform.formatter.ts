@@ -4,22 +4,17 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {formatIndividualSensor} from '../sensor/sensor.formatter';
 import {centroidToGeometry} from '../../utils/geojson-helpers';
+import {renameProperties} from '../../utils/rename';
 
 
-const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'location', 'centroid', 'createdAt', 'updatedAt'];
+const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'topPlatform', 'location', 'centroid', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualPlatform(platform: any): any {
   const platformLinked = cloneDeep(platform);
-  platformLinked['@id'] = platformLinked.id;
-  delete platformLinked.id;
   platformLinked['@type'] = 'Platform';
   delete platformLinked.users;
   delete platformLinked.createdBy;
-  if (platformLinked.hostedByPath) {
-    platformLinked.ancestorPlatforms = platformLinked.hostedByPath;
-  }
-  delete platformLinked.hostedByPath;
   // There's some restructuring of the location objects required
   if (platformLinked.location) {
     platformLinked.location.type = 'Feature';
@@ -33,7 +28,11 @@ export function formatIndividualPlatform(platform: any): any {
     delete platformLinked.location.validAt;
     platformLinked.location = orderObjectKeys(platformLinked.location, ['id', 'type', 'geometry', 'properties']);
   }
-  const ordered = orderObjectKeys(platformLinked, keyOrder);
+  const renamed = renameProperties(platformLinked, {
+    id: '@id',
+    hostedByPath: 'ancestorPlatforms'
+  });
+  const ordered = orderObjectKeys(renamed, keyOrder);
   return ordered;
 }
 
