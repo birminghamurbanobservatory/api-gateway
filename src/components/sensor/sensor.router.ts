@@ -23,23 +23,10 @@ export {router as SensorRouter};
 //-------------------------------------------------
 // Create Sensor
 //-------------------------------------------------
-const createSensorBodySchema = joi.object({
-  // The JSON schema will check most things, I just need this for the most complicated checks.
-})
-.unknown()
-.or('id', 'hasDeployment')
-// If an ID isn't provided, then hasDeployment must be, as this indicates that a deployment sensor is being created.
-.without('hasDeployment', 'permanentHost')
-// I don't want hasDeployment and permanentHost to be set at the same time. Is the sensor has a permanentHost then the mechanism for adding the sensor to a deployment is via a registration key.
-.required();
-
 router.post('/sensors', asyncWrapper(async (req, res): Promise<any> => {
 
   const body = validateAgainstSchema(req.body, 'sensor-create-request-body');
-
-  // I'm struggling to do some of the most complex checks with the JSON schema, hence also using joi here
-  const {error: bodyErr} = createSensorBodySchema.validate(req.body);
-  if (bodyErr) throw new InvalidBody(bodyErr.message);
+  // N.B. the sensor-deployment-manager will handle the more complex checks
 
   const jsonResponse = await createSensor(body, req.user);
   validateAgainstSchema(jsonResponse, 'sensor-get-response-body');
@@ -117,31 +104,10 @@ router.get('/sensors', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 // Update sensor (superusers only)
 //-------------------------------------------------
-const configSchema = joi.object({
-  hasPriority: joi.boolean().required(),
-  observedProperty: joi.string().required(),
-  unit: joi.string(),
-  hasFeatureOfInterest: joi.string(),
-  disciplines: joi.array().items(joi.string()),
-  usedProcedures: joi.array().items(joi.string())
-});
-
-const updateSensorBodySchema = joi.object({
-  name: joi.string(),
-  description: joi.string().allow(''),
-  hasDeployment: joi.string().allow(null),
-  permanentHost: joi.string().allow(null),
-  initialConfig: joi.array().items(configSchema),
-  currentConfig: joi.array().items(configSchema)
-  // N.B. this isn't where the isHostedBy can be changed, for sensors on permanentHosts this is changed during registration, and for deployment sensors this is handled at an endpoint with the deploymentId in the path.
-})
-.min(1)
-.required(); 
-
 router.patch('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => {
 
-  const {error: bodyErr, value: body} = updateSensorBodySchema.validate(req.body);
-  if (bodyErr) throw new InvalidBody(bodyErr.message);
+  const body = validateAgainstSchema(req.body, 'sensor-update-request-body');
+  // N.B. the sensor-deployment-manager will handle the more complex checks
 
   const sensorId = req.params.sensorId;
 

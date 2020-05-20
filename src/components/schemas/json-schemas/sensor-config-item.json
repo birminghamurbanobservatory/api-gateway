@@ -1,0 +1,37 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/sensor-config-item.json",
+  "title": "sensor-config-item",
+  "type": "object",
+  "description": "Defines a object within a sensor's configuration array.",
+  "properties": {
+    "hasPriority": {
+      "type": "boolean"
+    },
+    "observedProperty": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "hasFeatureOfInterest": {
+      "type": "string"
+    },
+    "disciplines": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "usedProcedures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    } 
+  },
+  "required": [
+    "hasPriority",
+    "observedProperty"
+  ],
+  "additionalProperties": false
+}

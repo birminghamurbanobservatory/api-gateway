@@ -1,18 +1,9 @@
 {
-  "$id": "https://api.birminghamurbanobservatory.com/schemas/sensor-create-request-body.json",
-  "title": "sensor-create-request-body",
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/sensor-update-request-body.json",
+  "title": "sensor-update-request-body",
   "type": "object",
-  "x-tags": [
-    "sensors"
-  ],
-  "description": "Permitted sensor structure during creation.",
+  "description": "Permitted updates to a sensor.",
   "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 48,
-      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
-    },
     "name": {
       "type:": "string",
       "minLength": 1,
@@ -22,15 +13,21 @@
       "type": "string"
     },
     "permanentHost": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "hasDeployment": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "isHostedBy": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "initialConfig": {
+      "type": "array",
+      "items": {
+        "$ref": "https://api.birminghamurbanobservatory.com/schemas/sensor-config-item.json"
+      }
+    },
+    "currentConfig": {
       "type": "array",
       "items": {
         "$ref": "https://api.birminghamurbanobservatory.com/schemas/sensor-config-item.json"

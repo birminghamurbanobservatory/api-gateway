@@ -19,6 +19,9 @@ import * as platformsGetResponseBodySchema from './json-schemas/platforms-get-re
 import * as sensorCreateRequestBodySchema from './json-schemas/sensor-create-request-body.json';
 import * as sensorGetResponseBodySchema from './json-schemas/sensor-get-response-body.json';
 import * as sensorsGetResponseBodySchema from './json-schemas/sensors-get-response.body.json';
+import * as sensorUpdateRequestBodySchema from './json-schemas/sensor-update-request-body.json';
+// sensor config
+import * as sensorConfigItemSchema from './json-schemas/sensor-config-item.json';
 // observations
 import * as observationSchema from './json-schemas/observation.json';
 import * as observationGetReponseBodySchema from './json-schemas/observation-get-response-body.json';
@@ -98,6 +101,9 @@ const ajv = new Ajv({
     sensorCreateRequestBodySchema,
     sensorGetResponseBodySchema,
     sensorsGetResponseBodySchema,
+    sensorUpdateRequestBodySchema,
+    // sensor config
+    sensorConfigItemSchema,
     // observations
     observationSchema,
     observationGetReponseBodySchema,

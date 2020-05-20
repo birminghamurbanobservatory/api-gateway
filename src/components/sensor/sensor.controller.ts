@@ -9,11 +9,18 @@ import {concat, uniqBy} from 'lodash';
 import {Forbidden} from '../../errors/Forbidden';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {CollectionOptions} from '../common/collection-options.class';
+import {BadRequest} from '../../errors/BadRequest';
 
 
 export async function createSensor(sensor, user: ApiUser): Promise<any> {
 
+  // For now at least this is for superusers only.
   permissionsCheck(user, 'create:sensor');
+
+  // If a sensor isn't provided, then hasDeployment must be, as this indicates that a deployment sensor is being created.
+  if (!sensor.id && !sensor.hasDeployment) {
+    throw new BadRequest('When creating a sensor where the id is not explicity set, the deployment must be.');
+  }
 
   const createdSensor = await sensorService.createSensor(sensor);
   const sensorWithContext = createSensorResponse(createdSensor);
@@ -110,12 +117,13 @@ export async function getSensors(where, options: CollectionOptions, user: ApiUse
 
 export async function updateSensor(sensorId: string, updates: any, user: ApiUser): Promise<any> {
 
-  // This is for superusers only
+  // For now at least this is for superusers only
   permissionsCheck(user, 'update:sensor');
 
   const updatedSensor = await sensorService.updateSensor(sensorId, updates);
   const sensorWithContext = createSensorResponse(updatedSensor);
   return sensorWithContext;
+
 }
 
 
