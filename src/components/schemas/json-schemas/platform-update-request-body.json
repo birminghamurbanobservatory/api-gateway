@@ -1,0 +1,29 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/platform-update-request-body.json",
+  "title": "platform-update-request-body",
+  "type": "object",
+  "description": "Permitted platform updates.",
+  "properties": {
+    "name": {
+      "type:": "string",
+      "minLength": 1,
+      "maxLength": 44
+    },
+    "description": {
+      "type": "string"
+    },
+    "isHostedBy": {
+      "type": "string"
+    },
+    "static": {
+      "type": "boolean"
+    },
+    "location" : {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/location-create.json"
+    },
+    "updateLocationWithSensor": {
+      "type": "string"
+    }
+  },
+  "minProperties": 1
+}

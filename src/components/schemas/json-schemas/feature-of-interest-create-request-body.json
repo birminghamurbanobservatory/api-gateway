@@ -25,6 +25,9 @@
     },
     "belongsToDeployment": {
       "type": "string"
+    },
+    "location" : {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/location-create.json"
     }
   },
   "minProperties": 1,

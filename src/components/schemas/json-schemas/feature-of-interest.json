@@ -29,6 +29,12 @@
     "belongsToDeployment": {
       "type": "string"
     },
+    "location": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/location.json"
+    },
+    "centroid": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/centroid.json"
+    },
     "createdAt": {
       "type": "string",
       "format": "date-time"

@@ -3,7 +3,6 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {formatIndividualSensor} from '../sensor/sensor.formatter';
-import {centroidToGeometry} from '../../utils/geojson-helpers';
 import {renameProperties} from '../../utils/rename';
 
 
@@ -18,15 +17,16 @@ export function formatIndividualPlatform(platform: any): any {
   // There's some restructuring of the location objects required
   if (platformLinked.location) {
     platformLinked.location.type = 'Feature';
-    if (platformLinked.location.height) {
-      platformLinked.location.geometry.coordinates[2] = platformLinked.location.height;
-    }
     platformLinked.location.properties = {
       validAt: platformLinked.location.validAt
     };
+    if (platformLinked.location.height) {
+      platformLinked.location.properties.height = platformLinked.location.height;
+    }
     delete platformLinked.location.height;
     delete platformLinked.location.validAt;
     platformLinked.location = orderObjectKeys(platformLinked.location, ['id', 'type', 'geometry', 'properties']);
+    platformLinked.location.geometry = orderObjectKeys(platformLinked.location.geometry, ['type', 'coordinates']);
   }
   const renamed = renameProperties(platformLinked, {
     id: '@id',

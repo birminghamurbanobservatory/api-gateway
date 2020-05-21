@@ -59,6 +59,7 @@ const getSensorsQuerySchema = joi.object({
   belongsToDeployment__in: joi.string().custom(inConditional),
   belongsToDeployment__exists: joi.boolean(),
   search: joi.string(),
+  // TODO: Add some spatial queries
   // options
   limit: joi.number().integer().positive().max(1000).default(100),
   offset: joi.number().integer().min(0).default(0),

@@ -11,6 +11,7 @@ import * as Promise from 'bluebird';
 import {recursivelyExtractInDeploymentIds, recursivelyRemoveProtectedHostedPlatforms} from './platform.helpers';
 import * as logger from 'node-logger';
 import {CollectionOptions} from '../common/collection-options.class';
+import {locationClientToApp} from '../common/location-helpers';
 
 
 export async function createPlatform(platform, user): Promise<any> {
@@ -19,9 +20,8 @@ export async function createPlatform(platform, user): Promise<any> {
   const deployment = await getDeployment(platform.inDeployment);
   deploymentLevelCheck(deployment, user, ['admin', 'engineer']);
 
-  if (platform.location && platform.location.geometry.coordinates.length === 3) {
-    // the sensor-deployment-manager handles the height separately to the lat and lon.
-    platform.location.height = platform.location.geometry.coordinates.pop();
+  if (platform.location) {
+    platform.location = locationClientToApp(platform.location);
   }
 
   const createdPlatform = await platformService.createPlatform(platform);
@@ -203,7 +203,6 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
   const itsDeployment = await getDeployment(platform.inDeployment);
   deploymentLevelCheck(itsDeployment, user, ['admin', 'engineer']);
   
-
   if (updates.isHostedBy) {
 
     let hasRightsToHostPlatform;
@@ -246,9 +245,8 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
 
   const basicUpdates = omit(updates, ['isHostedBy']);
 
-  if (basicUpdates.location && basicUpdates.location.geometry.coordinates.length === 3) {
-    // the sensor-deployment-manager handles the height separately to the lat and lon.
-    basicUpdates.location.height = basicUpdates.location.geometry.coordinates.pop();
+  if (basicUpdates.location) {
+    basicUpdates.location = locationClientToApp(basicUpdates.location);
   }
 
   let updatedPlatform;

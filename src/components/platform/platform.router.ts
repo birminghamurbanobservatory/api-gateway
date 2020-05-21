@@ -129,35 +129,9 @@ router.get('/platforms', asyncWrapper(async (req, res): Promise<any> => {
 //-------------------------------------------------
 // Update a platform
 //-------------------------------------------------
-const updatePlatformBodySchema = joi.object({
-  name: joi.string(),
-  description: joi.string().allow(''),
-  static: joi.boolean(),
-  isHostedBy: joi.string().allow(null),
-  location: joi.object({
-    geometry: joi.object({
-      // Decide I only ever want platforms to be Points
-      type: joi.string().valid('Point').required(),
-      coordinates: joi.array().required()
-    })
-    .custom((value): any => {
-      validateGeometry(value); // throws an error if invalid
-      return value;
-    })
-    .required()
-  }),
-  updateLocationWithSensor: joi.string().allow(null)
-    .when('static', {is: true, then: joi.forbidden()})
-})
-.min(1)
-.required();
-
-
 router.patch('/platforms/:platformId', asyncWrapper(async (req, res): Promise<any> => {
 
-  const {error: queryErr, value: body} = updatePlatformBodySchema.validate(req.body);
-  if (queryErr) throw new InvalidPlatformUpdates(queryErr.message);
-
+  const body = validateAgainstSchema(req.body, 'platform-update-request-body');
   const platformId = req.params.platformId;
   const jsonResponse = await updatePlatform(platformId, body, req.user);
   validateAgainstSchema(jsonResponse, 'platform-get-response-body');

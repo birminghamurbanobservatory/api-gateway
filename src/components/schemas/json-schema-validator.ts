@@ -15,6 +15,7 @@ import * as deploymentGetResponseBodySchema from './json-schemas/deployment-get-
 import * as platformGetResponseBodySchema from './json-schemas/platform-get-response-body.json';
 import * as platformCreateRequestBodySchema from './json-schemas/platform-create-request-body.json';
 import * as platformsGetResponseBodySchema from './json-schemas/platforms-get-response-body.json';
+import * as platformUpdateRequestBodySchema from './json-schemas/platform-update-request-body.json';
 // sensor
 import * as sensorCreateRequestBodySchema from './json-schemas/sensor-create-request-body.json';
 import * as sensorGetResponseBodySchema from './json-schemas/sensor-get-response-body.json';
@@ -70,6 +71,7 @@ import * as featureOfInterestUpdateRequestBodySchema from './json-schemas/featur
 import * as featureOfInterestGetResponseBodySchema from './json-schemas/feature-of-interest-get-response-body.json';
 // other
 import * as locationSchema from './json-schemas/location.json';
+import * as locationCreateSchema from './json-schemas/location-create.json';
 import * as centroidSchema from './json-schemas/centroid.json';
 import * as collectionMetaSchema from './json-schemas/collection-meta.json';
 import * as contextArraySchema from './json-schemas/context-array.json';
@@ -97,6 +99,7 @@ const ajv = new Ajv({
     platformGetResponseBodySchema,
     platformCreateRequestBodySchema,
     platformsGetResponseBodySchema,
+    platformUpdateRequestBodySchema,
     // sensors
     sensorCreateRequestBodySchema,
     sensorGetResponseBodySchema,
@@ -151,6 +154,7 @@ const ajv = new Ajv({
     featureOfInterestGetResponseBodySchema,
     // extras
     locationSchema,
+    locationCreateSchema,
     centroidSchema,
     collectionMetaSchema,
     contextArraySchema,

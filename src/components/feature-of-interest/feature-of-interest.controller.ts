@@ -10,6 +10,7 @@ import * as check from 'check-types';
 import {buildVocabResourceOrArray} from '../common/vocab-resource.helpers';
 import {getDeployment} from '../deployment/deployment.service';
 import {deploymentLevelCheck} from '../deployment/deployment-level-check';
+import {locationClientToApp} from '../common/location-helpers';
 
 
 
@@ -21,6 +22,10 @@ export async function createFeatureOfInterest(featureOfInterest, user: ApiUser):
   const featureOfInterestToCreate = cloneDeep(featureOfInterest);
   if (user.id) {
     featureOfInterestToCreate.createdBy = user.id;
+  }
+
+  if (featureOfInterestToCreate.location) {
+    featureOfInterestToCreate.location = locationClientToApp(featureOfInterestToCreate.location);
   }
 
   const createdDeployment = await featureOfInterestService.createFeatureOfInterest(featureOfInterestToCreate);
@@ -105,6 +110,10 @@ export async function updateFeatureOfInterest(featureOfInterestId: string, updat
     deploymentLevelCheck(newDeployment, user, ['admin', 'engineer']);
   }
 
+  if (updates.location) {
+    updates.location = locationClientToApp(updates.location);
+  }
+
   const updatedFeatureOfInterest = await featureOfInterestService.updateFeatureOfInterest(featureOfInterestId, updates);
   const featureOfInterestWithContext = createFeatureOfInterestResponse(updatedFeatureOfInterest);
   return featureOfInterestWithContext;
@@ -134,3 +143,4 @@ export async function deleteFeatureOfInterest(featureOfInterestId: string, user:
   return;
 
 }
+
