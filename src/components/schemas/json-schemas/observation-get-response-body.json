@@ -57,6 +57,9 @@
     "observedProperty": {
       "type": ["string", "object"]
     },
+    "aggregation": {
+      "type": ["string", "object"]
+    },
     "disciplines": {
       "type": "array",
       "items": {

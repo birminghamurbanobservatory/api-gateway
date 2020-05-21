@@ -21,7 +21,7 @@ export function populateObservationConditional(value): string[] {
 
   const items = value.split(',');
 
-  const validKeys = ['unit', 'observedProperty', 'disciplines'];
+  const validKeys = ['unit', 'observedProperty', 'disciplines', 'usedProcedures', 'hasFeatureOfInterest', 'aggregation'];
 
   // Check each is a non-empty string
   items.forEach((item): void => {

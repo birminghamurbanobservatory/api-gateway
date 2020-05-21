@@ -12,9 +12,15 @@ import {formatIndividualObservablePropertyCondensed} from '../observable-propert
 import {getObservableProperty, getObservableProperties} from '../observable-property/observable-property.service';
 import {formatIndividualUnitCondensed} from '../unit/unit.formatter';
 import {getDisciplines} from '../discipline/discipline.service';
-import {formatIndividualDisciplineCondensed} from '../discipline/discipline.formatter';
+import {formatIndividualDisciplineCondensed, formatIndividualDiscipline} from '../discipline/discipline.formatter';
 import {getUnit, getUnits} from '../unit/unit.service';
 import {populateIdArrayWithCollection, retrieveAllPropertyIdsFromCollection, populateIdFromCollection} from '../../utils/population-helpers';
+import {getFeatureOfInterest, getFeaturesOfInterest} from '../feature-of-interest/feature-of-interest.service';
+import {formatIndividualProcedureCondensed} from '../procedure/procedure.formatter';
+import {getProcedures} from '../procedure/procedure.service';
+import {getAggregations, getAggregation} from '../aggregation/aggregation.service';
+import {formatIndividualAggregationCondensed} from '../aggregation/aggregation.formatter';
+import {formatIndividualFeatureOfInterestCondensed} from '../feature-of-interest/feature-of-interest.formatter';
 
 
 //-------------------------------------------------
@@ -280,11 +286,50 @@ async function populateObservation(observation: any, populateKeys?: string[]): P
     populated.hasResult.unit = unitFormatted;
   }
 
+  // Aggregation
+  if ((populateEverything || keys.includes('aggregation')) && check.assigned(observation.aggregation)) {
+    let aggregation;
+    try {
+      aggregation = await getAggregation(observation.aggregation);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        aggregation = {id: observation.aggregation};
+      } else {
+        throw err;
+      }
+    }
+    const aggregationFormatted = formatIndividualAggregationCondensed(aggregation);
+    populated.aggregation = aggregationFormatted;
+  }
+
   // Disciplines
   if ((populateEverything || keys.includes('disciplines')) && check.assigned(observation.disciplines)) {
     const {disciplines} = await getDisciplines({id: {in: observation.disciplines}});
     const populatedDisciplines = populateIdArrayWithCollection(observation.disciplines, disciplines);
     populated.disciplines = populatedDisciplines.map(formatIndividualDisciplineCondensed);
+  }
+
+  // Feature of interest
+  if ((populateEverything || keys.includes('hasFeatureOfInterest')) && check.assigned(observation.hasFeatureOfInterest)) {
+    let featureOfInterest;
+    try {
+      featureOfInterest = await getFeatureOfInterest(observation.hasFeatureOfInterest);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        featureOfInterest = {id: observation.hasFeatureOfInterest};
+      } else {
+        throw err;
+      }
+    }
+    const featureOfInterestFormatted = formatIndividualObservablePropertyCondensed(featureOfInterest);
+    populated.hasFeatureOfInterest = featureOfInterestFormatted;
+  }
+
+  // Procedures
+  if ((populateEverything || keys.includes('usedProcedures')) && check.assigned(observation.usedProcedures)) {
+    const {procedures} = await getProcedures({id: {in: observation.usedProcedures}});
+    const populatedProcedures = populateIdArrayWithCollection(observation.usedProcedures, procedures);
+    populated.usedProcedures = populatedProcedures.map(formatIndividualProcedureCondensed);
   }
 
   return populated;
@@ -340,8 +385,21 @@ async function populateObservations(observations: any[], populateKeys?: string[]
     const {units} = await getUnits({id: {in: unitIds}});
     populated.forEach((obs): void => {
       if (obs.hasResult.unit) {
-        const populatedunit = populateIdFromCollection(obs.hasResult.unit, units);
-        obs.hasResult.unit = formatIndividualUnitCondensed(populatedunit);
+        const populatedUnit = populateIdFromCollection(obs.hasResult.unit, units);
+        obs.hasResult.unit = formatIndividualUnitCondensed(populatedUnit);
+      }
+    });
+  }
+
+  // Aggregation
+  let aggregationIds = populated.map((obs): string => obs.aggregation).filter((id): boolean => id !== undefined);
+  aggregationIds = uniq(aggregationIds);
+  if ((populateEverything || keys.includes('aggregation')) && aggregationIds.length) {
+    const {aggregations} = await getAggregations({id: {in: aggregationIds}});
+    populated.forEach((obs): void => {
+      if (obs.aggregation) {
+        const populatedAggregation = populateIdFromCollection(obs.aggregation, aggregations);
+        obs.aggregation = formatIndividualAggregationCondensed(populatedAggregation);
       }
     });
   }
@@ -354,6 +412,30 @@ async function populateObservations(observations: any[], populateKeys?: string[]
       if (obs.disciplines) {
         const populatedDisciplines = populateIdArrayWithCollection(obs.disciplines, disciplines);
         obs.disciplines = populatedDisciplines.map(formatIndividualDisciplineCondensed);
+      }
+    });
+  }
+
+  // Feature of interest
+  const featureOfInterestIds = retrieveAllPropertyIdsFromCollection(populated, 'hasFeatureOfInterest');
+  if ((populateEverything || keys.includes('hasFeatureOfInterest')) && featureOfInterestIds.length) {
+    const {featuresOfInterest} = await getFeaturesOfInterest({id: {in: featureOfInterestIds}});
+    populated.forEach((obs): void => {
+      if (obs.hasFeatureOfInterest) {
+        const populatedFeaturesOfInterest = populateIdFromCollection(obs.hasFeatureOfInterest, featuresOfInterest);
+        obs.hasFeatureOfInterest = formatIndividualFeatureOfInterestCondensed(populatedFeaturesOfInterest);
+      }
+    });
+  }
+
+  // Procedures
+  const procedureIds = retrieveAllPropertyIdsFromCollection(populated, 'usedProcedures');
+  if ((populateEverything || keys.includes('usedProcedures')) && procedureIds.length) {
+    const {procedures} = await getProcedures({id: {in: procedureIds}});
+    populated.forEach((obs): void => {
+      if (obs.usedProcedures) {
+        const populatedProcedures = populateIdArrayWithCollection(obs.usedProcedures, procedures);
+        obs.usedProcedures = populatedProcedures.map(formatIndividualProcedureCondensed);
       }
     });
   }
