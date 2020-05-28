@@ -27,6 +27,7 @@ import * as sensorConfigItemSchema from './json-schemas/sensor-config-item.json'
 import * as observationSchema from './json-schemas/observation.json';
 import * as observationGetReponseBodySchema from './json-schemas/observation-get-response-body.json';
 import * as observationsGetReponseBodySchema from './json-schemas/observations-get-response-body.json';
+import * as phenomenonTimeSchema from './json-schemas/phenomenon-time.json';
 // timeseries
 import * as timeseriesSchema from './json-schemas/timeseries.json';
 import * as singleTimeseriesGetResponseBodySchema from './json-schemas/single-timeseries-get-response-body.json';
@@ -111,6 +112,7 @@ const ajv = new Ajv({
     observationSchema,
     observationGetReponseBodySchema,
     observationsGetReponseBodySchema,
+    phenomenonTimeSchema,
     // timeseries
     timeseriesSchema,
     singleTimeseriesGetResponseBodySchema,

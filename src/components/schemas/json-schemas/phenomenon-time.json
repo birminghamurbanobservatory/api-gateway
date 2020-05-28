@@ -1,0 +1,22 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/phenomenon-time.json",
+  "title": "phenomenon-time",
+  "type": "object",
+  "properties": {
+    "hasBeginning": {
+      "type": "string"
+    },
+    "hasEnd": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "hasBeginning",
+    "hasEnd",
+    "duration"
+  ]
+}

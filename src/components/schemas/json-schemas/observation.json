@@ -38,11 +38,8 @@
         }
       }
     },
-    "inDeployments": {
-      "type": "array",
-      "items": {
-        "type": ["string", "object"]
-      }
+    "hasDeployment": {
+      "type": ["string", "object"]
     },
     "resultTime": {
       "type": "string",
@@ -69,6 +66,9 @@
         "type": ["string", "object"]
       }
     },
+    "phenomenonTime": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/phenomenon-time.json"
+    },
     "location": {
       "$ref": "https://api.birminghamurbanobservatory.com/schemas/location.json"
     },
@@ -83,6 +83,7 @@
       "description": "The id of the timeseries this observation belongs to."
     }
   },
+  "additionalProperties": false,
   "required": [
     "@id",
     "hasResult",
