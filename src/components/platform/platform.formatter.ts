@@ -38,7 +38,7 @@ export function formatIndividualPlatform(platform: any): any {
 
 
 export function formatIndividualPlatformCondensed(platform: any): any {
-  const linked = formatIndividualSensor(platform);
+  const linked = formatIndividualPlatform(platform);
   // Pull out the properties we don't need
   const propsToKeep = ['@id', '@type', 'name', 'description', 'static'];
   const condensed = pick(linked, propsToKeep);

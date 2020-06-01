@@ -2,7 +2,7 @@ import * as observationService from './observation.service';
 import * as check from 'check-types';
 import {getLevelsForDeployments} from '../deployment/deployment-users.service';
 import {Forbidden} from '../../errors/Forbidden';
-import {getDeployments} from '../deployment/deployment.service';
+import {getDeployments, getDeployment} from '../deployment/deployment.service';
 import {concat, uniqBy, cloneDeep, uniq} from 'lodash';
 import {createObservationsResponse, createObservationResponse} from './observation.formatter';
 import {ApiUser} from '../common/api-user.class';
@@ -21,6 +21,11 @@ import {getProcedures} from '../procedure/procedure.service';
 import {getAggregations, getAggregation} from '../aggregation/aggregation.service';
 import {formatIndividualAggregationCondensed} from '../aggregation/aggregation.formatter';
 import {formatIndividualFeatureOfInterestCondensed} from '../feature-of-interest/feature-of-interest.formatter';
+import {formatIndividualDeploymentCondensed} from '../deployment/deployment.formatter';
+import {getSensor, getSensors} from '../sensor/sensor.service';
+import {formatIndividualSensorCondensed} from '../sensor/sensor.formatter';
+import {getPlatforms, getPlatform} from '../platform/platform.service';
+import {formatIndividualPlatformCondensed} from '../platform/platform.formatter';
 
 
 //-------------------------------------------------
@@ -254,6 +259,45 @@ async function populateObservation(observation: any, populateKeys?: string[]): P
 
   const populated = cloneDeep(observation);
 
+  // Deployment
+  if ((populateEverything || keys.includes('hasDeployment')) && check.assigned(observation.hasDeployment)) {
+    let deployment;
+    try {
+      deployment = await getDeployment(observation.hasDeployment);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        deployment = {id: observation.observedProperty};
+      } else {
+        throw err;
+      }
+    }
+    const deploymentFormatted = formatIndividualDeploymentCondensed(deployment);
+    populated.hasDeployment = deploymentFormatted;
+  }
+
+  // Platforms
+  if ((populateEverything || keys.includes('ancestorPlatforms')) && check.assigned(observation.hostedByPath)) {
+    const {platforms} = await getPlatforms({id: {in: observation.hostedByPath}});
+    const populatedPlatforms = populateIdArrayWithCollection(observation.hostedByPath, platforms);
+    populated.hostedByPath = populatedPlatforms.map(formatIndividualPlatformCondensed);
+  }
+  
+  // Sensor
+  if ((populateEverything || keys.includes('madeBySensor')) && check.assigned(observation.madeBySensor)) {
+    let sensor;
+    try {
+      sensor = await getSensor(observation.madeBySensor);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        sensor = {id: observation.observedProperty};
+      } else {
+        throw err;
+      }
+    }
+    const sensorFormatted = formatIndividualSensorCondensed(sensor);
+    populated.madeBySensor = sensorFormatted;
+  }
+
   // Observed Property
   if ((populateEverything || keys.includes('observedProperty')) && check.assigned(observation.observedProperty)) {
     let observedProperty;
@@ -365,6 +409,42 @@ async function populateObservations(observations: any[], populateKeys?: string[]
   const populated = cloneDeep(observations);
 
   // TODO: Populate all these properties simultaneously.
+
+  // Deployments
+  const deploymentIds = retrieveAllPropertyIdsFromCollection(populated, 'hasDeployment');
+  if ((populateEverything || keys.includes('hasDeployment')) && deploymentIds.length) {
+    const {deployments} = await getDeployments({id: {in: deploymentIds}});
+    populated.forEach((obs): void => {
+      if (obs.hasDeployment) {
+        const populatedDeployment = populateIdFromCollection(obs.hasDeployment, deployments);
+        obs.hasDeployment = formatIndividualDeploymentCondensed(populatedDeployment);
+      }
+    });
+  }
+
+  // Platforms
+  const platformIds = retrieveAllPropertyIdsFromCollection(populated, 'hostedByPath');
+  if ((populateEverything || keys.includes('ancestorPlatforms')) && platformIds.length) {
+    const {platforms} = await getPlatforms({id: {in: platformIds}});
+    populated.forEach((obs): void => {
+      if (obs.hostedByPath) {
+        const populatedPlatforms = populateIdArrayWithCollection(obs.hostedByPath, platforms);
+        obs.hostedByPath = populatedPlatforms.map(formatIndividualPlatformCondensed);
+      }
+    });
+  }
+
+  // Sensors
+  const sensorIds = retrieveAllPropertyIdsFromCollection(populated, 'madeBySensor');
+  if ((populateEverything || keys.includes('madeBySensor')) && sensorIds.length) {
+    const {sensors} = await getSensors({id: {in: sensorIds}});
+    populated.forEach((obs): void => {
+      if (obs.madeBySensor) {
+        const populatedSensor = populateIdFromCollection(obs.madeBySensor, sensors);
+        obs.madeBySensor = formatIndividualSensorCondensed(populatedSensor);
+      }
+    });
+  }
 
   // Observed Property
   const observablePropertyIds = retrieveAllPropertyIdsFromCollection(populated, 'observedProperty');

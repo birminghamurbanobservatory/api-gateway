@@ -21,7 +21,7 @@ export async function getSensor(sensorId, options: {includeDeleted?: boolean} = 
 }
 
 
-export async function getSensors(where, options: CollectionOptions): Promise<any> {
+export async function getSensors(where, options: CollectionOptions = {}): Promise<any> {
   const response = await event.publishExpectingResponse('sensors.get.request', {
     where,
     options
