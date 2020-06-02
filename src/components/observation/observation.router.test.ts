@@ -95,8 +95,8 @@ describe('', () => {
             },
             validAt: '2020-02-13T20:30:32.007Z'
           },
-          usedProcedure: [
-            'PointSample'
+          usedProcedures: [
+            'point-sample'
           ]
         }
       ],
@@ -150,8 +150,8 @@ describe('', () => {
               validAt: '2020-02-13T20:30:32.007Z'
             }
           },
-          usedProcedure: [
-            'PointSample'
+          usedProcedures: [
+            'point-sample'
           ]
         }
       ],
