@@ -107,7 +107,7 @@ app.set('view engine', 'ejs');
 // Routes
 //-------------------------------------------------
 app.use(RootRouter);
-app.use(VocabRouter);
+// app.use(VocabRouter); // Leaving this out for now, because vocab file was split up into separate files.
 app.use(SchemaRouter);
 app.use(ContextRouter);
 app.use(DeploymentRouter);

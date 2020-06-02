@@ -4,7 +4,7 @@
   "type": "object",
   "description": "Permitted platform updates.",
   "properties": {
-    "name": {
+    "label": {
       "type:": "string",
       "minLength": 1,
       "maxLength": 44

@@ -20,11 +20,11 @@ export {router as PermanentHostRouter};
 //-------------------------------------------------
 const createPermanentHostBodySchema = joi.object({
   id: joi.string(),
-  name: joi.string(),
+  label: joi.string(),
   description: joi.string().allow(''),
   static: joi.boolean()
 })
-.or('id', 'name')
+.or('id', 'label')
 .required();
 
 router.post('/permanent-hosts', asyncWrapper(async (req, res): Promise<any> => {
@@ -87,7 +87,7 @@ router.get('/permanent-hosts/:permanentHostId', asyncWrapper(async (req, res): P
 // Update Permanent Host
 //-------------------------------------------------
 const updatePermanentHostBodySchema = joi.object({
-  name: joi.string(),
+  label: joi.string(),
   description: joi.string().allow(''),
   static: joi.boolean(),
   updateLocationWithSensor: joi.string().allow(null)

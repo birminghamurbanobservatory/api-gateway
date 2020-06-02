@@ -3,7 +3,7 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 
-const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'permanentHost', 'initialConfig', 'currentConfig', 'createdAt', 'updatedAt'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'permanentHost', 'initialConfig', 'currentConfig', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualSensor(sensor: any): any {

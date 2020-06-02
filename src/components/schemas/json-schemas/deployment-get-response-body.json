@@ -29,7 +29,7 @@
     "description": {
       "type": "string"
     },
-    "name": {
+    "label": {
       "type": "string"
     },
     "users": {
@@ -52,7 +52,7 @@
     "@context",
     "@id",
     "@type",
-    "name",
+    "label",
     "description",
     "public",
     "createdAt",

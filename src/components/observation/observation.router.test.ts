@@ -52,7 +52,7 @@ describe('', () => {
       deployments: [
         {
           id: 'deployment-1',
-          name: 'Deployment 1',
+          label: 'Deployment 1',
           description: 'some info',
           public: true,
           users: ['bob'],

@@ -8,15 +8,15 @@ describe('Testing of populateIdArrayWithCollection function', () => {
     const idsArray = ['id-1', 'id-2', 'id-3'];
     
     const collection = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'},
-      {id: 'id-3', name: 'id 3'}
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'},
+      {id: 'id-3', label: 'id 3'}
     ];
 
     const expected = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'},
-      {id: 'id-3', name: 'id 3'}
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'},
+      {id: 'id-3', label: 'id 3'}
     ];
 
     const populated = populateIdArrayWithCollection(idsArray, collection);
@@ -30,14 +30,14 @@ describe('Testing of populateIdArrayWithCollection function', () => {
     const idsArray = ['id-1', 'id-2'];
     
     const collection = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'},
-      {id: 'id-3', name: 'id 3'}
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'},
+      {id: 'id-3', label: 'id 3'}
     ];
 
     const expected = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'}
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'}
     ];
 
     const populated = populateIdArrayWithCollection(idsArray, collection);
@@ -51,14 +51,14 @@ describe('Testing of populateIdArrayWithCollection function', () => {
     const idsArray = ['id-1', 'id-2', 'id-3'];
     
     const collection = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'},
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'},
     ];
 
     const expected = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'},
-      {id: 'id-3'} // unabled to populate the name, but worth returning the id in an object like the other elements
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'},
+      {id: 'id-3'} // unabled to populate the label, but worth returning the id in an object like the other elements
     ];
 
     const populated = populateIdArrayWithCollection(idsArray, collection);
@@ -77,12 +77,12 @@ describe('Testing of populateIdFromCollection function', () => {
     const id = 'id-2';
 
     const collection = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'},
-      {id: 'id-3', name: 'id 3'}
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'},
+      {id: 'id-3', label: 'id 3'}
     ];
 
-    const expected = {id: 'id-2', name: 'id 2'};
+    const expected = {id: 'id-2', label: 'id 2'};
 
     const populated = populateIdFromCollection(id, collection);
     expect(populated).toEqual(expected);
@@ -95,7 +95,7 @@ describe('Testing of populateIdFromCollection function', () => {
     const id = 'id-2';
 
     const collection = [
-      {id: 'id-1', name: 'id 1'},
+      {id: 'id-1', label: 'id 1'},
     ];
 
     const expected = {id: 'id-2'};
@@ -111,15 +111,15 @@ describe('Testing of populateIdFromCollection function', () => {
     const id = 'id-2';
 
     const collection = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'},
-      {id: 'id-3', name: 'id 3'}
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'},
+      {id: 'id-3', label: 'id 3'}
     ];
 
     const expectedCollectionAfter = [
-      {id: 'id-1', name: 'id 1'},
-      {id: 'id-2', name: 'id 2'},
-      {id: 'id-3', name: 'id 3'}
+      {id: 'id-1', label: 'id 1'},
+      {id: 'id-2', label: 'id 2'},
+      {id: 'id-3', label: 'id 3'}
     ];
 
     const populated = populateIdFromCollection(id, collection);

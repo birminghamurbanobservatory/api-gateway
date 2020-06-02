@@ -3,7 +3,7 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 
-const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'registrationKey', 'registeredAs', 'createdAt', 'updatedAt'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'static', 'registrationKey', 'registeredAs', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualPermanentHost(permanentHost: any): object {

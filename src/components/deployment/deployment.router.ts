@@ -96,7 +96,7 @@ router.post('/deployments', asyncWrapper(async (req, res): Promise<any> => {
 // Update Deployment
 //-------------------------------------------------
 const updateDeploymentBodySchema = joi.object({
-  name: joi.string(),
+  label: joi.string(),
   description: joi.string().allow(''),
   public: joi.boolean()
 })

@@ -10,7 +10,7 @@
       "type": "string",
       "const": "Deployment"
     },
-    "name": {
+    "label": {
       "type": "string"
     },
     "description": {
@@ -30,7 +30,7 @@
   },
   "required": [
     "@id",
-    "name",
+    "label",
     "public"
   ]
 }

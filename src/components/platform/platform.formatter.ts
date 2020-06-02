@@ -6,7 +6,7 @@ import {formatIndividualSensor} from '../sensor/sensor.formatter';
 import {renameProperties} from '../../utils/rename';
 
 
-const keyOrder = ['@context', '@id', '@type', 'name', 'description', 'static', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'topPlatform', 'location', 'centroid', 'createdAt', 'updatedAt'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'static', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'topPlatform', 'location', 'centroid', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualPlatform(platform: any): any {
@@ -40,7 +40,7 @@ export function formatIndividualPlatform(platform: any): any {
 export function formatIndividualPlatformCondensed(platform: any): any {
   const linked = formatIndividualPlatform(platform);
   // Pull out the properties we don't need
-  const propsToKeep = ['@id', '@type', 'name', 'description', 'static'];
+  const propsToKeep = ['@id', '@type', 'label', 'description', 'static'];
   const condensed = pick(linked, propsToKeep);
   return condensed;
 }

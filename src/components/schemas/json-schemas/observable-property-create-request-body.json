@@ -14,7 +14,7 @@
       "minLength": 1,
       "maxLength": 44
     },
-    "comment": {
+    "description": {
       "type": "string"
     },
     "units": {

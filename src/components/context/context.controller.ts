@@ -146,8 +146,9 @@ export function getObservationContext(): object {
 //-------------------------------------------------
 export function getUrbanObservatoryContext(): object {
   const context = {
+    rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
     schema: 'https://schema.org/',
-    name: 'schema:name',
+    label: 'rdfs:label',
     description: 'schema:description'
   };
   return context;

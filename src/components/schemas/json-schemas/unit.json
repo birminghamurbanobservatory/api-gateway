@@ -20,7 +20,7 @@
     "symbol": {
       "type": "string"
     },
-    "comment": {
+    "description": {
       "type": "string"
     },
     "listed": {

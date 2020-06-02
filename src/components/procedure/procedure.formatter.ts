@@ -4,7 +4,7 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {renameProperties} from '../../utils/rename';
 
-const keyOrder = ['@context', '@id', '@type', 'label', 'comment', 'listed', 'belongsToDeployment', 'inCommonVocab', 'createdAt', 'updatedAt'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'listed', 'belongsToDeployment', 'inCommonVocab', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualProcedure(procedure: any): any {

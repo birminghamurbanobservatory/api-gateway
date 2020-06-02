@@ -4,7 +4,7 @@ import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 import {renameProperties} from '../../utils/rename';
 
-const keyOrder = ['@context', '@id', '@type', 'label', 'comment', 'listed', 'belongsToDeployment', 'inCommonVocab', 'location', 'centroid', 'createdAt', 'updatedAt'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'listed', 'belongsToDeployment', 'inCommonVocab', 'location', 'centroid', 'createdAt', 'updatedAt'];
 const locationKeyOrder = ['id', 'type', 'geometry', 'properties'];
 const geometryKeyOrder = ['type', 'coordinates'];
 

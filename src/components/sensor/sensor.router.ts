@@ -191,7 +191,7 @@ router.delete('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> 
 //-------------------------------------------------
 // PATCH /deployments/:deploymentId/sensors/:sensorId
 // TODO: Check that the sensor isn't bound to a permanentHost, if so you should forbid all except the currentConfig from being updated. This endpoint is more for updating sensors that are bound to a deployment.
-// Your bog standard deployment users won't be able to update much of a sensors details (even if they are an admin of the deployment). For example its name and description have come from whichever superuser created the sensor in the first place and thus a deployment user can't edit them. 
+// Your bog standard deployment users won't be able to update much of a sensors details (even if they are an admin of the deployment). For example its label and description have come from whichever superuser created the sensor in the first place and thus a deployment user can't edit them. 
 // Here the user won't be able to update the initialConfig, however they can update the currentConfig, which will in turn affect which context properties are added to this sensor's incoming observations.
 
 

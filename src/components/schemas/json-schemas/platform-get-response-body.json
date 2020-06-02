@@ -23,7 +23,7 @@
       "type": "string",
       "const": "Platform"
     },
-    "name": {
+    "label": {
       "type": "string",
       "minLength": 1,
       "maxLength": 44
@@ -78,7 +78,7 @@
     "@context",
     "@id",
     "@type",
-    "name",
+    "label",
     "description",
     "static",
     "createdAt",

@@ -24,7 +24,7 @@
       "type": "string",
       "const": "Sensor"
     },
-    "name": {
+    "label": {
       "type:": "string",
       "minLength": 1,
       "maxLength": 44

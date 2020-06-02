@@ -37,7 +37,7 @@
             "type": "string",
             "const": "Platform"
           },  
-          "name": {
+          "label": {
             "type": "string",
             "minLength": 1,
             "maxLength": 44
@@ -89,7 +89,7 @@
         },
         "required": [
           "@id",
-          "name"
+          "label"
         ],
         "additionalProperties": false
       }
