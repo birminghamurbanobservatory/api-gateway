@@ -32,9 +32,9 @@ export function formatIndividualObservation(observation: any): any {
       validAt: observationLinked.location.validAt
     };
     delete observationLinked.location.validAt;
-    // If there's a height property, add it as the 3rd element in the observation
     if (observationLinked.location.height) {
-      observationLinked.location.geometry.coordinates[2] = observationLinked.location.height;
+      // Decided the height is better here than as the 3rd coordinate, partly because the GeoJSON specification preferes the 3rd coordinate to be a height above sea-level not a height above ground.
+      observationLinked.location.properties.height = observationLinked.location.height;
     }
     delete observationLinked.location.height;
     observationLinked.location.type = 'Feature';

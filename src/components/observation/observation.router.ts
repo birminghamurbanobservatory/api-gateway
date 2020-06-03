@@ -169,11 +169,11 @@ const createObservationBodySchema = joi.object({
   // for now at least the discipline and hasFeatureOfInterest should come from the saved context.
   location: joi.object({
     id: joi.string(),
-    height: joi.number(),
+    height: joi.number(), // TODO: move this into a properties object?
     geometry: joi.object({
       // Decide I only ever want platforms to be Points
       type: joi.string().valid('Point').required(),
-      coordinates: joi.array().min(2).max(3).required()
+      coordinates: joi.array().min(2).max(3).required() // TODO: drop this to just 2 coordinates?
     })
     .custom((value): any => {
       validateGeometry(value); // throws an error if invalid
