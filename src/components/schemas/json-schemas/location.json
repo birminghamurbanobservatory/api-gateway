@@ -36,6 +36,9 @@
         "validAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "height": {
+          "type": "number"
         }
       }
     }
