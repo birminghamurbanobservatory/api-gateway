@@ -29,10 +29,13 @@ export {router as ObservationRouter};
 //-------------------------------------------------
 const getObservationsQuerySchema = joi.object({
   // filtering
+  valueType: joi.string().valid('number', 'text', 'boolean', 'json'),
+  valueType__in: joi.string().custom(inConditional),
   madeBySensor: joi.string(),
   madeBySensor__in: joi.string().custom(inConditional),
   inTimeseries: joi.string().alphanum(), // catches any accidental commas that might be present
   inTimeseries__in: joi.string().custom(inConditional),
+  inTimeseries__not__in: joi.string().custom(inConditional),
   observedProperty: joi.string(),
   aggregation: joi.string(),
   aggregation__in: joi.string().custom(inConditional),
@@ -86,7 +89,9 @@ const getObservationsQuerySchema = joi.object({
 .without('resultTime__gt', 'resultTime__gte')
 .without('resultTime__lt', 'resultTime__lte')
 .without('duration__lt', 'duration__lte')
-.without('duration__gt', 'duration__gte');
+.without('duration__gt', 'duration__gte')
+.without('inTimeseries', ['inTimeseries__in', 'inTimeseries__not__in'])
+.without('valueType', 'valueType__in');
 
 
 router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {

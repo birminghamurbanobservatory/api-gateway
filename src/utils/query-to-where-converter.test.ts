@@ -54,7 +54,7 @@ describe('convertQueryToWhere function testing', () => {
   });    
 
 
-  test('Handles having more than one conditional per parameter', () => {
+  test('Handles having more than one modifier per parameter', () => {
     const query = {
       resultTime__gte: '2019-09-15',
       resultTime__lt: '2019-09-16'
@@ -79,7 +79,66 @@ describe('convertQueryToWhere function testing', () => {
     expect(convertQueryToWhere(query)).toEqual(expectedWhere);
   });  
 
+
+  test('Can handle a __in modifier', () => {
+    const query = {
+      inTimeseries__in: ['abc', 'def']
+    };
+    const expectedWhere = {
+      inTimeseries: {
+        in: ['abc', 'def']
+      }   
+    };
+    expect(convertQueryToWhere(query)).toEqual(expectedWhere);
+  });
+
   
+  test('Can handle a __not modifier', () => {
+    const query = {
+      inTimeseries__not: 'abc'
+    };
+    const expectedWhere = {
+      inTimeseries: {
+        not: 'abc'
+      }   
+    };
+    expect(convertQueryToWhere(query)).toEqual(expectedWhere);
+  }); 
+
+
+  test('Can handle a __not__in modifier', () => {
+    const query = {
+      inTimeseries__not__in: ['abc', 'def']
+    };
+    const expectedWhere = {
+      inTimeseries: {
+        not: {
+          in: ['abc', 'def']
+        }
+      }   
+    };
+    expect(convertQueryToWhere(query)).toEqual(expectedWhere);
+  }); 
+
+
+  test('Can handle a __not__in modifier in combination with other modifiers', () => {
+    // This would be a really obsecure query to ever actually get called
+    const query = {
+      someProp__not__in: ['abc', 'def'],
+      someProp__includes: 'jkl',
+      someOtherProp: '123'
+    };
+    const expectedWhere = {
+      someProp: {
+        includes: 'jkl',
+        not: {
+          in: ['abc', 'def']
+        }
+      },
+      someOtherProp: '123'   
+    };
+    expect(convertQueryToWhere(query)).toEqual(expectedWhere);
+  }); 
 
 
 });
