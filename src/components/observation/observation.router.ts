@@ -18,6 +18,7 @@ import * as check from 'check-types';
 import {addMetaLinks} from '../common/add-meta-links';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
 import {validateGeometry} from '../../utils/geojson-validator';
+import {alphanumericPlusHyphenRegex} from '../../utils/regular-expressions';
 
 const router = express.Router();
 
@@ -31,21 +32,23 @@ const getObservationsQuerySchema = joi.object({
   // filtering
   valueType: joi.string().valid('number', 'text', 'boolean', 'json'),
   valueType__in: joi.string().custom(inConditional),
-  madeBySensor: joi.string(),
+  madeBySensor: joi.string().pattern(alphanumericPlusHyphenRegex),
   madeBySensor__in: joi.string().custom(inConditional),
   inTimeseries: joi.string().alphanum(), // catches any accidental commas that might be present
   inTimeseries__in: joi.string().custom(inConditional),
   inTimeseries__not__in: joi.string().custom(inConditional),
-  observedProperty: joi.string(),
-  aggregation: joi.string(),
+  observedProperty: joi.string().pattern(alphanumericPlusHyphenRegex),
+  aggregation: joi.string().pattern(alphanumericPlusHyphenRegex),
   aggregation__in: joi.string().custom(inConditional),
-  unit: joi.string(),
+  unit: joi.string().pattern(alphanumericPlusHyphenRegex),
   unit__in: joi.string().custom(inConditional),
   unit__exists: joi.boolean(),
-  hasFeatureOfInterest: joi.string(),
+  hasFeatureOfInterest: joi.string().pattern(alphanumericPlusHyphenRegex),
   disciplines__includes: joi.string(),
-  hasDeployment: joi.string(),
+  hasDeployment: joi.string().pattern(alphanumericPlusHyphenRegex), // catches any accidental commas that might be present
   hasDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
+  hasDeployment__not: joi.string().pattern(alphanumericPlusHyphenRegex),
+  hasDeployment__not__in: joi.string().custom(inConditional),
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
   ancestorPlatforms: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
   ancestorPlatforms__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
@@ -85,12 +88,12 @@ const getObservationsQuerySchema = joi.object({
   // TODO: Provide a way of omitting some of the properties to save data, e.g. if they asked for discipline=meteorology then we could exclude the discipline property. Maybe have a query string parameter such as `lean=true`.
 })
 .and('proximityCentre', 'proximityRadius')
-.without('hasDeployment', 'hasDeployment__in')
+.oxor('hasDeployment', 'hasDeployment__in', 'hasDeployment__not', 'hasDeployment__not__in')
 .without('resultTime__gt', 'resultTime__gte')
 .without('resultTime__lt', 'resultTime__lte')
 .without('duration__lt', 'duration__lte')
 .without('duration__gt', 'duration__gte')
-.without('inTimeseries', ['inTimeseries__in', 'inTimeseries__not__in'])
+.oxor('inTimeseries', 'inTimeseries__in', 'inTimeseries__not__in')
 .without('valueType', 'valueType__in');
 
 

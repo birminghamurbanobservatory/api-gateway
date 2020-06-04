@@ -114,6 +114,11 @@ export async function getObservations(where: any, options: {limit?: number; offs
     };
   }
 
+  // We'll need to add hasDeployment.not back in
+  if (where.hasDeployment && where.hasDeployment.not) {
+    updatedWhere.hasDeployment.not = cloneDeep(where.hasDeployment.not);
+  }
+
   // Quick safety check to make sure non-super users can't go retrieving observations without their deployments being defined.
   if (!canAccessAllDeploymentObservations && check.not.nonEmptyArray(updatedWhere.hasDeployment.in)) {
     throw new Error(' A non-superuser is able to request observations without specifying deployments. Server code needs editing to fix this.');
