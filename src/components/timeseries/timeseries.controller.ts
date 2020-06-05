@@ -25,6 +25,7 @@ import {getProcedures} from '../procedure/procedure.service';
 import {formatIndividualProcedureCondensed} from '../procedure/procedure.formatter';
 import {getAggregations, getAggregation} from '../aggregation/aggregation.service';
 import {formatIndividualAggregationCondensed} from '../aggregation/aggregation.formatter';
+import {permissionsCheck} from '../common/permissions-check';
 
 
 
@@ -408,4 +409,33 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   return populated;
 
+}
+
+
+//-------------------------------------------------
+// Merge Timeseries
+//-------------------------------------------------
+export async function mergeTimeseries(goodIdToKeep: string, idsToMerge: string[], user: ApiUser): Promise<any> {
+
+  // For now at least this is for superusers only.
+  permissionsCheck(user, 'merge:timeseries');
+
+  // TODO: At some point you may wish to allow deployment admins to merge timeseries as long as they all have the same deployment. You might also want some further checks to ensure they don't start merge timeseries with different units, etc.
+
+  const result = await timeseriesService.mergeTimeseries(goodIdToKeep, idsToMerge);
+  return result;
+}
+
+
+
+//-------------------------------------------------
+// Delete Single Timeseries
+//-------------------------------------------------
+export async function deleteSingleTimeseries(timeseriesId: string, user: ApiUser): Promise<void> {
+
+  // For now at least this is for superusers only.
+  permissionsCheck(user, 'delete:timeseries');
+
+  await timeseriesService.deleteSingleTimeseries(timeseriesId);
+  return;
 }

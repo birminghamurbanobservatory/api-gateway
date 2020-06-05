@@ -32,6 +32,8 @@ import * as phenomenonTimeSchema from './json-schemas/phenomenon-time.json';
 import * as timeseriesSchema from './json-schemas/timeseries.json';
 import * as singleTimeseriesGetResponseBodySchema from './json-schemas/single-timeseries-get-response-body.json';
 import * as multipleTimeseriesGetResponseBodySchema from './json-schemas/multiple-timeseries-get-response-body.json';
+import * as timeseriesMergeRequestBodySchema from './json-schemas/timeseries-merge-request-body.json';
+import * as timeseriesMergeResponseBodySchema from './json-schemas/timeseries-merge-response-body.json';
 // timeseries observations
 import * as timeseriesObservationsGetResponseBody from './json-schemas/timeseries-observations-get-response-body.json';
 // procedures
@@ -118,6 +120,8 @@ const ajv = new Ajv({
     singleTimeseriesGetResponseBodySchema,
     multipleTimeseriesGetResponseBodySchema,
     timeseriesObservationsGetResponseBody,
+    timeseriesMergeRequestBodySchema,
+    timeseriesMergeResponseBodySchema,
     // procedure
     procedureSchema,
     proceduresGetResponseBodySchema,

@@ -24,3 +24,22 @@ export async function getMultipleTimeseries(where, options: CollectionOptions): 
     total: response.meta.total
   };
 }
+
+
+export async function mergeTimeseries(goodIdToKeep, idsToMerge): Promise<{nObservationsMerged: number}> {
+  const result = await event.publishExpectingResponse('timeseries.merge.request', {
+    goodIdToKeep,
+    idsToMerge
+  }); 
+  return result;
+}
+
+
+export async function deleteSingleTimeseries(timeseriesId): Promise<void> {
+  await event.publishExpectingResponse('single-timeseries.delete.request', {
+    where: {
+      id: timeseriesId
+    }
+  }); 
+  return;
+}

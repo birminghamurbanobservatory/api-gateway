@@ -1,0 +1,10 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/timeseries-merge-request-body.json",
+  "title": "timeseries-merge-request-body",
+  "type": "array",
+  "description": "The id's of timeseries that should be merged into the timeseries provided in the URL path.",
+  "items": {
+    "type": "string"
+  },
+  "minItems": 1
+}

@@ -1,0 +1,14 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/timeseries-merge-response-body.json",
+  "title": "timeseries-merge-response-body",
+  "type": "object",
+  "properties": {
+    "nObservationsMerged": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "nObservationsMerged"
+  ]
+}

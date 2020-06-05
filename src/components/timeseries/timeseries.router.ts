@@ -4,7 +4,7 @@
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
-import {getSingleTimeseries, getMultipleTimeseries} from './timeseries.controller';
+import {getSingleTimeseries, getMultipleTimeseries, deleteSingleTimeseries, mergeTimeseries} from './timeseries.controller';
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
@@ -19,7 +19,6 @@ const router = express.Router();
 export {router as TimeseriesRouter};
 
 
-
 //-------------------------------------------------
 // Get Single Timeseries
 //-------------------------------------------------
@@ -31,7 +30,6 @@ router.get('/timeseries/:timeseriesId', asyncWrapper(async (req, res): Promise<a
   return res.json(jsonResponse);
 
 }));
-
 
 
 //-------------------------------------------------
@@ -77,6 +75,8 @@ router.get('/timeseries', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidQueryString(queryErr.message);  
   logger.debug('Validated query parameters', query);
 
+  // TODO: Should I be using a populate query parameter here as well? Seems a bit excessive to return as much information as it is currently.
+
   // Pull out the options
   const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder'];
   const options = pick(query, optionKeys);
@@ -90,4 +90,30 @@ router.get('/timeseries', asyncWrapper(async (req, res): Promise<any> => {
   validateAgainstSchema(jsonResponse, 'multiple-timeseries-get-response-body');
   return res.json(jsonResponse);
 
+}));
+
+
+//-------------------------------------------------
+// Merge Timeseries
+//-------------------------------------------------
+router.post('/timeseries/:timeseriesId/merge', asyncWrapper(async (req, res): Promise<any> => {
+
+  const goodIdToKeep = req.params.timeseriesId;
+  const body = validateAgainstSchema(req.body, 'timeseries-merge-request-body');
+
+  const jsonResponse = await mergeTimeseries(goodIdToKeep, body, req.user);
+  validateAgainstSchema(jsonResponse, 'timeseries-merge-response-body');
+  return res.json(jsonResponse);
+
+}));
+
+
+//-------------------------------------------------
+// Delete Timeseries
+//-------------------------------------------------
+router.delete('/timeseries/:timeseriesId', asyncWrapper(async (req, res): Promise<any> => {
+  const timeseriesId = req.params.timeseriesId;
+  logger.debug(`Deleting timeseries ${timeseriesId}`);
+  await deleteSingleTimeseries(timeseriesId, req.user);
+  return res.status(204).send();
 }));
