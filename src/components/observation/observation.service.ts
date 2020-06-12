@@ -30,10 +30,27 @@ export async function getObservation(observationId: string): Promise<any> {
 
 
 export async function createObservation(observation: any): Promise<any> {
+  // Because the incoming-observation-manager is setup to to handle observations with a series of queues, it cannot give us a direct response. So we'll need to replicate what it does here, but using RPC approach to get the response back each time.
+  const observationWithContext = await giveObservationContext(observation);
+  const savedObservation = await saveObservation(observationWithContext);
+  return savedObservation;
 
-  const createdObservation = await event.publishExpectingResponse('observation.incoming', observation);
-  return createdObservation;
+}
 
+
+export async function giveObservationContext(observation: any): Promise<any> {
+  const updatedObservation = await event.publishExpectingResponse('observation.add-context', {
+    observation
+  });
+  return updatedObservation;
+}
+
+
+export async function saveObservation(observation: any): Promise<any> {
+  const updatedObservation = await event.publishExpectingResponse('observation.create', {
+    new: observation
+  });
+  return updatedObservation;
 }
 
 

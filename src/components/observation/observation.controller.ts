@@ -218,6 +218,7 @@ export async function createObservation(observation, user: ApiUser): Promise<any
     observation.location.height = observation.location.geometry.coordinates.pop();
   }
 
+  // There's a few steps involved in creating an observation.
   const createdObservation = await observationService.createObservation(observation);
   const observationWithContext = createObservationResponse(createdObservation);
   return observationWithContext;
