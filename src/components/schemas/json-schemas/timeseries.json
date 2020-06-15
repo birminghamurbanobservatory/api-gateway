@@ -25,31 +25,40 @@
       "format": "uri"
     },
     "observedProperty": {
-      "type": "object"
+      "type": ["string", "object"]
     },
     "aggregation": {
-      "type": "object"
+      "type": ["string", "object"]
     },
     "unit": {
-      "type": "object"
+      "type": ["string", "object"]
     },
     "madeBySensor": {
-      "type": "object"
+      "type": ["string", "object"]
     },
     "hasDeployment": {
-      "type": "object"
+      "type": ["string", "object"]
     },
     "ancestorPlatforms": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": ["string", "object"]
+      }
     },
     "hasFeatureOfInterest": {
-      "type": "object"
+      "type": ["string", "object"]
     },
     "disciplines": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": ["string", "object"]
+      }
     },
     "usedProcedures": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": ["string", "object"]
+      }
     }
   },
   "additionalProperties": false,

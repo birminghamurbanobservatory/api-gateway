@@ -26,10 +26,11 @@ import {formatIndividualProcedureCondensed} from '../procedure/procedure.formatt
 import {getAggregations, getAggregation} from '../aggregation/aggregation.service';
 import {formatIndividualAggregationCondensed} from '../aggregation/aggregation.formatter';
 import {permissionsCheck} from '../common/permissions-check';
+import * as logger from 'node-logger';
 
 
 
-export async function getSingleTimeseries(timeseriesId: string, user: ApiUser): Promise<any> {
+export async function getSingleTimeseries(timeseriesId: string, options: {populate?: string[]} = {}, user: ApiUser): Promise<any> {
 
   const hasSuperUserPermission = user.permissions.includes('get:timeseries');
 
@@ -63,8 +64,10 @@ export async function getSingleTimeseries(timeseriesId: string, user: ApiUser): 
     }
   }
 
+  const populateKeys = options.populate || [];
+
   // Populate the properties. We want it to be well populated so front-end's don't need to make many follow up requests.
-  const timeseriesPopulated = await populateSingleTimeseries(timeseries);
+  const timeseriesPopulated = await populateSingleTimeseries(timeseries, populateKeys);
 
   const timeseriesWithContext = createSingleTimeseriesResponse(timeseriesPopulated);
   return timeseriesWithContext;
@@ -75,19 +78,34 @@ export async function getSingleTimeseries(timeseriesId: string, user: ApiUser): 
 // 1. Return an object with just an @id property.
 // 2. Ask the sensor-deployment-manager to give us the resource even if it has been deleted.
 // 3. Exclude this timeseries from the response, e.g. if the fact the resource can't be found makes the timeseries obsolete.
-async function populateSingleTimeseries(timeseries: any): Promise<any> {
+async function populateSingleTimeseries(timeseries: any, populateKeys?: string[]): Promise<any> {
+
+  let keys;
+  let populateEverything = false;
+  if (!populateKeys) {
+    populateEverything = true;
+    keys = [];
+    logger.debug('Populating everything');
+  } else {
+    keys = cloneDeep(populateKeys);
+    if (keys.length === 0) {
+      logger.debug('Populating no timeseries properties');
+    } else {
+      logger.debug(`Populating the following properties of the timeseries: ${keys.join(',')}`);
+    }
+  }
 
   const populated = cloneDeep(timeseries);
 
   // Deployment
-  if (check.assigned(timeseries.hasDeployment)) {
+  if ((populateEverything || keys.includes('hasDeployment')) && check.assigned(timeseries.hasDeployment)) {
     const deployment = await getDeployment(timeseries.hasDeployment);
     const deploymentFormatted = formatIndividualDeploymentCondensed(deployment);
     populated.hasDeployment = deploymentFormatted;
   }
 
   // Sensor
-  if (check.assigned(timeseries.madeBySensor)) {
+  if ((populateEverything || keys.includes('madeBySensor')) && check.assigned(timeseries.madeBySensor)) {
     let sensor;
     try {
       sensor = await getSensor(timeseries.madeBySensor, {includeDeleted: true});
@@ -104,14 +122,14 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
   }
 
   // Platforms
-  if (check.assigned(timeseries.hostedByPath)) {
+  if ((populateEverything || keys.includes('ancestorPlatforms')) && check.assigned(timeseries.hostedByPath)) {
     const {platforms} = await getPlatforms({id: {in: timeseries.hostedByPath}}, {includeDeleted: true});
     const populatedHostedByPath = populateIdArrayWithCollection(timeseries.hostedByPath, platforms);
     populated.hostedByPath = populatedHostedByPath.map(formatIndividualPlatformCondensed);
   }
 
   // Observed Property
-  if (check.assigned(timeseries.observedProperty)) {
+  if ((populateEverything || keys.includes('observedProperty')) && check.assigned(timeseries.observedProperty)) {
     let observedProperty;
     try {
       observedProperty = await getObservableProperty(timeseries.observedProperty);
@@ -127,7 +145,7 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
   }
 
   // Aggregation
-  if (check.assigned(timeseries.aggregation)) {
+  if ((populateEverything || keys.includes('aggregation')) && check.assigned(timeseries.aggregation)) {
     let aggregation;
     try {
       aggregation = await getAggregation(timeseries.aggregation);
@@ -143,7 +161,7 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
   }
 
   // Unit
-  if (check.assigned(timeseries.unit)) {
+  if ((populateEverything || keys.includes('unit')) && check.assigned(timeseries.unit)) {
     let unit;
     try {
       unit = await getUnit(timeseries.unit);
@@ -159,7 +177,7 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
   }
 
   // Feature of Interest
-  if (check.assigned(timeseries.hasFeatureOfInterest)) {
+  if ((populateEverything || keys.includes('hasFeatureOfInterest')) && check.assigned(timeseries.hasFeatureOfInterest)) {
     let featureOfInterest;
     try {
       featureOfInterest = await getFeatureOfInterest(timeseries.hasFeatureOfInterest);
@@ -175,14 +193,14 @@ async function populateSingleTimeseries(timeseries: any): Promise<any> {
   }
 
   // Disciplines
-  if (check.assigned(timeseries.disciplines)) {
+  if ((populateEverything || keys.includes('disciplines')) && check.assigned(timeseries.disciplines)) {
     const {disciplines} = await getDisciplines({id: {in: timeseries.disciplines}});
     const populatedDisciplines = populateIdArrayWithCollection(timeseries.disciplines, disciplines);
     populated.disciplines = populatedDisciplines.map(formatIndividualDisciplineCondensed);
   }
 
   // Used Procedures
-  if (check.assigned(timeseries.usedProcedures)) {
+  if ((populateEverything || keys.includes('usedProcedures')) && check.assigned(timeseries.usedProcedures)) {
     const {procedures} = await getProcedures({id: {in: timeseries.usedProcedures}});
     const populatedProcedures = populateIdArrayWithCollection(timeseries.usedProcedures, procedures);
     populated.usedProcedures = populatedProcedures.map(formatIndividualProcedureCondensed);
@@ -285,9 +303,12 @@ export async function getMultipleTimeseries(where, options: CollectionOptions, u
     delete updatedWhere.endDate;
   }
 
+  const populateKeys = options.populate || [];
+  delete options.populate;
+
   const {timeseries, count, total} = await timeseriesService.getMultipleTimeseries(updatedWhere, options);
 
-  const populatedTimeseries = await populateMultipleTimeseries(timeseries);
+  const populatedTimeseries = await populateMultipleTimeseries(timeseries, populateKeys);
   
   const timeseriesWithContext = createMultipleTimeseriesResponse(populatedTimeseries, {count, total});
   return timeseriesWithContext;
@@ -295,13 +316,28 @@ export async function getMultipleTimeseries(where, options: CollectionOptions, u
 }
 
 
-async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
+async function populateMultipleTimeseries(timeseries: any[], populateKeys?: string[]): Promise<any[]> {
+
+  let keys;
+  let populateEverything = false;
+  if (!populateKeys) {
+    populateEverything = true;
+    keys = [];
+    logger.debug('Populating everything');
+  } else {
+    keys = cloneDeep(populateKeys);
+    if (keys.length === 0) {
+      logger.debug('Populating no properties of the timeseries');
+    } else {
+      logger.debug(`Populating the following properties of the timeseries: ${keys.join(',')}`);
+    }
+  }
 
   const populated = cloneDeep(timeseries);
 
   // Deployment
   const deploymentIds = retrieveAllPropertyIdsFromCollection(populated, 'hasDeployment');
-  if (deploymentIds.length) {
+  if ((populateEverything || keys.includes('hasDeployment')) && deploymentIds.length) {
     const {deployments} = await getDeployments({id: {in: deploymentIds}}, {includeDeleted: true});
     populated.forEach((ts): void => {
       if (ts.hasDeployment) {
@@ -313,7 +349,7 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   // Sensor
   const sensorIds = retrieveAllPropertyIdsFromCollection(populated, 'madeBySensor');
-  if (sensorIds.length) {
+  if ((populateEverything || keys.includes('madeBySensor')) && sensorIds.length) {
     const {sensors} = await getSensors({id: {in: sensorIds}}, {includeDeleted: true});
     populated.forEach((ts): void => {
       if (ts.madeBySensor) {
@@ -325,7 +361,7 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   // Platforms
   const platformIds = retrieveAllPropertyIdsFromCollection(populated, 'hostedByPath');
-  if (platformIds.length) {
+  if ((populateEverything || keys.includes('ancestorPlatforms')) && platformIds.length) {
     const {platforms} = await getPlatforms({id: {in: platformIds}}, {includeDeleted: true});
     populated.forEach((ts): void => {
       if (ts.hostedByPath) {
@@ -337,7 +373,7 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   // Observed Property
   const observablePropertyIds = retrieveAllPropertyIdsFromCollection(populated, 'observedProperty');
-  if (observablePropertyIds.length) {
+  if ((populateEverything || keys.includes('observedProperty')) && observablePropertyIds.length) {
     const {observableProperties} = await getObservableProperties({id: {in: observablePropertyIds}});
     populated.forEach((ts): void => {
       if (ts.observedProperty) {
@@ -349,7 +385,7 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   // Aggregation
   const aggregationIds = retrieveAllPropertyIdsFromCollection(populated, 'aggregation');
-  if (aggregationIds.length) {
+  if ((populateEverything || keys.includes('aggregation')) && aggregationIds.length) {
     const {aggregations} = await getAggregations({id: {in: aggregationIds}});
     populated.forEach((ts): void => {
       if (ts.aggregation) {
@@ -361,7 +397,7 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   // Unit
   const unitIds = retrieveAllPropertyIdsFromCollection(populated, 'unit');
-  if (unitIds.length) {
+  if ((populateEverything || keys.includes('unit')) && unitIds.length) {
     const {units} = await getUnits({id: {in: unitIds}});
     populated.forEach((ts): void => {
       if (ts.unit) {
@@ -373,7 +409,7 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   // Feature of Interest
   const featureOfInterestIds = retrieveAllPropertyIdsFromCollection(populated, 'hasFeatureOfInterest');
-  if (featureOfInterestIds.length) {
+  if ((populateEverything || keys.includes('hasFeatureOfInterest')) && featureOfInterestIds.length) {
     const {featuresOfInterest} = await getFeaturesOfInterest({id: {in: featureOfInterestIds}});
     populated.forEach((ts): void => {
       if (ts.hasFeatureOfInterest) {
@@ -385,7 +421,7 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   // Disciplines
   const disciplineIds = retrieveAllPropertyIdsFromCollection(populated, 'disciplines');
-  if (disciplineIds.length) {
+  if ((populateEverything || keys.includes('disciplines')) && disciplineIds.length) {
     const {disciplines} = await getDisciplines({id: {in: disciplineIds}});
     populated.forEach((ts): void => {
       if (ts.disciplines) {
@@ -397,7 +433,7 @@ async function populateMultipleTimeseries(timeseries: any[]): Promise<any[]> {
 
   // Used Procedures
   const usedProcedureIds = retrieveAllPropertyIdsFromCollection(populated, 'usedProcedures');
-  if (usedProcedureIds.length) {
+  if ((populateEverything || keys.includes('usedProcedures')) && usedProcedureIds.length) {
     const {procedures} = await getProcedures({id: {in: usedProcedureIds}});
     populated.forEach((ts): void => {
       if (ts.usedProcedures) {

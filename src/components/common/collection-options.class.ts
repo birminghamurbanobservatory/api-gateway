@@ -4,4 +4,5 @@ export class CollectionOptions {
   public sortBy?: string;
   public sortOrder?: string; // TODO: use a enum here?
   public includeDeleted?: boolean;
+  public populate?: string[];
 }

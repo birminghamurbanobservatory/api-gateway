@@ -8,7 +8,7 @@ import {getSingleTimeseries, getMultipleTimeseries, deleteSingleTimeseries, merg
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {inConditional, ancestorPlatformConditional, kebabCaseValidation} from '../../utils/custom-joi-validations';
+import {inConditional, ancestorPlatformConditional, kebabCaseValidation, populateObservationConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
@@ -22,10 +22,17 @@ export {router as TimeseriesRouter};
 //-------------------------------------------------
 // Get Single Timeseries
 //-------------------------------------------------
+const getSingleTimeseriesQuerySchema = joi.object({
+  populate: joi.string().custom(populateObservationConditional)
+});
+
 router.get('/timeseries/:timeseriesId', asyncWrapper(async (req, res): Promise<any> => {
 
+  const {error: queryErr, value: options} = getSingleTimeseriesQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+
   const timeseriesId = req.params.timeseriesId;
-  const jsonResponse = await getSingleTimeseries(timeseriesId, req.user);
+  const jsonResponse = await getSingleTimeseries(timeseriesId, options, req.user);
   validateAgainstSchema(jsonResponse, 'single-timeseries-get-response-body');
   return res.json(jsonResponse);
 
@@ -35,7 +42,7 @@ router.get('/timeseries/:timeseriesId', asyncWrapper(async (req, res): Promise<a
 //-------------------------------------------------
 // Get Multiple Timeseries
 //-------------------------------------------------
-const getTimeseriesQuerySchema = joi.object({
+const getMultipleTimeseriesQuerySchema = joi.object({
   id__in: joi.string().custom(inConditional),
   madeBySensor: joi.string(),
   madeBySensor__in: joi.string().custom(inConditional),
@@ -61,6 +68,7 @@ const getTimeseriesQuerySchema = joi.object({
   endDate__lt: joi.string().isoDate(),
   endDate__lte: joi.string().isoDate(),
   // options
+  populate: joi.string().custom(populateObservationConditional),
   limit: joi.number().integer().positive().max(500).default(100),
   offset: joi.number().integer().min(0).default(0),
   // For now at least there's not much point in letting them sort, as it will always default to the id, that is hashed anyway and will therefore the client id will end up out of order anyway.
@@ -71,14 +79,14 @@ const getTimeseriesQuerySchema = joi.object({
 router.get('/timeseries', asyncWrapper(async (req, res): Promise<any> => {
 
   logger.debug('Raw query parameters', req.query);
-  const {error: queryErr, value: query} = getTimeseriesQuerySchema.validate(req.query);
+  const {error: queryErr, value: query} = getMultipleTimeseriesQuerySchema.validate(req.query);
   if (queryErr) throw new InvalidQueryString(queryErr.message);  
   logger.debug('Validated query parameters', query);
 
   // TODO: Should I be using a populate query parameter here as well? Seems a bit excessive to return as much information as it is currently.
 
   // Pull out the options
-  const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder'];
+  const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder', 'populate'];
   const options = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
