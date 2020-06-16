@@ -83,8 +83,6 @@ router.get('/timeseries', asyncWrapper(async (req, res): Promise<any> => {
   if (queryErr) throw new InvalidQueryString(queryErr.message);  
   logger.debug('Validated query parameters', query);
 
-  // TODO: Should I be using a populate query parameter here as well? Seems a bit excessive to return as much information as it is currently.
-
   // Pull out the options
   const optionKeys = ['limit', 'offset', 'sortBy', 'sortOrder', 'populate'];
   const options = pick(query, optionKeys);
