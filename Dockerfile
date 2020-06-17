@@ -1,6 +1,6 @@
 # Define from what image we want to build from.
-# e.g. latest LTS version 10 of node available from the Docker Hub. Using alpine linux leads to a much smaller final image (https://hub.docker.com/_/node).
-FROM node:10-apline
+# e.g. latest LTS version 10 of node available from the Docker Hub.
+FROM node:10
 
 # Create a directory to hold the application code inside the image.
 WORKDIR /usr/src/app
