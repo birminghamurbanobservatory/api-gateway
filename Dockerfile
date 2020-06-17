@@ -1,6 +1,6 @@
 # Define from what image we want to build from.
 # e.g. latest LTS version 10 of node available from the Docker Hub.
-FROM node:10-alpine
+FROM node:10
 
 # Create a directory to hold the application code inside the image.
 WORKDIR /usr/src/app
