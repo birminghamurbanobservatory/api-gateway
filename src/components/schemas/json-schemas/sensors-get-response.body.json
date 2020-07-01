@@ -57,81 +57,13 @@
           "initialConfig": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "hasPriority": {
-                  "type": "boolean"
-                },
-                "observedProperty": {
-                  "type": "string"
-                },
-                "unit": {
-                  "type": "string"
-                },
-                "hasFeatureOfInterest": {
-                  "type": "string"
-                },
-                "disciplines": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "usedProcedures": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                } 
-              },
-              "required": [
-                "hasPriority",
-                "observedProperty"
-              ],
-              "additionalProperties": false
+              "$ref": "https://api.birminghamurbanobservatory.com/schemas/sensor-config-item.json"
             }
           },
           "currentConfig": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "hasPriority": {
-                  "type": "boolean"
-                },
-                "observedProperty": {
-                  "type": "string"
-                },
-                "unit": {
-                  "type": "string"
-                },
-                "hasFeatureOfInterest": {
-                  "type": "string"
-                },
-                "disciplines": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "usedProcedures": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                } 
-              },
-              "required": [
-                "hasPriority",
-                "observedProperty"
-              ],
-              "additionalProperties": false
+              "$ref": "https://api.birminghamurbanobservatory.com/schemas/sensor-config-item.json"
             }
           },
           "createdAt": {
