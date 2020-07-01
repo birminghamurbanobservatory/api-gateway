@@ -6,6 +6,8 @@ export async function getObservations(where: object, options: object): Promise<a
   const response = await event.publishExpectingResponse('observations.get.request', {
     where,
     options
+  }, {
+    timeout: 15000 // sometimes this request can take a while so let's set the timeout longer.
   });
 
   return {

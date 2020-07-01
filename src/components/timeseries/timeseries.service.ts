@@ -30,6 +30,8 @@ export async function mergeTimeseries(goodIdToKeep, idsToMerge): Promise<{nObser
   const result = await event.publishExpectingResponse('timeseries.merge.request', {
     goodIdToKeep,
     idsToMerge
+  }, {
+    timeout: 15000 // sometimes this request can take a while so let's set the timeout longer.
   }); 
   return result;
 }
@@ -40,6 +42,8 @@ export async function deleteSingleTimeseries(timeseriesId): Promise<void> {
     where: {
       id: timeseriesId
     }
+  }, {
+    timeout: 10000 // might take a while to delete all the observations.
   }); 
   return;
 }
