@@ -6,7 +6,7 @@ import {createPlatform, getPlatforms, getPlatform, updatePlatform, deletePlatfor
 import {validateGeometry} from '../../utils/geojson-validator';
 import {InvalidPlatformUpdates} from './errors/InvalidPlatformUpdates';
 import * as Promise from 'bluebird';
-import {inConditional, proximityCentreConditional} from '../../utils/custom-joi-validations';
+import {stringArrayConditional, proximityCentreConditional} from '../../utils/custom-joi-validations';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
@@ -62,10 +62,10 @@ router.get(`/platforms/:platformId`, asyncWrapper(async (req, res): Promise<any>
 //-------------------------------------------------
 const getPlatformsQuerySchema = joi.object({
   id__begins: joi.string(),
-  id__in: joi.string().custom(inConditional),
+  id__in: joi.string().custom(stringArrayConditional),
   inDeployment: joi.string(),
   isHostedBy: joi.string(), // For exact match of direct host, e.g. west-school
-  isHostedBy__in: joi.string().custom(inConditional), // Find platforms with a direct host in the comma-separated list provided e.g. west-school,east-school
+  isHostedBy__in: joi.string().custom(stringArrayConditional), // Find platforms with a direct host in the comma-separated list provided e.g. west-school,east-school
   isHostedBy__exists: joi.boolean(), // find platforms not hosted by any others, i.e. top-level platforms
   ancestorPlatforms__includes: joi.string(), // platform occurs anywhere in path, e.g. west-school
   // TODO: Possible future additions:

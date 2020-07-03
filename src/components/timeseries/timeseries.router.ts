@@ -8,7 +8,7 @@ import {getSingleTimeseries, getMultipleTimeseries, deleteSingleTimeseries, merg
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {inConditional, ancestorPlatformConditional, kebabCaseValidation, populateObservationConditional} from '../../utils/custom-joi-validations';
+import {stringArrayConditional, ancestorPlatformConditional, kebabCaseValidation, populateObservationConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
@@ -43,19 +43,21 @@ router.get('/timeseries/:timeseriesId', asyncWrapper(async (req, res): Promise<a
 // Get Multiple Timeseries
 //-------------------------------------------------
 const getMultipleTimeseriesQuerySchema = joi.object({
-  id__in: joi.string().custom(inConditional),
+  id__in: joi.string().custom(stringArrayConditional),
   madeBySensor: joi.string(),
-  madeBySensor__in: joi.string().custom(inConditional),
+  madeBySensor__in: joi.string().custom(stringArrayConditional),
   observedProperty: joi.string(),
   aggregation: joi.string(),
-  aggregation__in: joi.string().custom(inConditional),
+  aggregation__in: joi.string().custom(stringArrayConditional),
   unit: joi.string(),
-  unit__in: joi.string().custom(inConditional),
+  unit__in: joi.string().custom(stringArrayConditional),
   unit__exists: joi.boolean(),
   hasFeatureOfInterest: joi.string(),
+  disciplines: joi.string().custom(stringArrayConditional), // an exact match, comma-separated. Can provide disciplines in any order, they will be sorted by the observations-manager before querying against the alphabetical database record.
+  disciplines__not: joi.string().custom(stringArrayConditional), // exludes the exact match
   disciplines__includes: joi.string(),
   hasDeployment: joi.string(),
-  hasDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
+  hasDeployment__in: joi.string().custom(stringArrayConditional), // stringArrayConditional converts common-delimited string to array.
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
   ancestorPlatforms: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school .weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
   ancestorPlatforms__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school

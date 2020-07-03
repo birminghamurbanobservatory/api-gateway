@@ -7,7 +7,7 @@ import * as joi from '@hapi/joi';
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {inConditional} from '../../utils/custom-joi-validations';
+import {stringArrayConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
@@ -52,11 +52,11 @@ router.get('/disciplines/:disciplineId', asyncWrapper(async (req, res): Promise<
 //-------------------------------------------------
 const getSensorsQuerySchema = joi.object({
   id__begins: joi.string(),
-  id__in: joi.string().custom(inConditional),
+  id__in: joi.string().custom(stringArrayConditional),
   listed: joi.boolean(),
   inCommonVocab: joi.boolean(),
   belongsToDeployment: joi.string().pattern(alphanumericPlusHyphenRegex),
-  belongsToDeployment__in: joi.string().custom(inConditional),
+  belongsToDeployment__in: joi.string().custom(stringArrayConditional),
   belongsToDeployment__exists: joi.boolean(),
   search: joi.string(),
   // options

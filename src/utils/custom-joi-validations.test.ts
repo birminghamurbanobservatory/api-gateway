@@ -1,12 +1,12 @@
 import * as joi from '@hapi/joi';
-import {inConditional} from './custom-joi-validations';
+import {stringArrayConditional} from './custom-joi-validations';
 
-describe('Test inConditional method', () => {
+describe('Test stringArrayConditional method', () => {
 
   test('Check it returns an array', () => {
     
     const querySchema = joi.object({
-      inDeployment__in: joi.string().custom(inConditional)
+      inDeployment__in: joi.string().custom(stringArrayConditional)
     });
 
     const exampleQuery = {
@@ -29,7 +29,7 @@ describe('Test inConditional method', () => {
   test('There is an error object when invalid __in query parameter', () => {
     
     const querySchema = joi.object({
-      inDeployment__in: joi.string().custom(inConditional)
+      inDeployment__in: joi.string().custom(stringArrayConditional)
     });
 
     const exampleQuery = {

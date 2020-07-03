@@ -2,7 +2,7 @@ import * as check from 'check-types';
 import {kebabCaseRegex} from './regular-expressions';
 
 
-export function inConditional(value): string[] {
+export function stringArrayConditional(value): string[] {
 
   const items = value.split(',');
 

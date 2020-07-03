@@ -9,7 +9,7 @@ import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {InvalidBody} from '../../errors/InvalidBody';
-import {inConditional} from '../../utils/custom-joi-validations';
+import {stringArrayConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {pick, omit} from 'lodash';
 import {addMetaLinks} from '../common/add-meta-links';
@@ -54,9 +54,9 @@ router.get('/sensors/:sensorId', asyncWrapper(async (req, res): Promise<any> => 
 //-------------------------------------------------
 const getSensorsQuerySchema = joi.object({
   id__begins: joi.string(),
-  id__in: joi.string().custom(inConditional),
+  id__in: joi.string().custom(stringArrayConditional),
   hasDeployment: joi.string(),
-  hasDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
+  hasDeployment__in: joi.string().custom(stringArrayConditional), // stringArrayConditional converts common-delimited string to array.
   hasDeployment__exists: joi.boolean(),
   isHostedBy: joi.string(),
   isHostedBy__exists: joi.boolean(),

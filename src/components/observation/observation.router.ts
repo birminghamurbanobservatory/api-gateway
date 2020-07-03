@@ -11,7 +11,7 @@ import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick, cloneDeep, omit} from 'lodash';
 import {Promise} from 'bluebird';
-import {inConditional, ancestorPlatformConditional, kebabCaseValidation, proximityCentreConditional, populateObservationConditional} from '../../utils/custom-joi-validations';
+import {stringArrayConditional, ancestorPlatformConditional, kebabCaseValidation, proximityCentreConditional, populateObservationConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {queryObjectToQueryString} from '../../utils/query-object-to-querystring';
 import * as check from 'check-types';
@@ -31,24 +31,27 @@ export {router as ObservationRouter};
 const getObservationsQuerySchema = joi.object({
   // filtering
   valueType: joi.string().valid('number', 'text', 'boolean', 'json'),
-  valueType__in: joi.string().custom(inConditional),
+  valueType__in: joi.string().custom(stringArrayConditional),
   madeBySensor: joi.string().pattern(alphanumericPlusHyphenRegex),
-  madeBySensor__in: joi.string().custom(inConditional),
+  madeBySensor__in: joi.string().custom(stringArrayConditional),
   inTimeseries: joi.string().alphanum(), // catches any accidental commas that might be present
-  inTimeseries__in: joi.string().custom(inConditional),
-  inTimeseries__not__in: joi.string().custom(inConditional),
+  inTimeseries__in: joi.string().custom(stringArrayConditional),
+  inTimeseries__not__in: joi.string().custom(stringArrayConditional),
   observedProperty: joi.string().pattern(alphanumericPlusHyphenRegex),
   aggregation: joi.string().pattern(alphanumericPlusHyphenRegex),
-  aggregation__in: joi.string().custom(inConditional),
+  aggregation__in: joi.string().custom(stringArrayConditional),
   unit: joi.string().pattern(alphanumericPlusHyphenRegex),
-  unit__in: joi.string().custom(inConditional),
+  unit__in: joi.string().custom(stringArrayConditional),
   unit__exists: joi.boolean(),
   hasFeatureOfInterest: joi.string().pattern(alphanumericPlusHyphenRegex),
+  disciplines: joi.string().custom(stringArrayConditional), // an exact match, comma-separated. Can provide disciplines in any order, they will be sorted by the observations-manager before querying against the alphabetical database record.
+  disciplines__not: joi.string().custom(stringArrayConditional), // exludes the exact match
   disciplines__includes: joi.string(),
+  // TODO: Add a disciplines__not__includes?
   hasDeployment: joi.string().pattern(alphanumericPlusHyphenRegex), // catches any accidental commas that might be present
-  hasDeployment__in: joi.string().custom(inConditional), // inConditional converts common-delimited string to array.
+  hasDeployment__in: joi.string().custom(stringArrayConditional), // stringArrayConditional converts common-delimited string to array.
   hasDeployment__not: joi.string().pattern(alphanumericPlusHyphenRegex),
-  hasDeployment__not__in: joi.string().custom(inConditional),
+  hasDeployment__not__in: joi.string().custom(stringArrayConditional),
   // if you ever allow the __exists conditional then make sure it doesn't allow unauthenticed users access to get observations from restricted deployments.
   ancestorPlatforms: joi.string().custom(ancestorPlatformConditional), // for an exact match, e.g. west-school.weather-station-1 TODO: could also allow something like west-school.weather-station-1.* for a lquery style filter.
   ancestorPlatforms__includes: joi.string().custom(kebabCaseValidation), // platform occurs anywhere in path, e.g. west-school
