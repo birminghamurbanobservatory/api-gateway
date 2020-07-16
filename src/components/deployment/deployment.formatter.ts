@@ -12,7 +12,7 @@ export function formatIndividualDeployment(deployment: any): object {
   delete deploymentLinked.id;
   deploymentLinked['@type'] = 'Deployment';
   delete deploymentLinked.users;
-  delete deploymentLinked.createdBy;  
+  delete deploymentLinked.createdBy;
   const ordered = orderObjectKeys(deploymentLinked, keyOrder);
   return ordered;
 }
@@ -21,7 +21,7 @@ export function formatIndividualDeployment(deployment: any): object {
 export function formatIndividualDeploymentCondensed(deployment: any): object {
   const linked = formatIndividualDeployment(deployment);
   // Pull out the properties we don't need
-  const removableProps = ['description', 'createdAt', 'updatedAt'];
+  const removableProps = ['createdAt', 'updatedAt'];
   const condensed = omit(linked, removableProps);
   return condensed;
 }
