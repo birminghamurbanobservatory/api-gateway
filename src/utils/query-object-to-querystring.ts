@@ -12,7 +12,10 @@ export function queryObjectToQueryString(query: any): string {
 
     const value = query[key];
 
-    if (check.array(value)) {
+    if (key === 'proximity' && check.nonEmptyObject(value)) {
+      elements.push(`proximityCentre=${value.centre.longitude},${value.centre.latitude}`);
+      elements.push(`proximityRadius=${value.radius}`);
+    } else if (check.array(value)) {
       // Special case for ancestorPlatforms parameter which needs to be dot separated
       const separator = key === 'ancestorPlatforms' ? '.' : ',';
       elements.push(`${key}=${value.join(separator)}`);
