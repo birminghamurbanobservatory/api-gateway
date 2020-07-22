@@ -21,6 +21,10 @@ export function formatIndividualTimeseriesObservation(observation): any {
       validAt: observationLinked.location.validAt
     };
     delete observationLinked.location.validAt;
+    if (observationLinked.location.height) {
+      observationLinked.location.properties.height = observationLinked.location.height;
+    }
+    delete observationLinked.location.height;
     observationLinked.location.type = 'Feature';
     observationLinked.location = orderObjectKeys(observationLinked.location, ['type', 'id', 'geometry', 'properties']);
   }

@@ -94,6 +94,7 @@ router.get('/timeseries/:timeseriesId/observations', asyncWrapper(async (req, re
 
   let jsonResponse = await getTimeseriesObservations(timeseriesId, where, options, req.user);
   jsonResponse = addMetaLinks(jsonResponse, `${config.api.base}/timeseries/${timeseriesId}/observations`, query);
+  // TODO: need some better validation here.
   validateAgainstSchema(jsonResponse, 'timeseries-observations-get-response-body');
   return res.json(jsonResponse);
 
