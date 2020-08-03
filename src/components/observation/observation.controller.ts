@@ -26,6 +26,7 @@ import {getSensor, getSensors} from '../sensor/sensor.service';
 import {formatIndividualSensorCondensed} from '../sensor/sensor.formatter';
 import {getPlatforms, getPlatform} from '../platform/platform.service';
 import {formatIndividualPlatformCondensed} from '../platform/platform.formatter';
+import {deploymentLevelCheck} from '../deployment/deployment-level-check';
 
 
 //-------------------------------------------------
@@ -221,6 +222,36 @@ export async function createObservation(observation, user: ApiUser): Promise<any
   // There's a few steps involved in creating an observation.
   const createdObservation = await observationService.createObservation(observation);
   const observationWithContext = createObservationResponse(createdObservation);
+  return observationWithContext;
+
+}
+
+
+//-------------------------------------------------
+// Update Observation
+//-------------------------------------------------
+export async function updateObservation(observationId: string, updates: any, options: {populate?: string[]} = {}, user: ApiUser): Promise<any> {
+
+  const canUpdateAllObservations = user.permissions.includes('update:observation');
+
+  if (!canUpdateAllObservations) {
+    // When the client isn't a superuser then they will need to have sufficient rights to the deployment this observation is in.
+    const observation = await observationService.getObservation(observationId);
+    if (!observation.hasDeployment) {
+      permissionsCheck(user, 'update:observation'); // This will throw a nice error for us.
+    } else {
+      const deployment = await getDeployment(observation.hasDeployment);
+      // the following also allows users with admin-all:deployments permission
+      deploymentLevelCheck(deployment, user, ['admin', 'engineer']); 
+    }
+  }
+
+  const updatedObservation = await observationService.updateObservation(observationId, updates);
+
+  const populateKeys = options.populate || [];
+
+  const populatedObservation = await populateObservation(updatedObservation, populateKeys);
+  const observationWithContext = createObservationResponse(populatedObservation);
   return observationWithContext;
 
 }

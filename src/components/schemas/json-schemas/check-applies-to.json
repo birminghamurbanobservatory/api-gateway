@@ -1,0 +1,54 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/check-applies-to.json",
+  "title": "check-applies-to",
+  "type": "object",
+  "description": "The appliesTo object in a quality control check. It specifies which observations this check applies to.",
+  "minProperties": 1,
+  "properties": {
+    "madeBySensor": {
+      "type": "string"
+    },
+    "observedProperty": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "hasFeatureOfInterest": {
+      "type": "string"
+    },
+    "hasDeployment": {
+      "type": "string"
+    },
+    "aggregation": {
+      "type": "string"
+    },
+    "disciplines": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "disciplinesIncludes": {
+      "type": "string"
+    },
+    "ancestorPlatforms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ancestorPlatformsIncludes": {
+      "type": "string"
+    },
+    "usedProcedures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "usedProceduresIncludes": {
+      "type": "string"
+    }
+  }
+}

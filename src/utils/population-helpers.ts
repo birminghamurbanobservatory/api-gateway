@@ -29,7 +29,7 @@ export function retrieveAllPropertyIdsFromCollection(collection: any[], key: str
     return updatedIdsSoFar;
   }, []);
 
-  const uniqueIds = uniq(ids);
+  const uniqueIds: string[] = uniq(ids);
 
   return uniqueIds;
 

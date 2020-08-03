@@ -63,6 +63,10 @@ export async function getRoot(): Promise<any> {
         '@id': `${config.api.base}/procedures`,
         label: 'Procedures' 
       },
+      {
+        '@id': `${config.api.base}/checks`,
+        label: 'Checks' 
+      },
     ]
   };
 

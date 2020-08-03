@@ -30,7 +30,7 @@ export function formatIndividualTimeseriesObservation(observation): any {
   }
 
   // Could potentially remove this bit because the data should already be condenced from the observations-manager.
-  const condensed = omit(observationLinked, unnecessaryKeys);
+  const condensed: any = omit(observationLinked, unnecessaryKeys);
   delete condensed.hasResult.unit;
 
   const ordered = orderObjectKeys(condensed, keyOrder);

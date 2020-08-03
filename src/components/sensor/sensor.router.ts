@@ -8,7 +8,6 @@ import {createSensor, getSensor, getSensors, deleteSensor, updateSensor} from '.
 import * as logger from 'node-logger';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
-import {InvalidBody} from '../../errors/InvalidBody';
 import {stringArrayConditional} from '../../utils/custom-joi-validations';
 import {config} from '../../config';
 import {pick, omit} from 'lodash';

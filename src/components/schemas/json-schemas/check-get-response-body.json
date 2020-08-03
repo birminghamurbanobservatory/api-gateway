@@ -1,0 +1,46 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/check-get-response-body.json",
+  "title": "check-get-response-body",
+  "type": "object",
+  "description": "Response for a single check",
+  "properties": {
+    "@context": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/context-array.json"
+    },
+    "@id": {
+      "type": "string",
+      "maxLength": 48,
+      "minLength": 1
+    },
+    "@type": {
+      "type": "string",
+      "const": "Check"
+    },
+    "checkType": {
+      "type:": "string"
+    },
+    "appliesTo": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/check-applies-to.json"
+    },
+    "config": {
+      "type": "object",
+      "description": "Varies depending on the type of check."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "@context",
+    "@id",
+    "@type",
+    "checkType",
+    "appliesTo"
+  ]
+}

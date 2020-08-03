@@ -35,6 +35,7 @@ import {UnitRouter} from '../components/unit/unit.router';
 import {FeatureOfInterestRouter} from '../components/feature-of-interest/feature-of-interest.router';
 import {ProcedureRouter} from '../components/procedure/procedure.router';
 import {AggregationRouter} from '../components/aggregation/aggregation.router';
+import {CheckRouter} from '../components/check/check.router';
 
 
 export const app = express();
@@ -127,6 +128,7 @@ app.use(AggregationRouter);
 app.use(UnitRouter);
 app.use(FeatureOfInterestRouter);
 app.use(ProcedureRouter);
+app.use(CheckRouter);
 
 
 

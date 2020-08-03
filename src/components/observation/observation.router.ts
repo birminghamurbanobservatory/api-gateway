@@ -6,7 +6,7 @@ import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import {InvalidQueryString} from '../../errors/InvalidQueryString';
 import * as logger from 'node-logger';
-import {getObservations, getObservation, deleteObservation, createObservation} from './observation.controller';
+import {getObservations, getObservation, deleteObservation, createObservation, updateObservation} from './observation.controller';
 import {InvalidObservation} from './errors/InvalidObservation';
 import {convertQueryToWhere} from '../../utils/query-to-where-converter';
 import {pick, cloneDeep, omit} from 'lodash';
@@ -19,6 +19,7 @@ import {addMetaLinks} from '../common/add-meta-links';
 import {validateAgainstSchema} from '../schemas/json-schema-validator';
 import {validateGeometry} from '../../utils/geojson-validator';
 import {alphanumericPlusHyphenRegex} from '../../utils/regular-expressions';
+import {InvalidBody} from '../../errors/InvalidBody';
 
 const router = express.Router();
 
@@ -121,7 +122,7 @@ router.get('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
   // Pull out the options
   const optionKeys = ['limit', 'offset', 'onePer', 'sortBy', 'sortOrder', 'populate'];
-  const options = pick(query, optionKeys);
+  const options: any = pick(query, optionKeys);
 
   // Pull out the where conditions (let's assume it's everything except the option parameters)
   const wherePart = omit(query, optionKeys);
@@ -203,6 +204,40 @@ router.post('/observations', asyncWrapper(async (req, res): Promise<any> => {
 
 }));
 
+
+//-------------------------------------------------
+// Update observation
+//-------------------------------------------------
+const observationUpdateBodySchema = joi.object({
+  hasResult: joi.object({
+    // Provide a value of null when you want all flags removing.
+    flags: joi.array().allow(null).min(1).items(joi.string())
+    // TODO: only allow certain flags to be added by the user?
+  }).min(1)
+})
+.min(1)
+.required();
+// TODO: Use a JSON schema instead.
+
+const updateObservationQuerySchema = joi.object({
+  populate: joi.string().custom(populateObservationConditional)
+});
+
+router.patch('/observations/:observationId', asyncWrapper(async (req, res): Promise<any> => {
+
+  const observationId = req.params.observationId;
+
+  const {error: bodyErr, value: updates} = observationUpdateBodySchema.validate(req.body);
+  if (bodyErr) throw new InvalidBody(bodyErr.message);
+
+  const {error: queryErr, value: options} = updateObservationQuerySchema.validate(req.query);
+  if (queryErr) throw new InvalidQueryString(queryErr.message);
+
+  const jsonResponse = await updateObservation(observationId, updates, options, req.user);
+  validateAgainstSchema(jsonResponse, 'observation-get-response-body');
+  return res.json(jsonResponse);
+
+}));
 
 
 //-------------------------------------------------

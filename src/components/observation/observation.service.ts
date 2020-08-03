@@ -56,6 +56,16 @@ export async function saveObservation(observation: any): Promise<any> {
 }
 
 
+export async function updateObservation(observationId: string, updates: any): Promise<any> {
+  const updated = await event.publishExpectingResponse('observation.update.request', {
+    where: {
+      id: observationId
+    },
+    updates
+  });
+  return updated;
+}
+
 
 export async function deleteObservation(observationId: string): Promise<void> {
   // TODO

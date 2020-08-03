@@ -1,0 +1,23 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/check-create-request-body.json",
+  "title": "check",
+  "type": "object",
+  "description": "Permitted check structure during creation.",
+  "properties": {
+    "checkType": {
+      "type:": "string"
+    },
+    "appliesTo": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/check-applies-to.json"
+    },
+    "config": {
+      "type": "object",
+      "description": "Varies depending on the type of check."
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "checkType",
+    "appliesTo"
+  ]
+}

@@ -19,4 +19,5 @@ export const contextLinks = {
   procedure: `${apiBase}/context/procedure${ext}`,
   featureOfInterest: `${apiBase}/context/feature-of-interest${ext}`,
   aggregation: `${apiBase}/context/aggregation${ext}`,
+  check: `${apiBase}/context/check${ext}`,
 };

@@ -1,0 +1,42 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/check.json",
+  "title": "check",
+  "type": "object",
+  "description": "A quality control check.",
+  "properties": {
+    "@id": {
+      "type": "string",
+      "maxLength": 48,
+      "minLength": 1
+    },
+    "@type": {
+      "type": "string",
+      "const": "Check"
+    },
+    "checkType": {
+      "type:": "string"
+    },
+    "appliesTo": {
+      "$ref": "https://api.birminghamurbanobservatory.com/schemas/check-applies-to.json"
+    },
+    "config": {
+      "type": "object",
+      "description": "Varies depending on the type of check."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "@id",
+    "@type",
+    "checkType",
+    "appliesTo"
+  ]
+}

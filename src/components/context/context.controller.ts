@@ -230,3 +230,14 @@ export function getFeatureOfInterestContext(): object {
   };
   return context;
 }
+
+
+//-------------------------------------------------
+// Check
+//-------------------------------------------------
+export function getCheckContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}

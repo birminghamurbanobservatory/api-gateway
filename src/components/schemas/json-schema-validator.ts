@@ -72,6 +72,12 @@ import * as featuresOfInterestGetResponseBodySchema from './json-schemas/feature
 import * as featureOfInterestCreateRequestBodySchema from './json-schemas/feature-of-interest-create-request-body.json';
 import * as featureOfInterestUpdateRequestBodySchema from './json-schemas/feature-of-interest-update-request-body.json';
 import * as featureOfInterestGetResponseBodySchema from './json-schemas/feature-of-interest-get-response-body.json';
+// checks
+import * as checkSchema from './json-schemas/check.json';
+import * as checkGetResponseBodySchema from './json-schemas/check-get-response-body.json';
+import * as checkCreateRequestBodySchema from './json-schemas/check-create-request-body.json';
+import * as checkAppliesToSchema from './json-schemas/check-applies-to.json';
+import * as checksGetResponseBodySchema from './json-schemas/checks.get.response-body.json';
 // other
 import * as locationSchema from './json-schemas/location.json';
 import * as locationCreateSchema from './json-schemas/location-create.json';
@@ -158,6 +164,12 @@ const ajv = new Ajv({
     featureOfInterestCreateRequestBodySchema,
     featureOfInterestUpdateRequestBodySchema,
     featureOfInterestGetResponseBodySchema,
+    // checks
+    checkSchema,
+    checkGetResponseBodySchema,
+    checkCreateRequestBodySchema,
+    checkAppliesToSchema,
+    checksGetResponseBodySchema,
     // extras
     locationSchema,
     locationCreateSchema,

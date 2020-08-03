@@ -13,7 +13,7 @@ export async function getDeployments(where: {public?: boolean; id?: WhereItem; s
   const hasSuperUserPermission = user.permissions.includes('get:deployments');
 
   let response;
-  const updatedWhere = cloneDeep(where);
+  const updatedWhere: any = cloneDeep(where);
 
   //------------------------
   // Superuser
