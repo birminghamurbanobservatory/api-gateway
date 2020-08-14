@@ -26,4 +26,4 @@ export function logRouteErrors(err, req, res, next): void {
 
   next(err);
 
-};
+}
