@@ -74,4 +74,4 @@ export function handleRouteErrors(err, req, res, next): void {
 
   }
 
-};
+}
