@@ -19,6 +19,9 @@
     "public": {
       "type": "boolean"
     },
+    "yourAccessLevel": {
+      "type": "string"
+    },
     "createdAt": {
       "type": "string",
       "format": "date-time"
@@ -31,6 +34,7 @@
   "required": [
     "@id",
     "label",
-    "public"
+    "public",
+    "yourAccessLevel"
   ]
 }

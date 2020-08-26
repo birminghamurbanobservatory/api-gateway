@@ -56,6 +56,6 @@ export function deploymentLevelCheck(deployment: any, user: ApiUser, sufficientL
 
   logger.debug(`User ${user.id ? `'${user.id}'` : '(unauthenticated)'} has '${userLevel}' rights to deployment '${deployment.id}'`);
 
-  return;
+  return userLevel;
 
 }

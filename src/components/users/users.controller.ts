@@ -15,6 +15,7 @@ export async function getDeploymentUsers(deploymentId: string, user: ApiUser): P
   }
 
   // TODO: Need to add some @context.
+  // TODO: Structure this as a collection, i.e. with a member array.
   return deployment.users;
 
 }
