@@ -75,6 +75,9 @@
           "updateLocationWithSensor": {
             "type": "string"
           },
+          "passLocationToObservations": {
+            "type": "boolean"
+          },
           "location": {
             "$ref": "https://api.birminghamurbanobservatory.com/schemas/location.json"
           },

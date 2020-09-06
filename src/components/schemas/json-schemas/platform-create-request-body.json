@@ -28,6 +28,10 @@
       "type": "boolean",
       "default": true
     },
+    "passLocationToObservations": {
+      "type": "boolean",
+      "default": true
+    },
     "location" : {
       "$ref": "https://api.birminghamurbanobservatory.com/schemas/location-create.json"
     }

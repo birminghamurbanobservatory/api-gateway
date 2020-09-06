@@ -23,6 +23,9 @@
     },
     "updateLocationWithSensor": {
       "type": "string"
+    },
+    "passLocationToObservations": {
+      "type": "boolean"
     }
   },
   "minProperties": 1

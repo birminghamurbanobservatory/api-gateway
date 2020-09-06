@@ -22,7 +22,8 @@ const createPermanentHostBodySchema = joi.object({
   id: joi.string(),
   label: joi.string(),
   description: joi.string().allow(''),
-  static: joi.boolean()
+  static: joi.boolean(),
+  passLocationToObservations: joi.boolean().default(true)
 })
 .or('id', 'label')
 .required();
@@ -90,7 +91,8 @@ const updatePermanentHostBodySchema = joi.object({
   label: joi.string(),
   description: joi.string().allow(''),
   static: joi.boolean(),
-  updateLocationWithSensor: joi.string().allow(null)
+  updateLocationWithSensor: joi.string().allow(null),
+  passLocationToObservations: joi.boolean()
 })
 .min(1)
 .required();
