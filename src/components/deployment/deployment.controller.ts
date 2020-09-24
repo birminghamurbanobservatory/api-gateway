@@ -131,7 +131,7 @@ export async function updateDeployment(deploymentId: string, updates: any, user:
 
 export async function deleteDeployment(deploymentId: string, user: ApiUser): Promise<void> {
 
-  const deployment = deploymentService.getDeployment(deploymentId);
+  const deployment = await deploymentService.getDeployment(deploymentId);
   deploymentLevelCheck(deployment, user, ['admin']);
 
   await deploymentService.deleteDeployment(deploymentId);
