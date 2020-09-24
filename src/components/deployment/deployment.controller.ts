@@ -93,7 +93,10 @@ export async function getDeployment(deploymentid: string, user: ApiUser): Promis
 
 export async function createDeployment(deployment, user?: ApiUser): Promise<any> {
 
-  permissionsCheck(user, 'create:deployment');
+  // Anyone can create a deployment, but only superusers can create one that's public and thus will appear on the main public website.
+  if (deployment.public) {
+    permissionsCheck(user, 'publicise:deployment');
+  }
 
   const deploymentToCreate = cloneDeep(deployment);
   if (user.id) {
@@ -109,6 +112,11 @@ export async function createDeployment(deployment, user?: ApiUser): Promise<any>
 
 
 export async function updateDeployment(deploymentId: string, updates: any, user: ApiUser): Promise<any> {
+
+  // Only superusers can update a deployment to be public and thus will appear on the main public website.
+  if (updates.public) {
+    permissionsCheck(user, 'publicise:deployment');
+  }
 
   const deployment = await deploymentService.getDeployment(deploymentId);
   const accessLevel = deploymentLevelCheck(deployment, user, ['admin']);
