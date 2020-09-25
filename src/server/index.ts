@@ -36,6 +36,7 @@ import {FeatureOfInterestRouter} from '../components/feature-of-interest/feature
 import {ProcedureRouter} from '../components/procedure/procedure.router';
 import {AggregationRouter} from '../components/aggregation/aggregation.router';
 import {CheckRouter} from '../components/check/check.router';
+import {DeploymentInviteRouter} from '../components/deployment-invite/deployment-invite.router';
 
 
 export const app = express();
@@ -113,6 +114,7 @@ app.use(SchemaRouter);
 app.use(ContextRouter);
 app.use(DeploymentRouter);
 app.use(UserRouter);
+app.use(DeploymentInviteRouter);
 app.use(PlatformRouter); // must come after the DeploymentRouter
 app.use(SensorRouter); // must come after DeploymentRouter
 app.use(UnknownSensorRouter);

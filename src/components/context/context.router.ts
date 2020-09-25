@@ -1,6 +1,6 @@
 import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
-import {getObservationContext, getCollectionContext, getUnknownSensorContext, getDeploymentContext, getPlatformContext, getSensorContext, getUrbanObservatoryContext, getTimeseriesContext, getProcedureContext, getDisciplineContext, getUnitContext, getFeatureOfInterestContext, getAggregationContext, getObservablePropertyContext, getCheckContext} from './context.controller';
+import {getObservationContext, getCollectionContext, getUnknownSensorContext, getDeploymentContext, getPlatformContext, getSensorContext, getUrbanObservatoryContext, getTimeseriesContext, getProcedureContext, getDisciplineContext, getUnitContext, getFeatureOfInterestContext, getAggregationContext, getObservablePropertyContext, getCheckContext, getDeploymentInviteContext} from './context.controller';
 
 const router = express.Router();  
 
@@ -30,6 +30,10 @@ router.get('/context/deployment.jsonld', asyncWrapper(async (req, res): Promise<
   return res.json(context);
 }));
 
+router.get('/context/deployment-invite.jsonld', asyncWrapper(async (req, res): Promise<any> => {
+  const context = getDeploymentInviteContext();
+  return res.json(context);
+}));
 
 router.get('/context/platform.jsonld', asyncWrapper(async (req, res): Promise<any> => {
   const context = getPlatformContext();

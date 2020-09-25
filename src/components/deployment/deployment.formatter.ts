@@ -3,7 +3,7 @@ import orderObjectKeys from '../../utils/order-object-keys';
 import {contextLinks} from '../context/context.service';
 import {config} from '../../config';
 
-const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'public'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'public', 'yourAccessLevel'];
 
 
 export function formatIndividualDeployment(deployment: any): object {

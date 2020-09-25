@@ -221,7 +221,7 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
 
       if (hostPlatformDeployment.public === true) {
         hasRightsToHostPlatform = true;
-        const userIds = hostPlatformDeployment.users.map((user): string => user.id);
+        const userIds = hostPlatformDeployment.users.map((deploymentUser): string => deploymentUser.id);
         if (userIds.includes(user.id)) {
           hasRightsToHostPlatform = true;
         }

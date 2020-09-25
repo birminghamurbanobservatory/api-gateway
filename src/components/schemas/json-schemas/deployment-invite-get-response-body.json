@@ -1,0 +1,51 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/deployment-invite-get-response-body.json",
+  "title": "deployment-invite-get-response-body",
+  "type": "object",
+  "description": "Response body for a single deployment invite",
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    },
+    "@id": {
+      "type": "string"
+    },
+    "@type": {
+      "type": "string",
+      "const": "DeploymentInvite"
+    },
+    "deploymentId": {
+      "type": "string"
+    },
+    "deploymentLabel": {
+      "type": "string"
+    },
+    "accessLevel": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "engineer",
+        "social",
+        "basic"
+      ]
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "@context",
+    "@id",
+    "@type",
+    "deploymentId",
+    "deploymentLabel",
+    "accessLevel",
+    "expiresAt"
+  ],
+  "additionalProperties": false
+}

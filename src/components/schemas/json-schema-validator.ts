@@ -11,6 +11,9 @@ import * as deploymentsGetResponseBodySchema from './json-schemas/deployments-ge
 import * as deploymentCreateRequestBodySchema from './json-schemas/deployment-create-request-body.json';
 import * as deploymentUpdateRequestBodySchema from './json-schemas/deployment-update-request-body.json';
 import * as deploymentGetResponseBodySchema from './json-schemas/deployment-get-response-body.json';
+// deployment invites
+import * as deploymentInviteCreateRequestBody from './json-schemas/deployment-invite-create-request-body.json';
+import * as deploymentInviteGetResponseBody from './json-schemas/deployment-invite-get-response-body.json';
 // platform
 import * as platformGetResponseBodySchema from './json-schemas/platform-get-response-body.json';
 import * as platformCreateRequestBodySchema from './json-schemas/platform-create-request-body.json';
@@ -104,6 +107,9 @@ const ajv = new Ajv({
     deploymentGetResponseBodySchema,
     deploymentUpdateRequestBodySchema,
     deploymentsGetResponseBodySchema,
+    // deployment invites
+    deploymentInviteCreateRequestBody,
+    deploymentInviteGetResponseBody,
     // platforms
     platformGetResponseBodySchema,
     platformCreateRequestBodySchema,

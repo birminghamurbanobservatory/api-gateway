@@ -31,7 +31,7 @@ export function deploymentLevelCheck(deployment: any, user: ApiUser, sufficientL
     const deploymentIsPublic = deployment.public;
 
     if (user.id) {
-      const matchingUser = deployment.users.find((user): any => user.id === user.id);
+      const matchingUser = deployment.users.find((deploymentUser): any => deploymentUser.id === user.id);
       if (matchingUser) {
         userHasSpecificRights = true;
         userLevel = matchingUser.level;

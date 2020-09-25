@@ -1,0 +1,28 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/deployment-invite-create-request-body.json",
+  "title": "deployment-invite-create-request-body",
+  "type": "object",
+  "description": "Permitted deployment invite structure during creation.",
+  "properties": {
+    "accessLevel": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "engineer",
+        "social",
+        "basic"
+      ]
+    },
+    "expiresIn": {
+      "type": "number",
+      "minLength": 1,
+      "maxLength": 20160,
+      "default": 10080,
+      "description": "in minutes"
+    }
+  },
+  "required": [
+    "accessLevel"
+  ],
+  "additionalProperties": false
+}

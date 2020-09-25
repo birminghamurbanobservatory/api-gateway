@@ -44,6 +44,17 @@ export function getDeploymentContext(): object {
 
 
 //-------------------------------------------------
+// Deployment
+//-------------------------------------------------
+export function getDeploymentInviteContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}
+
+
+//-------------------------------------------------
 // Platform
 //-------------------------------------------------
 export function getPlatformContext(): object {
