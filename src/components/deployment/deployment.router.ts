@@ -29,7 +29,7 @@ const getDeploymentsQuerySchema = joi.object({
   id__begins: joi.string(),
   id__in: joi.string().custom(stringArrayConditional),
   // options
-  mineOnly: joi.boolean(), // Returns just the user's deployments if true, rather than including public deployments too.
+  mineOnly: joi.boolean(), // If false then it gets the user's deployments AND public deployments too.
   limit: joi.number().integer().positive().max(1000).default(100),
   offset: joi.number().integer().min(0).default(0),
   sortBy: joi.string().valid('id').default('id'),
