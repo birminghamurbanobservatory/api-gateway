@@ -7,7 +7,7 @@ import {createPlatformResponse} from '../platform/platform.formatter';
 
 export async function registerToDeployment(deploymentId: string, registrationKey: string, user: ApiUser): Promise<any> {
 
-  const deployment = getDeployment(deploymentId);
+  const deployment = await getDeployment(deploymentId);
 
   deploymentLevelCheck(deployment, user, ['admin', 'engineer']);
 
