@@ -51,7 +51,7 @@ export async function getObservations(where: any, options: {limit?: number; offs
   // If hasDeployment has been specified then check that the user has rights to these deployment(s).
   if (deploymentDefined) {
 
-    const deploymentIdsToCheck = check.string(where.hasDeployment) ? [check.string(where.hasDeployment)] : where.hasDeployment.in;
+    const deploymentIdsToCheck = check.string(where.hasDeployment) ? [where.hasDeployment] : where.hasDeployment.in;
 
     if (canAccessAllDeploymentObservations) {
       // For users that can access all observations, all we need to check here is that the deployment ID(s) they have provided are for deployments that actually exist.

@@ -109,14 +109,15 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
   // N.B. there's no point in having a special 'get:platforms' permission, 'admin-all:deployments' is enough, because I can't see a use case where a specific super user would want to get every platform, but not have access to any other information about the deployment. Also platforms can't exists outside of a deployment.
   const hasSuperUserPermission = user.permissions.includes('admin-all:deployments');
 
+  const deploymentDefined = check.nonEmptyString(where.inDeployment) || (check.nonEmptyObject(where.inDeployment) && check.nonEmptyArray(where.inDeployment.in));
+
   //------------------------
-  // inDeployment specified
+  // Deployment(s) specified
   //------------------------
   // If inDeployment has been specified then check that the user has rights to these deployment(s).
-  if (where.inDeployment && !hasSuperUserPermission) {
+  if (deploymentDefined && !hasSuperUserPermission) {
 
-    // TODO: You'll need to update this if you allow filtering by more than one deployment
-    const deploymentIdsToCheck = [where.inDeployment];
+    const deploymentIdsToCheck = check.string(where.inDeployment) ? [where.inDeployment] : where.inDeployment.in;
 
     let deploymentLevels;
     if (user.id) {
@@ -139,7 +140,7 @@ export async function getPlatforms(where: {inDeployment?: any; isHostedBy: any; 
   // inDeployment unspecified
   //------------------------
   // If no deployment has been specified then get a list of all the public deployments and the user's own deployments.
-  if (!where.inDeployment && !hasSuperUserPermission) {
+  if (!deploymentDefined && !hasSuperUserPermission) {
 
     let usersDeployments = [];
     let publicDeployments = [];

@@ -64,6 +64,7 @@ const getPlatformsQuerySchema = joi.object({
   id__begins: joi.string(),
   id__in: joi.string().custom(stringArrayConditional),
   inDeployment: joi.string(),
+  inDeployment__in: joi.string().custom(stringArrayConditional),
   isHostedBy: joi.string(), // For exact match of direct host, e.g. west-school
   isHostedBy__in: joi.string().custom(stringArrayConditional), // Find platforms with a direct host in the comma-separated list provided e.g. west-school,east-school
   isHostedBy__exists: joi.boolean(), // find platforms not hosted by any others, i.e. top-level platforms
