@@ -218,7 +218,7 @@ export async function updatePlatform(platformId: string, updates: any, user: Api
     } else {
 
       // We need to get these deployments to see if they're public or ones that this user has access to.
-      const hostPlatformDeployment = await getDeployment(hostPlatform.id);
+      const hostPlatformDeployment = await getDeployment(hostPlatform.inDeployment);
 
       if (hostPlatformDeployment.public === true) {
         hasRightsToHostPlatform = true;
