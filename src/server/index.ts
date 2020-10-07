@@ -15,7 +15,7 @@ import morgan = require('morgan');
 import {lookForUserCredentials} from './middleware/authenticator';
 import {SensorRouter} from '../components/sensor/sensor.router';
 import {PlatformRouter} from '../components/platform/platform.router';
-import {UserRouter} from '../components/users/users.router';
+import {UserRouter} from '../components/user/user.router';
 import {PermanentHostRouter} from '../components/permanent-host/permanent-host.router';
 import {ObservationRouter} from '../components/observation/observation.router';
 import {RegisterRouter} from '../components/register/register.router';

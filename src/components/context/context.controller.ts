@@ -252,3 +252,14 @@ export function getCheckContext(): object {
   };
   return context;
 }
+
+
+//-------------------------------------------------
+// User
+//-------------------------------------------------
+export function getUserContext(): object {
+  const context = {
+    '@base': `${apiBase}/`,
+  };
+  return context;
+}

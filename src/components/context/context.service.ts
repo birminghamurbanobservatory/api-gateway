@@ -21,4 +21,5 @@ export const contextLinks = {
   featureOfInterest: `${apiBase}/context/feature-of-interest${ext}`,
   aggregation: `${apiBase}/context/aggregation${ext}`,
   check: `${apiBase}/context/check${ext}`,
+  user: `${apiBase}/context/user${ext}`,
 };
