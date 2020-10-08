@@ -6,6 +6,7 @@ import {permissionsCheck} from '../common/permissions-check';
 import {deploymentLevelCheck} from './deployment-level-check';
 import {createDeploymentsResponse, createDeploymentResponse} from './deployment.formatter';
 import * as check from 'check-types';
+import {Unauthorized} from '../../errors/Unauthorized';
 
 
 export async function getDeployments(where: {public?: boolean; id?: WhereItem; search?: string}, options: any, user: ApiUser): Promise<any> {
@@ -93,15 +94,18 @@ export async function getDeployment(deploymentid: string, user: ApiUser): Promis
 
 export async function createDeployment(deployment, user?: ApiUser): Promise<any> {
 
+  // Must provide authentication to create a deployment
+  if (!user.id) {
+    throw new Unauthorized('Authentication is required to create a deployment.');
+  }
+
   // Anyone can create a deployment, but only superusers can create one that's public and thus will appear on the main public website.
   if (deployment.public) {
     permissionsCheck(user, 'publicise:deployment');
   }
 
   const deploymentToCreate = cloneDeep(deployment);
-  if (user.id) {
-    deploymentToCreate.createdBy = user.id;
-  }
+  deploymentToCreate.createdBy = user.id;
 
   const createdDeployment = await deploymentService.createDeployment(deploymentToCreate);
   createdDeployment.yourAccessLevel = 'admin';
