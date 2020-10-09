@@ -6,14 +6,15 @@ import {formatIndividualSensor} from '../sensor/sensor.formatter';
 import {renameProperties} from '../../utils/rename';
 
 
-const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'static', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'topPlatform', 'location', 'centroid', 'createdAt', 'updatedAt'];
+const keyOrder = ['@context', '@id', '@type', 'label', 'description', 'static', 'inDeployment', 'isHostedBy', 'ancestorPlatforms', 'topPlatform', 'createdUsingRegistrationKey', 'location', 'centroid', 'createdAt', 'updatedAt'];
 
 
 export function formatIndividualPlatform(platform: any): any {
   const platformLinked = cloneDeep(platform);
   platformLinked['@type'] = 'Platform';
-  delete platformLinked.users;
-  delete platformLinked.createdBy;
+  // I don't really want standard users know which permanent host a platform was generated from, but it is useful for them to know if a platform was generated using a registration key.
+  platformLinked.createdUsingRegistrationKey = Boolean(platformLinked.initialisedFrom);
+  delete platformLinked.initialisedFrom;
   // There's some restructuring of the location objects required
   if (platformLinked.location) {
     platformLinked.location.type = 'Feature';

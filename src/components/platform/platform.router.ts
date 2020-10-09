@@ -2,7 +2,7 @@ import express from 'express';
 import {asyncWrapper} from '../../utils/async-wrapper';
 import * as joi from '@hapi/joi';
 import * as logger from 'node-logger';
-import {createPlatform, getPlatforms, getPlatform, updatePlatform, deletePlatform, releasePlatformSensors} from './platform.controller';
+import {createPlatform, getPlatforms, getPlatform, updatePlatform, deletePlatform, releasePlatformSensors, getPlatformRegistrationKey} from './platform.controller';
 import {validateGeometry} from '../../utils/geojson-validator';
 import {InvalidPlatformUpdates} from './errors/InvalidPlatformUpdates';
 import * as Promise from 'bluebird';
@@ -165,3 +165,17 @@ router.delete('/platforms/:platformId/sensors', asyncWrapper(async (req, res): P
 
 }));
 
+
+//-------------------------------------------------
+// Get registration key
+//-------------------------------------------------
+// I.e. the registration key of the permanent host that this platform was initialised from. Useful for users that have no idea what a permanent host is, but need to move a platform to a new deployment. 
+router.get(`/platforms/:platformId/registration-key`, asyncWrapper(async (req, res): Promise<any> => {
+
+  const platformId = req.params.platformId;
+  logger.debug(`Request to get registration key for platform ${platformId}`);
+  const jsonResponse = await getPlatformRegistrationKey(platformId, req.user);
+  validateAgainstSchema(jsonResponse, 'platform-registration-key-get-response-body');
+  return res.json(jsonResponse);
+
+}));

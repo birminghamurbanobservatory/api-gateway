@@ -55,8 +55,8 @@
         "type": "object"
       }
     },
-    "initialisedFrom": {
-      "type": "string"
+    "createdUsingRegistrationKey": {
+      "type": "boolean"
     },
     "updateLocationWithSensor": {
       "type": "string"

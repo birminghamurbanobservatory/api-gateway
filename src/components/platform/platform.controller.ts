@@ -12,6 +12,7 @@ import {recursivelyExtractInDeploymentIds, recursivelyRemoveProtectedHostedPlatf
 import * as logger from 'node-logger';
 import {CollectionOptions} from '../common/collection-options.class';
 import {locationClientToApp} from '../common/location-helpers';
+import {getPermanentHost} from '../permanent-host/permanent-host.service';
 
 
 export async function createPlatform(platform, user): Promise<any> {
@@ -291,6 +292,31 @@ export async function releasePlatformSensors(platformId: string, user: ApiUser):
 
   await platformService.releasePlatformSensors(platformId);
   return;
+
+}
+
+
+
+export async function getPlatformRegistrationKey(platformId: string, user: ApiUser): Promise<any> {
+
+  // First get the platform
+  const platform = await platformService.getPlatform(platformId);
+
+  // Check it actually has a permanentHost
+  if (!platform.initialisedFrom) {
+    throw new Forbidden('This platform was not created using a registration key');
+  }
+
+  // Get its deployment to check if the user has sufficient rights to get the registration key
+  const deployment = await getDeployment(platform.inDeployment);
+  deploymentLevelCheck(deployment, user, ['admin', 'engineer']);
+  
+  // Now get the permanent host in order to get the registration key
+  const permanentHost = await getPermanentHost(platform.initialisedFrom);
+
+  const response = {registrationKey: permanentHost.registrationKey};
+
+  return response;
 
 }
 

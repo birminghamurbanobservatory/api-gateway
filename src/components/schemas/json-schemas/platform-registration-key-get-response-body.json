@@ -1,0 +1,17 @@
+{
+  "$id": "https://api.birminghamurbanobservatory.com/schemas/platform-registration-key-get-response-body.json",
+  "title": "platform-registration-key-get-response-body",
+  "type": "object",
+  "x-tags": [
+    "platforms"
+  ],
+  "properties": {
+    "registrationKey": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "registrationKey"
+  ]
+}

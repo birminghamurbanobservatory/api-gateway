@@ -19,6 +19,8 @@ import * as platformGetResponseBodySchema from './json-schemas/platform-get-resp
 import * as platformCreateRequestBodySchema from './json-schemas/platform-create-request-body.json';
 import * as platformsGetResponseBodySchema from './json-schemas/platforms-get-response-body.json';
 import * as platformUpdateRequestBodySchema from './json-schemas/platform-update-request-body.json';
+import * as platformRegistrationKeyGetResponseBodySchema from './json-schemas/platform-registration-key-get-response-body.json';
+
 // sensor
 import * as sensorCreateRequestBodySchema from './json-schemas/sensor-create-request-body.json';
 import * as sensorGetResponseBodySchema from './json-schemas/sensor-get-response-body.json';
@@ -115,6 +117,7 @@ const ajv = new Ajv({
     platformCreateRequestBodySchema,
     platformsGetResponseBodySchema,
     platformUpdateRequestBodySchema,
+    platformRegistrationKeyGetResponseBodySchema,
     // sensors
     sensorCreateRequestBodySchema,
     sensorGetResponseBodySchema,
