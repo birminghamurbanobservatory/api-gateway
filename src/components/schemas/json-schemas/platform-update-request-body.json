@@ -13,7 +13,10 @@
       "type": "string"
     },
     "isHostedBy": {
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "static": {
       "type": "boolean"
