@@ -41,7 +41,7 @@
     "joi-to-json": "^1.2.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.6.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "method-override": "^3.0.0",
     "morgan": "^1.9.1",
     "node-logger": "github:birminghamurbanobservatory/node-logger#semver:^1.0.0",
